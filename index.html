@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>郑先生 · 个人主页</title>
+  <meta name="description" content="郑先生的个人主页 —— 一间亮着暖灯的像素小店：关于我、联系方式、项目与作品、我的兴趣，以及一个可以随手拖走的像素小人。" />
+  <meta name="theme-color" content="#F7E9D2" />
+  <!-- v2.9：站点图标。取自侧边栏那张半身像（px-hero-portrait.webp 帧 0）的头部，
+       按 32x32 美术像素 1:1 裁出，所以 32px 档是像素级精确的。
+       同时给 .ico 兜底：不认 <link> 的老浏览器只会去要 /favicon.ico。 -->
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="stylesheet" href="css/style.css" />
+<!-- v2.2：配色记忆必须在样式应用之前生效，否则刷新浅色版时会先闪一下深色。
+       此时 <body> 还没解析出来，所以先把 class 挂在 <html> 上，
+       CSS 里用 html.palette-mid body 接住。 -->
+  <script>
+    (function () {
+      try {
+        if (window.localStorage.getItem("px_theme") === "mid") {
+          document.documentElement.classList.add("palette-mid");
+        }
+      } catch (e) { /* 隐私模式下 localStorage 不可用，忽略 */ }
+    })();
+  </script>
+</head>
+<body class="scene--bitmap">
+
+  <!--
+    DIRECTION CONTRACT · v1.3-pixel「像素小店 · 市集」
+
+    THESIS: 主页不是一页纸，是一间亮着暖灯的像素小店。
+            正文的每一块卡片都「长在」场景里 —— 它们是店里钉着的木牌、货架上的木箱、
+            柜台边的意见箱，而不是浮在房间上方的白色文本框。
+    OWN-WORLD: 木质店招 + 串灯 + 墙面壁板 + 木条地板 + 一扇朝外的小窗。
+            所有物件一律「三级色阶（亮面 / 中间调 / 暗面）+ 受光侧边缘光（浅金）」，
+            这是像素画立体感的来源，也是本站与"平涂色块"的分水岭。
+    MOTION: 位移与界面反馈平滑；只有形态切换（眨眼、灯光心跳、光锥明灭、串灯明暗）
+            使用 steps() 逐帧。
+    STORY: 访客 3 秒内知道这是谁、在做什么、怎么联系。
+            可玩：点窗户切换天气、拉一下吊灯的扯线开关全屋灯光、点任意处冒像素爱心。
+    FINISH: 直角、硬边、暖木为主、冷色只作夜景对比；迭代记录见 docs/产品迭代报告.md
+  -->
+
+  <!-- ============================================================
+       像素小店场景（固定全屏，静态装饰层）
+       ============================================================ -->
+  <div class="px-scene" aria-hidden="true">
+
+    <!-- 房间位图背景（独立一层，用于随滚动做轻微视差） -->
+    <div class="px-scene-bg"></div>
+
+    <!-- 墙面 + 壁板（位图模式下让位，作为回退保留） -->
+    <div class="px-wall"></div>
+
+    <!-- 家具：远层（静态，不随滚动移动） -->
+    <div class="px-furn px-furn--far">
+      <!-- 书架：三级木色 + 左侧边缘光 + 每本书带受光面 -->
+      <svg class="px-furn-svg px-furn-shelf" viewBox="0 0 24 40" shape-rendering="crispEdges">
+        <rect x="0" y="0" width="24" height="40" fill="#8B5E3C" />
+        <rect x="0" y="0" width="2" height="40" fill="#C89B6A" />
+        <rect x="22" y="0" width="2" height="40" fill="#6E4A2E" />
+        <rect x="0" y="0" width="24" height="1" fill="#C89B6A" />
+        <rect x="0" y="39" width="24" height="1" fill="#4A2F1E" />
+        <rect x="0" y="1" width="1" height="38" fill="#FFE8B0" />
+        <rect x="2" y="2" width="20" height="36" fill="#4A2F1E" />
+        <rect x="2" y="2" width="1" height="36" fill="#5C3D28" />
+        <!-- 第一层书 -->
+        <rect x="3" y="9" width="2" height="8" fill="#D9644A" />
+        <rect x="3" y="9" width="1" height="8" fill="#E8846A" />
+        <rect x="5" y="7" width="2" height="10" fill="#F2953F" />
+        <rect x="5" y="7" width="1" height="10" fill="#FFB265" />
+        <rect x="7" y="10" width="2" height="7" fill="#FFC94B" />
+        <rect x="7" y="10" width="1" height="7" fill="#FFE08A" />
+        <rect x="10" y="8" width="2" height="9" fill="#7FA860" />
+        <rect x="10" y="8" width="1" height="9" fill="#9EC47C" />
+        <rect x="12" y="9" width="2" height="8" fill="#C89B6A" />
+        <rect x="12" y="9" width="1" height="8" fill="#E0B88A" />
+        <rect x="15" y="7" width="2" height="10" fill="#D9644A" />
+        <rect x="15" y="7" width="1" height="10" fill="#E8846A" />
+        <rect x="17" y="10" width="2" height="7" fill="#F2953F" />
+        <rect x="17" y="10" width="1" height="7" fill="#FFB265" />
+        <!-- 隔板 -->
+        <rect x="2" y="17" width="20" height="2" fill="#8B5E3C" />
+        <rect x="2" y="17" width="20" height="1" fill="#C89B6A" />
+        <!-- 第二层书 -->
+        <rect x="4" y="23" width="2" height="6" fill="#FFC94B" />
+        <rect x="4" y="23" width="1" height="6" fill="#FFE08A" />
+        <rect x="6" y="21" width="2" height="8" fill="#7FA860" />
+        <rect x="6" y="21" width="1" height="8" fill="#9EC47C" />
+        <rect x="8" y="24" width="2" height="5" fill="#C89B6A" />
+        <rect x="8" y="24" width="1" height="5" fill="#E0B88A" />
+        <rect x="11" y="22" width="2" height="7" fill="#F2953F" />
+        <rect x="11" y="22" width="1" height="7" fill="#FFB265" />
+        <rect x="13" y="24" width="2" height="5" fill="#D9644A" />
+        <rect x="13" y="24" width="1" height="5" fill="#E8846A" />
+        <rect x="16" y="21" width="2" height="8" fill="#FFC94B" />
+        <rect x="16" y="21" width="1" height="8" fill="#FFE08A" />
+        <rect x="18" y="24" width="2" height="5" fill="#7FA860" />
+        <rect x="18" y="24" width="1" height="5" fill="#9EC47C" />
+        <!-- 隔板 -->
+        <rect x="2" y="29" width="20" height="2" fill="#8B5E3C" />
+        <rect x="2" y="29" width="20" height="1" fill="#C89B6A" />
+        <!-- 第三层：摞着的木箱 -->
+        <rect x="3" y="31" width="8" height="8" fill="#A87450" />
+        <rect x="3" y="31" width="8" height="1" fill="#C89B6A" />
+        <rect x="3" y="38" width="8" height="1" fill="#6E4A2E" />
+        <rect x="3" y="31" width="1" height="8" fill="#FFE8B0" />
+        <rect x="3" y="34" width="8" height="1" fill="#8B5E3C" />
+        <rect x="13" y="33" width="8" height="6" fill="#C89B6A" />
+        <rect x="13" y="33" width="8" height="1" fill="#E0B88A" />
+        <rect x="13" y="38" width="8" height="1" fill="#6E4A2E" />
+        <rect x="13" y="33" width="1" height="6" fill="#FFE8B0" />
+      </svg>
+
+      <!-- 挂钟：外壳三级 + 边缘光 + 钟面刻度 -->
+      <svg class="px-furn-svg px-furn-clock" viewBox="0 0 16 16" shape-rendering="crispEdges">
+        <rect x="4" y="1" width="8" height="1" fill="#A87450" />
+        <rect x="2" y="2" width="12" height="1" fill="#A87450" />
+        <rect x="1" y="3" width="14" height="2" fill="#A87450" />
+        <rect x="0" y="5" width="16" height="6" fill="#A87450" />
+        <rect x="1" y="11" width="14" height="2" fill="#A87450" />
+        <rect x="2" y="13" width="12" height="1" fill="#A87450" />
+        <rect x="4" y="14" width="8" height="1" fill="#A87450" />
+        <rect x="2" y="2" width="5" height="1" fill="#FFE8B0" />
+        <rect x="1" y="3" width="1" height="5" fill="#FFE8B0" />
+        <rect x="11" y="12" width="4" height="1" fill="#6E4A2E" />
+        <rect x="14" y="6" width="1" height="6" fill="#6E4A2E" />
+        <rect x="3" y="3" width="10" height="10" fill="#FFFDF6" />
+        <rect x="3" y="3" width="10" height="1" fill="#E8DCC8" />
+        <rect x="7" y="4" width="2" height="1" fill="#C89B6A" />
+        <rect x="4" y="7" width="1" height="2" fill="#C89B6A" />
+        <rect x="11" y="7" width="1" height="2" fill="#C89B6A" />
+        <rect x="7" y="11" width="2" height="1" fill="#C89B6A" />
+        <rect x="7" y="5" width="1" height="4" fill="#4A3426" />
+        <rect x="8" y="8" width="3" height="1" fill="#4A3426" />
+        <rect x="7" y="8" width="2" height="2" fill="#D9644A" />
+      </svg>
+    </div>
+
+    <!-- 家具：近层（静态，不随滚动移动） -->
+    <div class="px-furn px-furn--near">
+      <!-- 盆栽：叶片两色阶 + 花盆三级 + 边缘光 -->
+      <svg class="px-furn-svg px-furn-plant" viewBox="0 0 16 18" shape-rendering="crispEdges">
+        <rect x="6" y="0" width="4" height="2" fill="#8FBC6B" />
+        <rect x="4" y="2" width="8" height="2" fill="#7FA860" />
+        <rect x="2" y="4" width="12" height="2" fill="#7FA860" />
+        <rect x="6" y="0" width="2" height="1" fill="#A8D48A" />
+        <rect x="4" y="2" width="3" height="1" fill="#A8D48A" />
+        <rect x="2" y="5" width="12" height="1" fill="#5E8446" />
+        <rect x="12" y="4" width="2" height="2" fill="#5E8446" />
+        <rect x="3" y="6" width="10" height="2" fill="#E07A5F" />
+        <rect x="3" y="6" width="10" height="1" fill="#F2A07B" />
+        <rect x="3" y="7" width="10" height="1" fill="#B44E3A" />
+        <rect x="4" y="8" width="8" height="7" fill="#D9644A" />
+        <rect x="4" y="8" width="2" height="7" fill="#F2A07B" />
+        <rect x="10" y="8" width="2" height="7" fill="#A8432F" />
+        <rect x="4" y="15" width="8" height="1" fill="#A8432F" />
+        <rect x="4" y="6" width="1" height="2" fill="#FFE8B0" />
+      </svg>
+    </div>
+
+    <!-- 地板 + 踢脚线 -->
+    <div class="px-floor"></div>
+
+    <!-- 关灯后的冷色夜景叠加（冷暖对比，只压暗房间不压暗卡片） -->
+    <div class="px-night"></div>
+
+    <!-- 暗角：四周阶梯压暗，把视线收拢到店中央 -->
+    <div class="px-vignette"></div>
+
+    <!-- v2.11：视口锁定的压暗层（关灯时四边四角变暗）。
+         放在 .px-scene 内部是关键 —— .px-scene 是 z-index: 0 的层叠上下文，
+         这一层再高的 z-index 也翻不出场景，所以只压房间、绝不压正文卡片。
+         渐变尺寸按视口算，换分辨率也不会像 --vig-* 那套一样跑到屏幕外。 -->
+    <div class="px-lamp-vig"></div>
+  </div>
+
+<!-- ============================================================
+       炉火 + 暖光 + 猫
+       v1.9：炉火改用 AI 生成的多帧 sprite（assets/px-fire-sheet.webp），
+             5 帧横向排列，靠 background-position + steps() 逐帧播放。
+             背景图 assets/px-room-4.webp 已还原成"空炉膛"。
+             这里共三层：
+             1) .px-fire        —— AI 火焰 sprite，逐帧燃烧
+             2) .px-hearth-glow —— 火光投在炉壁与石面上的暖光，极慢呼吸
+             3) .px-cat         —— 小尺寸，位置由 JS 写 CSS 变量，沿鼠标轨迹跟随
+       ============================================================ -->
+  <div class="px-fire" aria-hidden="true"></div>
+  <div class="px-hearth-glow" aria-hidden="true"></div>
+  <div class="px-cat" aria-hidden="true"></div>
+
+  <!-- v2.5：四件独立道具层。
+       素材是「参考原图重画 + 品红抠底」得到的带 alpha 素材，
+       位置是自动模板匹配对回背景图上原位的结果（见 css 里的同一段注释）。 -->
+  <!-- v2.9：桌面层 —— 直接从底图裁下桌面木板那一条，
+       层级夹在"卡片"与"桌上物品"之间，让桌面能遮住卡片 -->
+  <div class="px-table" aria-hidden="true"></div>
+  <div class="px-prop px-prop--oillamp" aria-hidden="true"></div>
+  <div class="px-prop px-prop--cup" aria-hidden="true"></div>
+  <div class="px-prop px-prop--apples" aria-hidden="true"></div>
+  <div class="px-prop px-prop--fern" aria-hidden="true"></div>
+
+  <!-- v2.6：窗边余晖（晴）/ 雪天窗户四周光晕。
+       排在道具之后，screen 混合才能把桌上那几件也照到；
+       排在前面就成了"光在道具背后"，看着像贴纸。 -->
+  <div class="px-window-sun" aria-hidden="true"></div>
+  <div class="px-window-halo" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       前景遮挡：同一张背景图再叠一遍，只裁出物件所在的窗口
+       窗口里的像素与背景逐像素一致，看不出接缝 ——
+       视觉上就是背景里的木架、木箱蕨类、垂下的串灯把卡片嵌进了房间
+       ============================================================ -->
+  <div class="px-occluder px-occluder--left" aria-hidden="true"></div>
+  <div class="px-occluder px-occluder--right" aria-hidden="true"></div>
+  <div class="px-occluder px-occluder--top" aria-hidden="true"></div>
+
+  <!-- 接触阴影 v2.0 已移进 .main 内部（见 main 起始处）。
+       它原先挂在这里、用 position: fixed + top:0/bottom:0，
+       等于一条和卡片无关的、贯穿整个视口高度的暗带 ——
+       卡片只有一屏的一部分高，带子却在卡片上下方的空白处也照画，
+       于是屏幕上多出一条竖直黑线。只有卡片那么高的阴影才有意义。 -->
+
+  <!-- ============================================================
+       v1.8 近景层：真正独立的前景物件（自带 alpha + 独立视差）
+       比房间滚得更快，并在卡片上投出贴轮廓的硬边投影 ——
+       这是"景深 / 前后层次"的主要来源
+       ============================================================ -->
+  <div class="px-fg px-fg--herbs" aria-hidden="true"></div>
+  <div class="px-fg px-fg--lamp" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       木质店招 + 串灯（顶部）
+       ============================================================ -->
+  <div class="px-signboard" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       窗户（可点击切换窗外天气）
+       ============================================================ -->
+  <button class="px-window" id="pxWindow" type="button" data-sfx="toggle" aria-label="点击切换窗外天气" aria-describedby="pxWindowHint" data-i18n-aria="ui.windowAria">
+    <span class="px-window-view">
+      <canvas class="px-weather" id="pxWeather"></canvas>
+    </span>
+  </button>
+  <span class="sr-only" id="pxWindowHint">点击窗户可以切换窗外的天气</span>
+
+  <!-- ============================================================
+        v3.3：窄屏背景左右平移箭头（只在 ≤820px 显示）
+        用户要求：屏幕左右各加一个 AI 像素风小箭头，点一下背景平移一段，
+        左右各三下正好到背景能走的边界（步长按当前取景自适应，见 JS layoutScene）。
+        桌面端（>820px）不显示 —— 桌面取景本来就居中，且滚动视差是设计的一部分。
+        素材：assets/px-scene-arrow.webp（32x31，1 像素 = 1 CSS 像素），
+        左箭头用 scaleX(-1) 镜像同一张素材（只画了一个朝右的箭头）。
+        命中区 44x44（WCAG 2.5.5），素材本身不缩放 —— 像素图放大就会糊。
+       ============================================================ -->
+  <button class="px-scene-arrow px-scene-arrow--prev" id="pxScenePrev" type="button"
+          aria-label="背景向左移动" data-i18n-aria="ui.scenePrev" data-sfx="click"></button>
+  <button class="px-scene-arrow px-scene-arrow--next" id="pxSceneNext" type="button"
+          aria-label="背景向右移动" data-i18n-aria="ui.sceneNext" data-sfx="click"></button>
+
+  <!-- ============================================================
+       移动端顶部栏
+       ============================================================ -->
+  <header class="mobile-topbar">
+    <button class="menu-btn" id="menuBtn" aria-label="菜单" data-sfx="click">
+      <span></span><span></span><span></span>
+    </button>
+    <span class="mobile-brand" data-i18n="brand">郑先生</span>
+    <div class="lang-switch lang-switch-mobile" id="langToggleMobile" role="switch" aria-label="切换语言" data-sfx="toggle">
+      <span class="lang-switch-thumb"></span>
+      <span class="lang-switch-label is-active" data-lang-opt="zh">中</span>
+      <span class="lang-switch-label" data-lang-opt="en">EN</span>
+    </div>
+  </header>
+
+  <!-- ============================================================
+        v2.11：AI 像素吊灯 + 扯线开关（取代原「暖灯已点亮」徽标）
+       吊灯挂在房间天花板上，是全站唯一的灯光开关：
+       点一下扯线 = 拉一下灯绳（线下坠、灯身跟着沉一下），
+       同时切换整间屋子的明暗（body.lamp-off）。
+       它是"挂在镜头前的东西"，所以放在 .px-scene 之外、层级压过卡片，
+       扯线才点得到。
+       ============================================================ -->
+  <div class="px-pendant" aria-hidden="true">
+    <span class="px-pendant-rope"></span>
+    <img class="px-pendant-shade" src="assets/px-pendant-lamp.webp" alt="" width="62" height="54" />
+  </div>
+  <button class="px-cord" id="pxCord" type="button" aria-pressed="true" data-sfx="toggle" aria-label="开关吊灯" data-i18n-aria="ui.lampAria">
+    <span class="px-cord-line" aria-hidden="true"></span>
+    <span class="px-cord-bead" aria-hidden="true"></span>
+  </button>
+
+  <!-- ============================================================
+       左侧：木质索引栏
+       ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+
+      <div class="sidebar-avatar">
+        <!-- v2.6：半身像素材（两帧眨眼），侧边栏保留浅色牌方框 -->
+        <span class="px-hero-img px-hero-img--big" aria-hidden="true"></span>
+        <span class="sr-only" data-i18n="avatarShort">郑</span>
+      </div>
+
+      <div class="sidebar-name" data-i18n="name">郑先生</div>
+      <div class="sidebar-role" data-i18n="role">学生</div>
+
+      <nav class="nav">
+        <a href="#about" class="nav-link active" data-i18n="nav.about" data-sfx="click">关于我</a>
+        <a href="#contact" class="nav-link" data-i18n="nav.contact" data-sfx="click">联系方式</a>
+        <a href="#projects" class="nav-link" data-i18n="nav.projects" data-sfx="click">项目与作品</a>
+        <a href="#interests" class="nav-link" data-i18n="nav.interests" data-sfx="click">我的兴趣</a>
+        <a href="#feedback" class="nav-link" data-i18n="nav.feedback" data-sfx="click">意见反馈</a>
+      </nav>
+
+      <div class="lang-box">
+        <div class="lang-switch" id="langToggle" role="switch" aria-label="切换语言" data-sfx="toggle">
+          <span class="lang-switch-thumb"></span>
+          <span class="lang-switch-label is-active" data-lang-opt="zh">中</span>
+          <span class="lang-switch-label" data-lang-opt="en">EN</span>
+        </div>
+      </div>
+
+      <!-- v2.2 配色开关：深色木牌（默认）/ 浅色纸笺。状态记在 localStorage -->
+      <div class="theme-box">
+        <div class="theme-switch" id="pxTheme" role="switch" aria-checked="false"
+             aria-label="切换配色" data-i18n-aria="theme.aria" data-sfx="toggle">
+          <span class="theme-switch-thumb"></span>
+          <span class="theme-switch-label is-active" data-theme-opt="dark" data-i18n="theme.dark">深色</span>
+          <span class="theme-switch-label" data-theme-opt="mid" data-i18n="theme.mid">浅色</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-mask" id="sidebarMask"></div>
+
+  <!-- v3.1 音效开关（单按钮）
+       你这一轮的要求：右上角改成一个"按钮"——按下时亮着、写"音效 开"，
+       点一下熄灭、写"音效 关"。位置与尺寸回到"开关前"的原始值
+       （探针 _probe-h.html 实测：桌面 86x38 / top 44 / right 20），
+       两态材质是本轮新画的 px-sfx-btn-on.webp / px-sfx-btn-off.webp。
+       状态仍记在 localStorage 的 px_sfx（"1"/"0"，默认按下）。 -->
+  <button class="sfx-btn" id="sfxToggle" type="button" aria-pressed="true" aria-label="音效开关"
+          data-i18n-aria="ui.sfxAria" data-sfx="toggle">
+    <span class="sfx-btn-label" data-i18n="ui.sfxOnShort">音效 开</span>
+  </button>
+
+  <!-- ============================================================
+       主内容（每块卡片都是店里的一件木器）
+       ============================================================ -->
+  <main class="main" id="main">
+
+    <!-- v2.0：卡片边缘的接触阴影（.px-cast）已彻底移除。
+         它是程序画的硬边暗带，贴着有纹理的墙时必然被读成一条竖直黑线，
+         用户已明确反馈"很影响观感"。卡片已在所有场景物件之上，
+         不再需要这条阴影来表达前后关系。详见 css 里 .px-cast 的说明。 -->
+
+    <!-- 关于我 -->
+    <section class="section section--hero" id="about">
+      <div class="hero-avatar-wrap" id="heroAvatarSlot"></div>
+
+      <!-- v2.11：首屏文字从"半透明承托底"换成两块挂在绳子上的木牌
+           （AI 像素素材 + 九宫格拉伸，树皮边框 24px，比卡片木框的 16px 更粗）。
+           牌 A = 名牌（细长），牌 B = 问候 / 咖啡 / 滚动提示（近方形）。
+           开灯开关不再占首屏 —— 它是挂在房间里的一盏 AI 像素吊灯 + 一根扯线
+           （见页面顶部 .px-pendant / .px-cord）。 -->
+      <div class="hero-panel">
+
+        <!-- 牌 A：名牌 -->
+        <div class="px-sign px-sign--name">
+          <span class="px-sign-rope" aria-hidden="true"></span>
+          <div class="px-sign-face">
+            <h1 class="hero-name" id="heroName" data-i18n="name">郑先生</h1>
+            <p class="hero-role" data-i18n="role">学生</p>
+          </div>
+        </div>
+
+        <!-- 牌 B：问候 + 咖啡（咖啡杯仍是 32x32 AI 素材，1 倍点阵） -->
+        <div class="px-sign px-sign--note">
+          <span class="px-sign-rope" aria-hidden="true"></span>
+          <div class="px-sign-face">
+            <p class="hero-greet" data-i18n="hero.greet">欢迎来到我的个人主页 👋</p>
+            <div class="px-sign-row">
+              <img class="px-icon-cup" src="assets/px-icon-cup.webp" alt="" aria-hidden="true" width="32" height="32" draggable="false" />
+              <p class="px-desk-note" data-i18n="hero.deskNote">泡了杯咖啡，慢慢看。</p>
+            </div>
+            <!-- v2.2 一屏一节之后首屏很干净，需要明确告诉用户"下面还有" -->
+            <div class="scroll-hint">
+              <span class="scroll-hint-arrow" aria-hidden="true"></span>
+              <span data-i18n="hero.scrollHint">向下滚动</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 联系方式：钉在墙上的木牌 + 挂号信信封 -->
+    <section class="section" id="contact">
+      <h2 class="section-title">
+        <svg class="px-svg section-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="10" y="0" width="5" height="6" fill="#D9644A" />
+          <rect x="11" y="1" width="3" height="4" fill="#F2A07B" />
+          <rect x="10" y="0" width="5" height="1" fill="#E8846A" />
+          <rect x="0" y="4" width="16" height="10" fill="#FFFDF6" />
+          <rect x="0" y="4" width="16" height="1" fill="#A87450" />
+          <rect x="0" y="4" width="8" height="1" fill="#FFE8B0" />
+          <rect x="0" y="13" width="16" height="1" fill="#6E4A2E" />
+          <rect x="0" y="5" width="1" height="8" fill="#8B5E3C" />
+          <rect x="15" y="5" width="1" height="8" fill="#6E4A2E" />
+          <rect x="1" y="5" width="1" height="1" fill="#D9644A" />
+          <rect x="2" y="6" width="2" height="1" fill="#D9644A" />
+          <rect x="4" y="7" width="2" height="1" fill="#D9644A" />
+          <rect x="6" y="8" width="4" height="1" fill="#D9644A" />
+          <rect x="10" y="7" width="2" height="1" fill="#D9644A" />
+          <rect x="12" y="6" width="2" height="1" fill="#D9644A" />
+          <rect x="14" y="5" width="1" height="1" fill="#D9644A" />
+        </svg>
+        <span data-i18n="nav.contact">联系方式</span>
+      </h2>
+      <div class="card card--plank">
+        <div class="contact-item">
+          <span class="contact-label" data-i18n="contact.email">邮箱</span>
+          <a class="contact-value" href="mailto:123456@qq.com" data-sfx="click">123456@qq.com</a>
+        </div>
+        <div class="contact-item">
+          <span class="contact-label" data-i18n="contact.phone">电话</span>
+          <a class="contact-value" href="tel:123456789" data-sfx="click">123456789</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 项目与作品：货架上摞着的木箱 -->
+    <section class="section" id="projects">
+      <h2 class="section-title">
+        <svg class="px-svg section-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="0" y="2" width="16" height="12" fill="#A87450" />
+          <rect x="0" y="2" width="16" height="2" fill="#C89B6A" />
+          <rect x="0" y="12" width="16" height="2" fill="#6E4A2E" />
+          <rect x="0" y="2" width="1" height="12" fill="#FFE8B0" />
+          <rect x="0" y="8" width="16" height="1" fill="#8B5E3C" />
+          <rect x="3" y="4" width="10" height="7" fill="#FFFDF6" />
+          <rect x="3" y="4" width="10" height="1" fill="#E8DCC8" />
+          <rect x="5" y="6" width="6" height="1" fill="#D9644A" />
+          <rect x="5" y="8" width="4" height="1" fill="#8B5E3C" />
+        </svg>
+        <span data-i18n="nav.projects">项目与作品</span>
+      </h2>
+      <div class="cards-grid">
+        <div class="card card--crate project-card">
+          <div class="project-tag" data-i18n="projects.tag1">学习辅助</div>
+          <h3 class="project-title" data-i18n="projects.t1">vibe coding 制作学习辅助网页</h3>
+          <p class="project-desc" data-i18n="projects.d1">通过 vibe coding 方式制作的学习辅助网页，帮助更高效地学习。</p>
+        </div>
+        <div class="card card--crate project-card">
+          <div class="project-tag" data-i18n="projects.tag2">游戏</div>
+          <h3 class="project-title" data-i18n="projects.t2">侦探解密游戏《奇迹demo》</h3>
+          <p class="project-desc" data-i18n="projects.d2">一款侦探解密题材的游戏 demo，正在持续打磨中。</p>
+        </div>
+        <div class="card card--crate project-card project-next">
+          <div class="project-tag tag-explore" data-i18n="projects.tag3">探索中</div>
+          <h3 class="project-title" data-i18n="projects.t3">下一步正在探索中！</h3>
+          <p class="project-desc" data-i18n="projects.d3">更多有趣的想法正在孵化，敬请期待。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 我的兴趣：挂了一墙的小木牌 -->
+    <section class="section" id="interests">
+      <h2 class="section-title">
+        <svg class="px-svg section-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="1" y="0" width="4" height="1" fill="#D9644A" />
+          <rect x="11" y="0" width="4" height="1" fill="#D9644A" />
+          <rect x="0" y="1" width="6" height="1" fill="#D9644A" />
+          <rect x="10" y="1" width="6" height="1" fill="#D9644A" />
+          <rect x="0" y="2" width="7" height="1" fill="#D9644A" />
+          <rect x="9" y="2" width="7" height="1" fill="#D9644A" />
+          <rect x="0" y="3" width="16" height="4" fill="#D9644A" />
+          <rect x="15" y="3" width="1" height="4" fill="#B44E3A" />
+          <rect x="1" y="7" width="14" height="1" fill="#D9644A" />
+          <rect x="13" y="7" width="2" height="1" fill="#B44E3A" />
+          <rect x="2" y="8" width="12" height="1" fill="#D9644A" />
+          <rect x="11" y="8" width="3" height="1" fill="#B44E3A" />
+          <rect x="3" y="9" width="10" height="1" fill="#D9644A" />
+          <rect x="4" y="10" width="8" height="1" fill="#D9644A" />
+          <rect x="5" y="11" width="6" height="1" fill="#D9644A" />
+          <rect x="6" y="12" width="4" height="1" fill="#D9644A" />
+          <rect x="7" y="13" width="2" height="1" fill="#D9644A" />
+          <rect x="1" y="1" width="3" height="1" fill="#F2A07B" />
+          <rect x="1" y="2" width="3" height="1" fill="#F2A07B" />
+          <rect x="1" y="3" width="3" height="1" fill="#F2A07B" />
+        </svg>
+        <span data-i18n="nav.interests">我的兴趣</span>
+      </h2>
+      <div class="card card--board">
+        <div class="tags">
+          <span class="tag" data-i18n="interests.i1" data-sfx="click">乒乓球</span>
+          <span class="tag" data-i18n="interests.i2" data-sfx="click">武术</span>
+          <span class="tag" data-i18n="interests.i3" data-sfx="click">散步</span>
+          <span class="tag" data-i18n="interests.i4" data-sfx="click">游戏</span>
+          <span class="tag" data-i18n="interests.i5" data-sfx="click">音乐</span>
+          <span class="tag" data-i18n="interests.i6" data-sfx="click">写剧本</span>
+          <span class="tag" data-i18n="interests.i7" data-sfx="click">捣鼓奇怪的东西</span>
+        </div>
+        <p class="px-desk-note" data-i18n="interests.note">爱好不多，但都很上头。</p>
+      </div>
+    </section>
+
+    <!-- 意见反馈：柜台边的意见箱 -->
+    <section class="section" id="feedback">
+      <h2 class="section-title">
+        <svg class="px-svg section-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="6" y="0" width="5" height="4" fill="#FFFDF6" />
+          <rect x="6" y="3" width="5" height="1" fill="#DCC7A2" />
+          <rect x="7" y="1" width="3" height="1" fill="#8B5E3C" />
+          <rect x="0" y="3" width="16" height="11" fill="#A87450" />
+          <rect x="0" y="3" width="16" height="1" fill="#C89B6A" />
+          <rect x="0" y="13" width="16" height="1" fill="#6E4A2E" />
+          <rect x="0" y="3" width="1" height="11" fill="#FFE8B0" />
+          <rect x="0" y="10" width="16" height="1" fill="#8B5E3C" />
+          <rect x="4" y="6" width="8" height="2" fill="#2A1D14" />
+          <rect x="4" y="6" width="8" height="1" fill="#4A3426" />
+          <rect x="4" y="5" width="8" height="1" fill="#FFE8B0" opacity="0.55" />
+        </svg>
+        <span data-i18n="nav.feedback">意见反馈</span>
+      </h2>
+      <div class="card card--box">
+        <form class="feedback-form" id="feedbackForm" novalidate>
+          <!-- v2.15b：除邮箱外全部必填（required 只作语义与无障碍用，
+               实际校验由 script.js 接管，因为表单是 novalidate）。
+               姓名栏的备注走 placeholder，见 i18n 的 form.namePh。 -->
+          <label class="field">
+            <span class="field-label" data-i18n="form.name">姓名</span>
+            <input type="text" name="name" maxlength="100" required
+                   data-i18n-ph="form.namePh" placeholder="请输入姓名（可以不填写真实姓名）" />
+          </label>
+          <!-- v2.15：新增「与主页人的关系」，与姓名并排成第一行。
+               选项文案走 i18n（<option> 也吃 data-i18n），value 用固定英文键，
+               切语言只换显示，入库的值始终稳定。 -->
+          <label class="field">
+            <span class="field-label" data-i18n="form.relation">与主页人的关系</span>
+            <select name="relation" required>
+              <option value="" data-i18n="form.pick">请选择</option>
+              <option value="friend" data-i18n="relation.friend">朋友</option>
+              <option value="family" data-i18n="relation.family">家人</option>
+              <option value="classmate" data-i18n="relation.classmate">同学</option>
+              <option value="colleague" data-i18n="relation.colleague">同事</option>
+              <option value="online" data-i18n="relation.online">网友</option>
+              <option value="recruiter" data-i18n="relation.recruiter">面试官 / HR</option>
+              <option value="other" data-i18n="relation.other">其他</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label" data-i18n="form.email">邮箱</span>
+            <input type="email" name="email" maxlength="200"
+                   data-i18n-ph="form.emailPh" placeholder="请输入邮箱（选填）" />
+          </label>
+          <!-- v2.15：新增「反馈针对的设备」。注意是"你这次反馈的是哪个设备上的问题"，
+               不是自动检测提交设备 —— 所以做成下拉让访客自己说。 -->
+          <label class="field">
+            <span class="field-label" data-i18n="form.device">反馈针对的设备</span>
+            <select name="device" required>
+              <option value="" data-i18n="form.pick">请选择</option>
+              <option value="desktop" data-i18n="device.desktop">电脑端</option>
+              <option value="mobile" data-i18n="device.mobile">手机端</option>
+              <option value="tablet" data-i18n="device.tablet">平板</option>
+            </select>
+          </label>
+          <!-- v2.2：加 field--wide，让意见内容在"姓名 / 邮箱并排"的表单里占整行 -->
+          <label class="field field--wide">
+            <span class="field-label" data-i18n="form.msg">意见内容</span>
+            <textarea name="message" rows="4" maxlength="5000" required
+                      data-i18n-ph="form.msgPh" placeholder="请写下您的意见或建议"></textarea>
+          </label>
+          <button type="submit" class="submit-btn" data-sfx="click" data-i18n="form.submit">提交</button>
+          <p class="form-tip" data-i18n="form.tip">提交后我们会尽快处理，感谢您的反馈。</p>
+        </form>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span class="footer-cat" aria-hidden="true">
+        <svg class="px-svg" viewBox="0 0 16 8" shape-rendering="crispEdges">
+          <rect x="2" y="3" width="10" height="4" fill="#C89B6A" />
+          <rect x="3" y="1" width="3" height="2" fill="#C89B6A" />
+          <rect x="9" y="1" width="3" height="2" fill="#C89B6A" />
+          <rect x="12" y="0" width="2" height="2" fill="#C89B6A" />
+          <rect x="2" y="3" width="10" height="1" fill="#E0B88A" />
+          <rect x="2" y="6" width="10" height="1" fill="#8B5E3C" />
+          <rect x="4" y="4" width="1" height="1" fill="#4A3426" />
+          <rect x="9" y="4" width="1" height="1" fill="#4A3426" />
+          <rect x="11" y="6" width="1" height="1" fill="#D9644A" />
+        </svg>
+      </span>
+      <span data-i18n="footer">© 2026 郑先生 · 个人主页</span>
+    </footer>
+  </main>
+
+  <!-- ============================================================
+       浮动像素小人 + 对话气泡
+       ============================================================ -->
+  <div class="float-avatar-wrap" id="floatAvatarWrap" aria-hidden="true">
+    <div class="speech-bubble" id="speechBubble"></div>
+    <button class="float-avatar" id="floatAvatar" aria-label="像素小人" data-sfx="pop">
+      <!-- v2.6：全身素材（待机两帧 + 走路两帧），已经没有方框了 -->
+      <span class="px-hero-img px-hero-img--float" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <!-- 点击粒子层 -->
+  <canvas class="px-particles" id="pxParticles" aria-hidden="true"></canvas>
+
+  <!-- 像素提示条 -->
+  <div class="px-toast" id="pxToast" role="status" aria-live="polite">
+    <span class="px-toast-icon" aria-hidden="true">
+      <svg class="px-svg" viewBox="0 0 12 12" shape-rendering="crispEdges">
+        <rect x="1" y="1" width="10" height="10" fill="#7FA860" />
+        <rect x="1" y="1" width="10" height="1" fill="#9EC47C" />
+        <rect x="1" y="10" width="10" height="1" fill="#5E8446" />
+        <rect x="3" y="6" width="2" height="2" fill="#FFFDF6" />
+        <rect x="5" y="4" width="2" height="2" fill="#FFFDF6" />
+        <rect x="7" y="3" width="2" height="2" fill="#FFFDF6" />
+      </svg>
+    </span>
+    <span class="px-toast-text" id="pxToastText"></span>
+  </div>
+
+  <!-- v2.15：反馈入库配置（Supabase 地址 + anon key）。
+       必须排在 script.js 前面 —— script.js 读的是 window.FEEDBACK_CONFIG。 -->
+  <script src="js/feedback-config.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
