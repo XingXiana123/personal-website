@@ -577,11 +577,13 @@
   function openSidebar() {
     sidebar.classList.add("open");
     sidebarMask.classList.add("show");
+    syncSignTopbar();   // v3.4：窄屏牌组要让开侧边栏（函数在本文件第 10 节）
   }
 
   function closeSidebar() {
     sidebar.classList.remove("open");
     sidebarMask.classList.remove("show");
+    syncSignTopbar();
   }
 
   if (menuBtn) {
@@ -877,16 +879,38 @@
   var ROPE_MAX = 250;    // 绳子最长：用户要求「加长到 250px 左右」
   var ROPE_MIN = 24;     // 最短：牌顶不会撞到天花板
   var ROPE_SLACK = 40;   // 初始留出可继续往下拉的余量
-  var ROPE_GAP = 24;     // 窄屏两块牌上下堆叠时，至少留一个格子的缝
+  var ROPE_GAP = 24;     // 窄屏两块牌上下堆叠时，至少留一个格子的缝（拖拽用）
   var TAUT_MS = 260;     // 拉到头绷紧抖动的时长（与 CSS 动画一致）
+  /* v3.4（用户裁定）：窄屏绳子从「屏幕最上沿」垂下，并且缩短一些。
+     · ROPE_NARROW 原口径下算出的是 210（250 - SLACK 40），缩短 34px 取 176；
+       牌 A 的顶因此从文档 y 282 提到 176 —— 绳子明显短了一截，
+       顶上还多出屏幕最上沿那 56px 的一段（"从最上沿垂下来"）。
+     · ROPE_CLEAR 是下限：绳再短，牌顶就会撞上吊灯灯罩（灯罩底 = 102）、
+       或右上角那扇小窗的底边（窗顶 72 + 高 93 = 165）。
+       屏幕实在放不下时宁可整组溢出首屏（滚动看），也不让灯/窗咬住牌子。
+     · ROPE_TUCK 是牌 B 绳头压进牌 A 框里的那 4px（与 CSS 里绳盒多出的 4px 同源）。 */
+  var ROPE_NARROW = 176;
+  var ROPE_CLEAR = 172;
+  var ROPE_TUCK = 4;
+  var TOPBAR_H = 56;     // 窄屏顶栏高度（css 2646 实测 56；牌的降级开关按它判断）
   var signRope = Array.prototype.slice.call(document.querySelectorAll(".px-sign"));
   var signPanel = document.querySelector(".hero-panel");
+
+  /* 窄屏判定（v3.4 从 16-B 搬到这里）：
+     第 10 节的 layoutSigns / 拖拽守卫、第 16-B 的取景、箭头状态都要用它，
+     而 layoutSigns 在本节末尾就会执行一次 —— 留在 16-B 的话那时 NARROW_Q
+     还没赋值（var 只有声明被提升），窄屏首帧会静默按桌面规则布局。 */
+  var NARROW_Q = "(max-width: 820px)";
+
+  function isNarrow() {
+    return !!(window.matchMedia && window.matchMedia(NARROW_Q).matches);
+  }
 
   function signNum(v) { return v ? +v : 0; }
 
   /* 牌子的竖向位置只由两件事决定：
        __pin  = 绳子上端在文档里的 y（钉住不动，只能靠改绳长上下）
-       __rope = 绳长  ⇒  牌顶 = __pin + __rope
+       __rope = 绳长  →  牌顶 = __pin + __rope
      transform 只负责把「牌顶」和「牌的自然顶」的差补上。
      手拖位移只留横向（dataset.dx），竖向一律走绳长。 */
   function applySign(sign) {
@@ -906,9 +930,9 @@
   }
 
   /* 每块牌的绳长区间：只有两块牌横向真的叠在一起（窄屏上下堆叠）才互相约束，
-     桌面两块牌左右并排 ⇒ 各拖各的、行程都是满的 [24, 250]。
+     桌面两块牌左右并排 → 各拖各的、行程都是满的 [24, 250]。
      上界再抬一次到不低于当前绳长，保证初始位置一定合法；
-     lo 最后夹一次不让它超过 hi ⇒ 区间永远不会塌成单点（卡死）。 */
+     lo 最后夹一次不让它超过 hi → 区间永远不会塌成单点（卡死）。 */
   function signRanges() {
     var boxes = signRope.map(function (s) {
       var r = s.getBoundingClientRect();
@@ -983,6 +1007,31 @@
     }, TAUT_MS);
   }
 
+  /* v3.4：窄屏「绳子从最上沿垂下」的降级开关。
+     两块牌要压过顶栏（窄屏 CSS 里 51 / 50）才看得见 0..56px 那一段绳子；
+     可牌组一旦滚进顶栏、或侧边栏/遮罩打开时，牌就会盖住顶栏、汉堡键和侧边栏
+     （遮罩 35 / 侧边栏 40 都在 51 之下），所以这两种情况必须放回文档层（9 / 8）。
+     判据是【绳子的下端】（= 牌 A 的顶）有没有走到顶栏下沿：
+     绳子上端在文档 y=0，牌顶在 y=176，视口里牌顶 = 176 - 滚动量。
+     牌顶还在 56 以下时，牌本身没碰到顶栏；压过顶栏的只是绳子那一段，
+     而 0..56 正是要被看见的部分。牌顶一到 56（滚动 120px），
+     整条绳子都钻到顶栏后面了（顶栏不透明、盖住 0..56），
+     此刻再降级，屏幕上看不出任何变化 —— 这就是这个切换"无感"的原因。
+     早先误用了【绳子上端】（= -滚动量，永远 <= 56），
+     结果页面停在顶部时就一直降级，绳子那一段反而被顶栏挡掉了。 */
+  function syncSignTopbar() {
+    if (!signPanel) return;
+    if (!isNarrow()) {
+      signPanel.classList.remove("is-under-topbar");
+      return;
+    }
+    var masked = !!(sidebar && sidebar.classList.contains("open")) ||
+                 !!(sidebarMask && sidebarMask.classList.contains("show"));
+    var ropeBottom = signRope.length
+      ? signRope[0].getBoundingClientRect().bottom : Infinity;
+    signPanel.classList.toggle("is-under-topbar", masked || ropeBottom <= TOPBAR_H);
+  }
+
   /* 绳子从「这一节的天花板」垂下来，绳长受屏幕高度限制（不同屏幕绳子的
      可见范围本来就不一样）：还要放得下整组牌才行 */
   function layoutSigns() {
@@ -1006,16 +1055,45 @@
       sign.dataset.dx = 0;
       sign.__natTop = Math.round(sign.getBoundingClientRect().top + window.scrollY);
     });
-    signRope.forEach(function (sign) {
-      /* 绳子上端：桌面两块牌并排 ⇒ 都在天花板上（__natTop 相同、groupBase 相同）。
-         窄屏牌 B 在牌 A 下面，绳长仍是 210，上端就落在牌 A 背后 ——
-         不给它单独拉到天花板，否则牌 A 上方会同时出现四条绳子。 */
-      sign.__pin = sign.__natTop + groupBase - rope;
-      sign.__rope = rope;
+    /* v3.4（用户裁定）：手机端绳子从【屏幕最上沿】垂下来，而且缩短一些。
+       原口径的"天花板" = anchorY = 这一节顶 = 文档 y 72，正好落在顶栏下沿
+       那条棕灰线上 —— 绳子从那里开始，读起来就是"挂在顶栏下面"，
+       正是用户说的"顶端定位错误"。
+       窄屏改成以文档 y=0 为绳子上端：groupBase = 绳长 − 牌 A 的自然顶，
+       两块牌共用这一个位移，于是牌 A 的绳上端落在 0（见下面的 __pin 算式）。
+       绳长取 ROPE_NARROW（176，比原来的 210 短 34px —— 用户要"绳子缩短一些"）；
+       只有屏幕真的放不下（avail 更小）时才缩到 ROPE_CLEAR：再短牌顶就会撞上
+       吊灯灯罩或右上角那扇小窗的底边，宁可整组溢出首屏（滚动看）。 */
+    var narrow = isNarrow();
+    var ropes = signRope.map(function () { return rope; });
+    if (narrow && signRope.length) {
+      var avail = window.innerHeight - padBottom - signPanel.offsetHeight;
+      var ropeA = Math.max(ROPE_CLEAR, Math.min(ROPE_NARROW, avail));
+      ropes[0] = ropeA;
+      groupBase = Math.round(ropeA - signRope[0].__natTop);   // → 牌 A 的绳上端 = 文档 y 0
+      if (signRope.length > 1) {
+        /* 牌 B：绳头系在牌 A 的下沿（压进 ROPE_TUCK 那 4px，读作"绳头在牌背面"），
+           绳只跨过两块牌之间那道缝。缝按实测取（窄屏 .hero-panel 是
+           flex-direction: column + gap: 72），不去猜 CSS 的数字。 */
+        var ropeGapPx = Math.round(signRope[1].__natTop -
+          (signRope[0].__natTop + signRope[0].offsetHeight));
+        ropes[1] = Math.max(ROPE_MIN, ropeGapPx + ROPE_TUCK);
+      }
+    }
+    signRope.forEach(function (sign, i) {
+      /* 绳子上端：桌面两块牌并排 → 都在天花板上（__natTop 相同、groupBase 相同）。
+         窄屏（v3.4）：牌 A 的 groupBase 已按 ropeA 反算过，__pin 落在 0；
+         牌 B 共用同一条 groupBase、只为它自己那条短绳反推 __pin →
+         它的绳上端正好落在牌 A 的底边往下 ROPE_TUCK 处。
+         旧口径下牌 B 的绳长与牌 A 相同（210），上端落在牌 A 背后 138px ——
+         那是"绳子和木牌没对好"的那种挂法。 */
+      sign.__pin = sign.__natTop + groupBase - ropes[i];
+      sign.__rope = ropes[i];
       applySign(sign);
     });
-    signRanges();   // 绳长区间（静态，见 signRanges 注释）
-    signClampX();   // 横拖边界（窗户左缘 / 屏幕边缘）
+    signRanges();       // 绳长区间（静态，见 signRanges 注释）
+    signClampX();       // 横拖边界（窗户左缘 / 屏幕边缘）
+    syncSignTopbar();   // v3.4：窄屏牌组"从最上沿垂下"的降级开关（见函数注释）
   }
 
   /* 拖拽：拖哪块牌都行 —— 横拖平移、竖拖改绳长 */
@@ -1023,6 +1101,11 @@
 
   signRope.forEach(function (sign) {
     sign.addEventListener("pointerdown", function (e) {
+      /* v3.4（用户裁定）：手机端吊牌不许手动移动 —— 手指落在牌上时，
+         手势交还页面（滚动），牌不动。CSS 那边也把 touch-action 改回 pan-y，
+         两层都留着：任一层改动漏掉都不会把牌拖走。
+         桌面/平板（>820px）行为完全不变：拖动对象 = 整块牌。 */
+      if (isNarrow()) return;
       nDrag.sign = sign;
       nDrag.active = true;
       nDrag.moved = false;
@@ -1077,6 +1160,17 @@
   layoutSigns();
   window.addEventListener("load", layoutSigns);
   window.addEventListener("resize", layoutSigns);
+  /* v3.4：窄屏"从最上沿垂下"的降级开关要跟着滚动走（见 syncSignTopbar）。
+     rAF 节流：每次滚动只读一次 rect、切一次类，不跟视差抢帧。 */
+  var signTopRaf = false;
+  window.addEventListener("scroll", function () {
+    if (signTopRaf) return;
+    signTopRaf = true;
+    window.requestAnimationFrame(function () {
+      signTopRaf = false;
+      syncSignTopbar();
+    });
+  }, { passive: true });
 
   initFloat();
 
@@ -1215,7 +1309,9 @@
   var SCENE_PAD_Y = 120;       // 上下各留出 >=54px 的视差余量，保证不露边
   var SCENE_ANCHOR_Y = 0.55;   // 背景图垂直方向的对齐锚点
   var DESK_ART_RIGHT = 648;    // 桌面剪影 px-table.webp（648x259 @ 底图 0,686）的右边缘
-  var NARROW_Q = "(max-width: 820px)";
+  /* v3.4：NARROW_Q / isNarrow() 搬到了第 10 节 —— layoutSigns 在第 10 节末尾
+     就要跑一次，那时这里的赋值还没执行（var 只提升声明）→ 窄屏首帧会静默
+     按桌面规则布局（吊牌挂在 72、拖拽守卫失效）。函数名与语义都不变。 */
 
   /* v3.3（用户裁定）：窄屏背景左右平移
      · 屏幕左右各一枚箭头（.px-scene-arrow，见 CSS），点一下背景平移一段；
@@ -1229,9 +1325,7 @@
   var panStep = 0;      // -3..3：负 = 往左看，正 = 往右看，0 = 默认取景
   var panUI = null;     // {sync}，由 initScenePan 填；layoutScene 每次重算后调它
 
-  function isNarrow() {
-    return !!(window.matchMedia && window.matchMedia(NARROW_Q).matches);
-  }
+  /* isNarrow() 定义见第 10 节开头（v3.4 从这儿搬走的，理由见上面那条注释） */
 
   function layoutScene() {
     var vw = window.innerWidth;
@@ -1250,8 +1344,12 @@
          底图比视口窄时 minOx 是正数，夹到 0 —— 极端比例下退化成不可平移。 */
       var minOx = Math.min(vw - SCENE_IMG_W * scale, 0);
       var stepRight = (cam - minOx) / PAN_STEPS;   // 往右看：ox 变小
-      var stepLeft = (0 - cam) / PAN_STEPS;        // 往左看：ox 变大
-      ox = panStep >= 0 ? cam - panStep * stepRight : cam - panStep * stepLeft;
+      /* v3.4（用户裁定）：取消往左。
+         旧口径还有一条「往左」的步长（(0 - cam) / PAN_STEPS，≈155px/档），
+         三档之后 ox 推到 0 = 底图左缘贴屏幕左缘，用户不要这个视角；
+         左侧那枚箭头也已从 index.html 删掉。现在 panStep 只有 0..3 三档，
+         默认取景（cam，画面中段）永远是最左边那一档。 */
+      ox = cam - panStep * stepRight;
       // 兜底夹紧：任何一档都不许露白（背景图必须始终铺满视口）
       if (ox > 0) ox = 0;
       if (ox < minOx) ox = minOx;
@@ -1266,36 +1364,39 @@
 
     /* v3.3：窄屏的固定件状态在这里统一同步（视口一变就要刷新）——
        ① 小人在窄屏是固定件（CSS 的 .float-avatar-wrap.is-fixed）
-       ② 两枚箭头的 disabled 状态跟着当前档位走 */
+       ② 那枚「往右看」箭头的状态跟着当前档位走（v3.4 起只剩一枚） */
     var wrap = document.getElementById("floatAvatarWrap");
     if (wrap) wrap.classList.toggle("is-fixed", isNarrow());
     if (panUI) panUI.sync();
   }
 
-  /* v3.3：两枚平移箭头的点击与边界状态。
-     到头了就把按钮 disabled（CSS 里 .px-scene-arrow[disabled] 压到 30% 透明），
-     用户能看到"还剩几下"；桌面端箭头是 display:none，状态照样同步，
-     免得把窗口从窄拖宽再拖回来时档位和按钮对不上。 */
+  /* v3.4：只剩一枚「往右看」箭头（用户裁定：初始取景别动，取消往左）。
+     v3.3 的「左右各三下到边界 + 到头 disabled」被改掉两处：
+     ① 左侧那枚按钮已从 index.html 删除，这里只接右箭头；
+     ② 右端不再用真 disabled —— 真 disabled 会把 click 一起吞掉，
+        而到右端再点一下要能回到默认取景（panStep 0），这是取消往左之后
+        唯一的回程。改挂 .is-end（CSS 只改观感：30% 透明 + 默认光标）。
+     桌面端箭头是 display:none，状态照样同步，免得窗口从窄拖宽再拖回来时对不上。 */
   function initScenePan() {
-    var prev = document.getElementById("pxScenePrev");
     var next = document.getElementById("pxSceneNext");
-    if (!prev || !next) return;
+    if (!next) return;
 
     function sync() {
       var narrow = isNarrow();
-      prev.disabled = !narrow || panStep <= -PAN_STEPS;
-      next.disabled = !narrow || panStep >= PAN_STEPS;
+      next.disabled = !narrow;
+      next.classList.toggle("is-end", narrow && panStep >= PAN_STEPS);
+      next.setAttribute("aria-disabled", (narrow && panStep >= PAN_STEPS) ? "true" : "false");
     }
 
     function go(delta) {
-      if (!isNarrow()) return;
-      var t = Math.max(-PAN_STEPS, Math.min(PAN_STEPS, panStep + delta));
+      if (!isNarrow() || delta <= 0) return;      // v3.4：没有往左这条路了
+      var t = panStep + delta;
+      if (t > PAN_STEPS) t = 0;                   // 到右端再点一下 = 回到默认取景
       if (t === panStep) return;
       panStep = t;
       layoutScene();   // 内部会回调 panUI.sync()
     }
 
-    prev.addEventListener("click", function () { go(-1); });
     next.addEventListener("click", function () { go(1); });
 
     panUI = { sync: sync };
@@ -2043,7 +2144,7 @@
     initCardLift();
     initTheme();
     initFx();
-    initScenePan();   // v3.3：先接上两枚平移箭头，再让 initParallax 首次 layoutScene
+    initScenePan();   // v3.4：先接上那枚「往右看」箭头，再让 initParallax 首次 layoutScene
     initParallax();
     initLamp();
     initWeather();

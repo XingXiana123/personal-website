@@ -2,10 +2,15 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- v3.4：手机端禁掉双指缩放与双击放大（maximum-scale / user-scalable 对 iOS 10+ 无效，
+       真正生效的是 css/style.css 里窄屏的 html { touch-action: pan-y }）。
+       interactive-widget=resizes-content：键盘弹出时缩内容视口，固定层跟着缩，不留白边。 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
   <title>郑先生 · 个人主页</title>
   <meta name="description" content="郑先生的个人主页 —— 一间亮着暖灯的像素小店：关于我、联系方式、项目与作品、我的兴趣，以及一个可以随手拖走的像素小人。" />
-  <meta name="theme-color" content="#F7E9D2" />
+  <!-- v3.4：#F7E9D2（浅米）→ #2E2419（墙面木色），对齐位图场景底色。
+       手机端原本会在地址栏/状态栏露一条浅色，与深色房间接在一起很扎眼。 -->
+  <meta name="theme-color" content="#2E2419" />
   <!-- v2.9：站点图标。取自侧边栏那张半身像（px-hero-portrait.webp 帧 0）的头部，
        按 32x32 美术像素 1:1 裁出，所以 32px 档是像素级精确的。
        同时给 .ico 兜底：不认 <link> 的老浏览器只会去要 /favicon.ico。 -->
@@ -248,16 +253,17 @@
   <span class="sr-only" id="pxWindowHint">点击窗户可以切换窗外的天气</span>
 
   <!-- ============================================================
-        v3.3：窄屏背景左右平移箭头（只在 ≤820px 显示）
+        v3.3：窄屏背景平移箭头（只在 ≤820px 显示）
         用户要求：屏幕左右各加一个 AI 像素风小箭头，点一下背景平移一段，
         左右各三下正好到背景能走的边界（步长按当前取景自适应，见 JS layoutScene）。
         桌面端（>820px）不显示 —— 桌面取景本来就居中，且滚动视差是设计的一部分。
         素材：assets/px-scene-arrow.webp（32x31，1 像素 = 1 CSS 像素），
-        左箭头用 scaleX(-1) 镜像同一张素材（只画了一个朝右的箭头）。
         命中区 44x44（WCAG 2.5.5），素材本身不缩放 —— 像素图放大就会糊。
+        v3.4：**删掉左侧那一枚**。用户要求「初始取景别动，取消往左」——
+        默认取景本来就在画面中段，往左推会一路看到底图左缘（露馅）。
+        现在只剩往右三档；右端再点一下 = 回到默认取景（JS go() 里的回环），
+        这是取消往左之后唯一的回程。
        ============================================================ -->
-  <button class="px-scene-arrow px-scene-arrow--prev" id="pxScenePrev" type="button"
-          aria-label="背景向左移动" data-i18n-aria="ui.scenePrev" data-sfx="click"></button>
   <button class="px-scene-arrow px-scene-arrow--next" id="pxSceneNext" type="button"
           aria-label="背景向右移动" data-i18n-aria="ui.sceneNext" data-sfx="click"></button>
 

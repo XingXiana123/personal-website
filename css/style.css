@@ -3542,9 +3542,9 @@ body.lamp-off .px-occluder {
 
 /* ---------- ① 背景左右平移箭头（只 ≤820px 出现） ----------
    素材 assets/px-scene-arrow.webp（32x31）由 AI 生成 → tools/px-prep.py
-   抠品红底 + 裁水印 + 最近邻归一而成，只画了朝右的一枚 ——
-   左箭头用 scaleX(-1) 镜像同一张，这样左右两枚的像素格完全一致，
-   不会出现"一边锐一边糊"。命中区给 44x44（WCAG 2.5.5），
+   抠品红底 + 裁水印 + 最近邻归一而成，只画了朝右的一枚。
+   v3.4（用户裁定：取消往左）左侧那枚已随按钮一起删除 —— 原先靠
+   scaleX(-1) 镜像同一张素材的规则也一并退场。命中区仍给 44x44（WCAG 2.5.5），
    素材本身仍按 1:1 画（background-size 32x31），不缩放、不重采样。 */
 .px-scene-arrow {
   display: none;
@@ -3573,27 +3573,20 @@ body.lamp-off .px-occluder {
     transition: opacity 0.18s var(--px-ease);
   }
 
-  .px-scene-arrow--prev {
-    left: 2px;
-    transform: translateY(-50%) scaleX(-1);
-  }
-
+  /* v3.4：只剩往右这一枚（--prev 的 left:2px + scaleX(-1) 已随按钮删除） */
   .px-scene-arrow--next {
     right: 2px;
     transform: translateY(-50%);
   }
 
   /* 按下：像素风不做缩放过渡（缩放会重采样像素格），只压暗一档 */
-  .px-scene-arrow--prev:active,
   .px-scene-arrow--next:active {
     opacity: 0.7;
   }
 
-  /* 已经到边界：半透明表示"到头了"，同时 JS 会给它加 disabled */
-  .px-scene-arrow[disabled] {
-    opacity: 0.3;
-    cursor: default;
-  }
+  /* 到右端（v3.4）：不能再挂真 disabled —— 到右端再点一下要能回到默认取景，
+     真 disabled 会把那次点击一起吞掉，回程就没了。JS 改加 .is-end，
+     只改观感（不涉及 disabled 语义），规则见文件末尾 v3.4 节。 */
 
   /* ---------- ② 浮动小人：固定在右下角（音效钮正上方） ----------
      用户裁定：移动端小人待在音效键正上方。
@@ -3691,3 +3684,147 @@ body.lamp-off .px-occluder {
   }
 }
 
+/* ============================================================
+   v3.4 窄屏补丁（用户裁定 · 六件事）：吊牌不许拖 / 不露白 / 禁缩放 /
+   顶端定位 / 牌 B 挂法 / 取消往左
+
+   为什么全部写在文件末尾（同 v3.3 的手法）：这一节要盖掉的都是同权重的
+   普通声明（.px-pendant 的 top、.px-sign 的 touch-action…），
+   同权重下后出现的规则胜出 —— 写在前面的媒体查询里会被反盖回来。
+   全部关在 max-width: 820px 里，桌面端（>820px）一个像素都不动。
+   取舍与验收口径见 docs/v3.4-临时计划.md。
+   ============================================================ */
+@media (max-width: 820px) {
+  /* ---------- ② 背景之外不再露白/灰 ----------
+     根因：body 的底色是 --px-cream = #FFF6E4（近白），html 没有底色；
+     固定层 .px-scene 只盖住布局视口那一块 —— 键盘弹出、橡皮筋回弹、
+     地址栏收起时露出来的那一条就是近白色，和深色房间接在一起很扎眼。
+     这里把底色对齐位图场景（.px-scene 的 background-color = #2E2419）：
+     露出来的也是墙面木色，视觉上只是"房间再往外一点"。
+     overscroll-behavior: none 顺手关掉 Android 下拉刷新与 iOS 回弹白边。 */
+  html,
+  body {
+    background-color: #2E2419;
+    overscroll-behavior: none;
+  }
+
+  /* ---------- ③ 禁双指缩放 / 双击放大 ----------
+     index.html 的 viewport 已加了 maximum-scale=1.0 / user-scalable=no，
+     但 iOS 10+ 明确忽略 user-scalable=no —— 真正生效的是这一条：
+     touch-action 的"有效值"是元素自身与所有祖先的交集，写在 html 上
+     就等于给整页封顶为"只允许竖向平移"，捏合缩放与双击放大都被拒。
+     竖向滚动、滚动视差、站内所有点击都不受影响（站内没有横向滑动手势）。 */
+  html {
+    touch-action: pan-y;
+  }
+
+  /* ---------- ① 吊牌不许手动移动 ----------
+     根因：.px-sign 带着 touch-action: none（css 3482，牌 A 又在自己那条
+     3019 里单独写了一份），把整块牌上的滚动手势全吃掉；牌 300x192 正盖在
+     首屏正中，手指落上去只能拖牌。
+     改成 pan-y：手势交还页面，牌子只在桌面/平板（>820px）还能拖。
+     基础规则保持原样，靠"同权重、后出现者胜"覆写（.px-sign--name
+     比 .px-sign 多一个类，所以两条都要写）。
+     JS 侧还有第二道 guard（pointerdown 里 isNarrow() 直接 return）：
+     即使将来 JS 改动漏掉，手指也不会把牌拖走。 */
+  .px-sign,
+  .px-sign--name {
+    touch-action: pan-y;
+    cursor: default;
+  }
+
+  /* 绳子是纯装饰，别挡住它划过的地方。
+     牌组从最上沿垂下之后，绳子会划过顶栏的那一条（0..56px）；
+     绳子若仍能接收指针事件，顶栏那几像素宽的范围内点不动东西。
+     另外这也顺手解掉一个老问题：牌 B 的绳盒与牌同宽、会罩住牌 A 的牌面，
+     曾经要靠 z-index 9 > 8 才能保证牌 A 收得到 pointerdown（见 3520 行），
+     现在绳子不参与命中测试，这层隐患也一起消失了。 */
+  .px-sign-rope {
+    pointer-events: none;
+  }
+
+  /* ---------- ④ 吊灯与吊牌绳都从屏幕最上沿垂下 ----------
+     吊灯：桌面版本体就是 top: 0（css 2892，挂在房间天花板上），
+     v2.11 为了躲开顶栏把它按到 top: 56px（= 顶栏高），扯线整体 +56
+     （98 + 56 = 154）—— 于是灯与绳都从顶栏下沿那条棕灰线垂下来，
+     就是用户看到的"顶端定位错误"。窄屏把这两个值压回桌面基值。
+     z-index 51 → 52：v3.3 用户裁定"吊灯叠在顶栏之上"，所以灯已经压过
+     顶栏（50）；现在两块牌也要抬到 51/50 才看得见 0..56 那一段绳子，
+     灯必须再高一层（52），否则牌 A 左侧那根绳子会从灯罩前面划过去
+     （灯是"挂在镜头前的东西"，绳子得从灯后面过）。 */
+  .px-pendant {
+    top: 0;
+    z-index: 52;
+  }
+
+  .px-cord {
+    top: 98px;
+    z-index: 52;
+  }
+
+  /* ---------- ④ 两块牌压过顶栏，才看得见最上沿垂下来的绳子 ----------
+     顶栏 z-index 50（css 2638），牌要显示 0..56 那一段绳子就得在它之上。
+     牌 A 仍高于牌 B（51 > 50），绳头藏在 A 框后的读法不变。
+     滚动/开侧边栏时由 JS 加 .hero-panel.is-under-topbar 放回 9/8。 */
+  .hero-panel .px-sign--name {
+    z-index: 51;
+  }
+
+  .hero-panel .px-sign--note {
+    z-index: 50;
+  }
+
+  /* 降级：牌顶一碰顶栏（或遮罩打开）就回到文档层。
+     判据在 JS 里是【绳子下端 = 牌 A 的顶】<= 56（css 里的 51/50 才成立）：
+     牌顶 176，滚到 120px 时牌顶贴上顶栏下沿，整条绳子已经钻到顶栏后面，
+     所以这个降级看不见；没有它，滚动时整块牌会盖住顶栏与汉堡键。 */
+  .hero-panel.is-under-topbar .px-sign--name {
+    z-index: 9;
+  }
+
+  .hero-panel.is-under-topbar .px-sign--note {
+    z-index: 8;
+  }
+
+  /* ---------- ⑤ 两块牌的绳距锁成同一档（227px） ----------
+     实测（v3.4 探针）：窄屏两块牌宽度并不相等 ——
+       390 视口：牌 A 300（被 max-width 300 夹住）、牌 B 343（撑满容器）
+       360 视口：牌 A 300、牌 B 321
+       320 视口：两块都被容器压到 281
+     所以「把牌 B 的内缩改成某个固定值」这条路走不通：内缩写 44
+     只在 343 上刚好对上（343 - 88 - 9 = 246 ≠ 227），写 32 在 343 上
+     是 270 ≠ 227，在 281 上又变成 184 ≠ 208。宽度在变，固定内缩必然打架。
+     改成按中轴锁死：两根绳各偏离牌中心 113.5px（= 227 / 2），
+     牌的宽窄由两侧留白吸收 ⇒ 任何宽度下绳距都是 227，且左右对称。
+     对牌 A 是等价改写：300 宽时中轴仍是 36.5 / 263.5、绳结仍是 28，
+     与桌面同宽时逐像素一致；只有容器把牌 A 也压到 300 以下时才真正
+     改变取值 —— 那时牌 B 同样被压窄，两块牌依旧对齐。
+     background-position 的百分比基准是 (容器宽 - 图宽)：绳瓦片 9 宽，
+     取 calc(50% - 113.5px) 时瓦片中心 = W/2 - 113.5，正好落在 ±113.5。 */
+  .px-sign--name .px-sign-rope,
+  .px-sign--note .px-sign-rope {
+    background-position: calc(50% - 113.5px) 0, calc(50% + 113.5px) 0;
+  }
+
+  /* 绳结 17 宽、骑在绳瓦片中心：左偏移 = 113.5 - 8.5 = 105 ⇒
+     相对牌中心的左边缘 = calc(50% - 122px)（300 宽时 = 28px，与原值相同） */
+  .px-sign--name .px-sign-rope::before,
+  .px-sign--note .px-sign-rope::before {
+    left: calc(50% - 122px);
+  }
+
+  .px-sign--name .px-sign-rope::after,
+  .px-sign--note .px-sign-rope::after {
+    right: calc(50% - 122px);
+  }
+
+  /* ---------- ⑥ 取消往左：只剩一枚箭头 ----------
+     左侧那枚按钮已从 index.html 删除（默认取景本来就在画面中段，
+     往左推会一路看到底图左缘）。右边这枚到第 4 下会回到默认取景
+     （JS go() 里的回环），所以不能再用真 disabled —— 真 disabled
+     会把点击一起吞掉，回程就没了。改挂 .is-end：只改观感。 */
+  .px-scene-arrow.is-end {
+    opacity: 0.3;
+    cursor: default;
+  }
+}
