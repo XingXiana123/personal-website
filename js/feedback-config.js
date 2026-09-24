@@ -18,7 +18,7 @@
 window.FEEDBACK_CONFIG = {
   /* 站点版本号：每次迭代同步更新，提交反馈时自动带上（入库到 site_version 列）。
      访客只会看到页面，不会看到这个常量。 */
-  siteVersion: "v3.4",
+  siteVersion: "v3.5",
 
   /* Supabase 项目地址，形如 https://xxxxxxxxxxxx.supabase.co（结尾不要带斜杠） */
   supabaseUrl: "https://maglfnvwlzbjiezqdarn.supabase.co/rest/v1/",

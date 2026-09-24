@@ -258,12 +258,18 @@
         左右各三下正好到背景能走的边界（步长按当前取景自适应，见 JS layoutScene）。
         桌面端（>820px）不显示 —— 桌面取景本来就居中，且滚动视差是设计的一部分。
         素材：assets/px-scene-arrow.webp（32x31，1 像素 = 1 CSS 像素），
+        左箭头用 scaleX(-1) 镜像同一张素材（只画了一个朝右的箭头）。
         命中区 44x44（WCAG 2.5.5），素材本身不缩放 —— 像素图放大就会糊。
-        v3.4：**删掉左侧那一枚**。用户要求「初始取景别动，取消往左」——
-        默认取景本来就在画面中段，往左推会一路看到底图左缘（露馅）。
-        现在只剩往右三档；右端再点一下 = 回到默认取景（JS go() 里的回环），
-        这是取消往左之后唯一的回程。
+        v3.4：删掉左侧那一枚（用户要求「初始取景别动，取消往左」）。
+        v3.5（用户裁定②）：**左侧那一枚回来了**。用户口径是
+        「开始的那个位置就当作最左边，往左的箭头是灰的，用户往右边走的时候
+          才能再往左 —— 重新规定边界而已」——
+        边界口径没变（panStep 仍是 0..3，0 = 默认取景 = 最左档），
+        改的是「不能往左」由箭头灰掉（.is-end）来表达，而不是把按钮删掉；
+        同时撤销 v3.4 的「右端再点一下回默认取景」回环：两端走满都灰掉。
        ============================================================ -->
+  <button class="px-scene-arrow px-scene-arrow--prev" id="pxScenePrev" type="button"
+          aria-label="背景向左移动" data-i18n-aria="ui.scenePrev" data-sfx="click"></button>
   <button class="px-scene-arrow px-scene-arrow--next" id="pxSceneNext" type="button"
           aria-label="背景向右移动" data-i18n-aria="ui.sceneNext" data-sfx="click"></button>
 

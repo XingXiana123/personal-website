@@ -11,7 +11,10 @@
    * ============================================================ */
   var I18N = {
     zh: {
-      brand: "郑先生",
+      /* v3.5（用户裁定③）：顶栏标题从「郑先生」改成「电脑端体验更佳」——
+         brand 这个词条全站只有窄屏顶栏 .mobile-brand 在用
+         （侧边栏用的是 name / role，见下面两行），所以直接改值即可。 */
+      brand: "电脑端体验更佳",
       name: "郑先生",
       role: "学生",
       avatar: "郑",
@@ -110,7 +113,8 @@
       "hover.submit": "新人一个，手下留情，不要骂我..."
     },
     en: {
-      brand: "Mr. Zheng",
+      /* v3.5（用户裁定③）：与中文 brand 同步 —— 窄屏顶栏提示去电脑上体验 */
+      brand: "Best viewed on desktop",
       name: "Mr. Zheng",
       role: "Student",
       avatar: "Zheng",
@@ -888,9 +892,21 @@
      · ROPE_CLEAR 是下限：绳再短，牌顶就会撞上吊灯灯罩（灯罩底 = 102）、
        或右上角那扇小窗的底边（窗顶 72 + 高 93 = 165）。
        屏幕实在放不下时宁可整组溢出首屏（滚动看），也不让灯/窗咬住牌子。
-     · ROPE_TUCK 是牌 B 绳头压进牌 A 框里的那 4px（与 CSS 里绳盒多出的 4px 同源）。 */
-  var ROPE_NARROW = 176;
-  var ROPE_CLEAR = 172;
+     · ROPE_TUCK 是牌 B 绳头压进牌 A 框里的那 4px（与 CSS 里绳盒多出的 4px 同源）。
+
+     v3.5（用户裁定①「绳再短一些」）：
+     · ROPE_NARROW 176 → 120（再短 56px，比 v3.4 又短 32%）；
+       牌 A 的顶 = 120（v3.4 是 176），牌 B 的顶 = 376，整组仍放得下首屏。
+     · ROPE_CLEAR 172 → 112 一并下移：算式是
+       max(ROPE_CLEAR, min(ROPE_NARROW, avail))，下限不下移的话
+       一旦 avail < 172 就会夹回 172，比目标值还长、退化。
+     · 原来那条「或右上角那扇小窗的底边（165）」的约束在 v3.5 已经消失
+       —— 窗户不再被挪到右上角，改成贴着底图那扇窗（见 css 窗户段），
+       所以下限只剩灯罩底 102，120 > 102 仍留 18px 余量。
+     · 副作用（已知，可接受）：扯线 #pxCord 是 z-index 52、牌 A 是 51，
+       绳短之后扯线与灯珠会叠在牌面左上（x 91~116）——仍点得到。 */
+  var ROPE_NARROW = 120;
+  var ROPE_CLEAR = 112;
   var ROPE_TUCK = 4;
   var TOPBAR_H = 56;     // 窄屏顶栏高度（css 2646 实测 56；牌的降级开关按它判断）
   var signRope = Array.prototype.slice.call(document.querySelectorAll(".px-sign"));
@@ -968,8 +984,10 @@
      坑：.px-window 这个热区盖的是【玻璃】（底图坐标 1174 起 227x211），
      用户要的是碰到窗框（含框线，底图坐标 1151 起）就停 —— 框厚 =
      (1174 - 1151) = 23 底图像素，所以要按 --px-scale 换成屏幕像素再往左退。
-     往左不许拖出屏幕。窗户在窄屏是居中的一条横幅、跟牌子上下不重叠，
-     这时不给右边界，免得把牌子硬拽回来。 */
+     往左不许拖出屏幕。窄屏 v3.5 起窗户与桌面同源（贴着底图那扇窗、
+     跟着 --px-ox 一起走），但窄屏整条拖拽路径本来就是关的（isNarrow 直接
+     return），所以这条右边界只服务桌面端；真要在窄屏放开拖拽，
+     这里的判据（窗在牌右侧 + 竖向重叠才给右边界）依然成立。 */
   var WIN_FRAME_ART_L = 1151;   // 窗框（含框线）左缘，底图像素
   var WIN_GLASS_ART_L = 1174;   // 玻璃左缘 = .px-window 热区，底图像素
   function signClampX() {
@@ -1012,21 +1030,28 @@
      可牌组一旦滚进顶栏、或侧边栏/遮罩打开时，牌就会盖住顶栏、汉堡键和侧边栏
      （遮罩 35 / 侧边栏 40 都在 51 之下），所以这两种情况必须放回文档层（9 / 8）。
      判据是【绳子的下端】（= 牌 A 的顶）有没有走到顶栏下沿：
-     绳子上端在文档 y=0，牌顶在 y=176，视口里牌顶 = 176 - 滚动量。
+     绳子上端在文档 y=0，牌顶在 y=120（v3.5 起，v3.4 是 176），
+     视口里牌顶 = 120 - 滚动量。
      牌顶还在 56 以下时，牌本身没碰到顶栏；压过顶栏的只是绳子那一段，
-     而 0..56 正是要被看见的部分。牌顶一到 56（滚动 120px），
+     而 0..56 正是要被看见的部分。牌顶一到 56（滚动 64px），
      整条绳子都钻到顶栏后面了（顶栏不透明、盖住 0..56），
      此刻再降级，屏幕上看不出任何变化 —— 这就是这个切换"无感"的原因。
      早先误用了【绳子上端】（= -滚动量，永远 <= 56），
      结果页面停在顶部时就一直降级，绳子那一段反而被顶栏挡掉了。 */
   function syncSignTopbar() {
     if (!signPanel) return;
+    var masked = !!(sidebar && sidebar.classList.contains("open")) ||
+                 !!(sidebarMask && sidebarMask.classList.contains("show"));
+    /* v3.5（用户裁定④）：侧边栏/遮罩打开时把吊灯与扯线降层 —— 它们窄屏取
+       z-index 52（"叠在顶栏之上"那套），而侧边栏只有 40、遮罩 35，
+       打开时会盖不住吊灯。规则写在 css 末尾 ⑦ 节（body.is-masked），
+       只在窄屏生效。类始终同步（不受下面窄屏 early-return 影响），
+       免得关了侧边栏还留着降层状态。 */
+    document.body.classList.toggle("is-masked", masked);
     if (!isNarrow()) {
       signPanel.classList.remove("is-under-topbar");
       return;
     }
-    var masked = !!(sidebar && sidebar.classList.contains("open")) ||
-                 !!(sidebarMask && sidebarMask.classList.contains("show"));
     var ropeBottom = signRope.length
       ? signRope[0].getBoundingClientRect().bottom : Infinity;
     signPanel.classList.toggle("is-under-topbar", masked || ropeBottom <= TOPBAR_H);
@@ -1315,14 +1340,18 @@
 
   /* v3.3（用户裁定）：窄屏背景左右平移
      · 屏幕左右各一枚箭头（.px-scene-arrow，见 CSS），点一下背景平移一段；
-     · 「左右各三下正好到边界」—— 步长按当前取景自适应，不是固定值：
-       往右看（底图右缘贴屏幕右缘）与往左看（底图左缘贴屏幕左缘）各把
-       自己那侧的余量三等分。默认取景偏右，两侧余量本来就不等，
-       所以两个方向的步长一般不相等 —— 用户要的就是"三下到头"。
+     · 步长按当前取景自适应，不是固定值：往右看（底图右缘贴屏幕右缘）
+       把那一侧的余量三等分 —— 用户要的是"三下到头"。
+       默认取景偏右，所以左边没有余量、也就没有"往左三档"这回事。
      · 平移只改 --px-ox：底图和吃底图坐标的元素（桌上三件物品 / 壁炉火 /
-       窗边余晖）一起走；窄屏的窗户、猫、小人、吊灯是脱钩的固定件，不跟着走。 */
-  var PAN_STEPS = 3;    // 每个方向三下到边界
-  var panStep = 0;      // -3..3：负 = 往左看，正 = 往右看，0 = 默认取景
+       窗边余晖 / v3.5 起的窗户）一起走；窄屏的猫、小人、吊灯是脱钩的
+       固定件，不跟着走。
+     v3.5（用户裁定②）：左侧那枚箭头恢复，但**边界口径不变** ——
+     初始取景就是左边界（0 档），左箭头在这一档灰掉；panStep 仍只有 0..3。
+     也就是说 v3.4「删掉左箭头」与 v3.5「左箭头灰着」表达的是同一件事，
+     后者只多了可见的边界提示，定位算式一个数都没改。 */
+  var PAN_STEPS = 3;    // 往右三档到边界（往左没有档位：0 档 = 左边界 = 初始取景）
+  var panStep = 0;      // 0..3：0 = 默认取景 = 最左档（左边界），正 = 往右看
   var panUI = null;     // {sync}，由 initScenePan 填；layoutScene 每次重算后调它
 
   /* isNarrow() 定义见第 10 节开头（v3.4 从这儿搬走的，理由见上面那条注释） */
@@ -1344,11 +1373,12 @@
          底图比视口窄时 minOx 是正数，夹到 0 —— 极端比例下退化成不可平移。 */
       var minOx = Math.min(vw - SCENE_IMG_W * scale, 0);
       var stepRight = (cam - minOx) / PAN_STEPS;   // 往右看：ox 变小
-      /* v3.4（用户裁定）：取消往左。
+      /* v3.4（用户裁定）：取消「往左」这条路径。
          旧口径还有一条「往左」的步长（(0 - cam) / PAN_STEPS，≈155px/档），
-         三档之后 ox 推到 0 = 底图左缘贴屏幕左缘，用户不要这个视角；
-         左侧那枚箭头也已从 index.html 删掉。现在 panStep 只有 0..3 三档，
-         默认取景（cam，画面中段）永远是最左边那一档。 */
+         三档之后 ox 推到 0 = 底图左缘贴屏幕左缘，用户不要这个视角。
+         v3.5（用户裁定②）：左侧箭头恢复了，但这条路径**不恢复** ——
+         用户说的"开始的位置当作最左边"就是这件事：默认取景（cam）
+         永远是最左那一档，panStep 只有 0..3。 */
       ox = cam - panStep * stepRight;
       // 兜底夹紧：任何一档都不许露白（背景图必须始终铺满视口）
       if (ox > 0) ox = 0;
@@ -1364,39 +1394,54 @@
 
     /* v3.3：窄屏的固定件状态在这里统一同步（视口一变就要刷新）——
        ① 小人在窄屏是固定件（CSS 的 .float-avatar-wrap.is-fixed）
-       ② 那枚「往右看」箭头的状态跟着当前档位走（v3.4 起只剩一枚） */
+       ② 两枚「左右看」箭头的状态跟着当前档位走（v3.5 起又是两枚） */
     var wrap = document.getElementById("floatAvatarWrap");
     if (wrap) wrap.classList.toggle("is-fixed", isNarrow());
     if (panUI) panUI.sync();
   }
 
-  /* v3.4：只剩一枚「往右看」箭头（用户裁定：初始取景别动，取消往左）。
-     v3.3 的「左右各三下到边界 + 到头 disabled」被改掉两处：
-     ① 左侧那枚按钮已从 index.html 删除，这里只接右箭头；
-     ② 右端不再用真 disabled —— 真 disabled 会把 click 一起吞掉，
-        而到右端再点一下要能回到默认取景（panStep 0），这是取消往左之后
-        唯一的回程。改挂 .is-end（CSS 只改观感：30% 透明 + 默认光标）。
-     桌面端箭头是 display:none，状态照样同步，免得窗口从窄拖宽再拖回来时对不上。 */
+  /* v3.5（用户裁定②）：左右各一枚箭头，两端到边界就灰掉、不循环。
+     用户口径：「不是删掉左箭头，而是开始的那个位置就当作最左边，往左的
+     箭头是灰的，用户往右边走的时候才能再往左 —— 重新规定边界而已」。
+     于是：
+     ① 左侧那枚按钮在 index.html 恢复（#pxScenePrev，CSS 用 scaleX(-1)
+        镜像复用同一张素材）；
+     ② panStep 仍是 0..3 —— 0 = 默认取景 = 最左档，"初始取景 = 左边界"
+        这个口径本身没改，改的是"不能往左"由箭头灰掉来表达，而不是把按钮删掉；
+     ③ 走满不再回环：v3.4 那把"右端再点一下回默认取景"按裁定撤销，
+        两端都靠 .is-end 表达（不挂真 disabled —— 真 disabled 会把 click
+        与焦点语义一起吞掉）。
+     桌面端两枚都是 display:none，状态照样同步，免得窗口窄↔宽来回拖时对不上。 */
   function initScenePan() {
+    var prev = document.getElementById("pxScenePrev");
     var next = document.getElementById("pxSceneNext");
     if (!next) return;
 
     function sync() {
       var narrow = isNarrow();
+      var atStart = narrow && panStep <= 0;
+      var atEnd = narrow && panStep >= PAN_STEPS;
+      if (prev) {
+        prev.disabled = !narrow;
+        prev.classList.toggle("is-end", atStart);
+        prev.setAttribute("aria-disabled", atStart ? "true" : "false");
+      }
       next.disabled = !narrow;
-      next.classList.toggle("is-end", narrow && panStep >= PAN_STEPS);
-      next.setAttribute("aria-disabled", (narrow && panStep >= PAN_STEPS) ? "true" : "false");
+      next.classList.toggle("is-end", atEnd);
+      next.setAttribute("aria-disabled", atEnd ? "true" : "false");
     }
 
     function go(delta) {
-      if (!isNarrow() || delta <= 0) return;      // v3.4：没有往左这条路了
+      if (!isNarrow()) return;
       var t = panStep + delta;
-      if (t > PAN_STEPS) t = 0;                   // 到右端再点一下 = 回到默认取景
+      if (t < 0) t = 0;                           // 最左档 = 初始取景，不能更左
+      if (t > PAN_STEPS) t = PAN_STEPS;           // 最右档 = 底图右缘，不能更右
       if (t === panStep) return;
       panStep = t;
       layoutScene();   // 内部会回调 panUI.sync()
     }
 
+    if (prev) prev.addEventListener("click", function () { go(-1); });
     next.addEventListener("click", function () { go(1); });
 
     panUI = { sync: sync };
