@@ -5,9 +5,10 @@
    * 1. 文案字典（中英文）
    *    新增 key：ui.sfxOnShort / ui.sfxOffShort / ui.sfxAria /
    *             hero.badge / hero.deskNote /
-   *             interests.note / toast.feedbackOk
+   *             toast.feedbackOk
    *    （v3.0：ui.sfxOn / ui.sfxOff 这对长文案 key 随木牌样式一起作废，
    *      拨片标签只剩"开 / 关"一个字，改名 sfxOnShort / sfxOffShort）
+   *   v3.6 新增 key：ui.bgmAria / ui.bgmTapHint（背景音乐开关与自动播放被拦的提示）
    * ============================================================ */
   var I18N = {
     zh: {
@@ -15,8 +16,8 @@
          brand 这个词条全站只有窄屏顶栏 .mobile-brand 在用
          （侧边栏用的是 name / role，见下面两行），所以直接改值即可。 */
       brand: "电脑端体验更佳",
-      name: "郑先生",
-      role: "学生",
+      name: "郑瑞航",
+      role: "点击我的浮动小人可以与我聊天哦",
       avatar: "郑",
       avatarShort: "郑",
       "hero.greet": "欢迎来到我的个人主页 👋",
@@ -25,7 +26,7 @@
          保留这两行只为不动既有词典（新页面不再读它们）。 */
       "hero.badge": "暖灯已点亮",
       "hero.badgeOff": "暖灯已熄灭",
-      "hero.deskNote": "泡了杯咖啡，慢慢看。",
+      "hero.deskNote": "辛苦了，泡了杯咖啡，慢慢看。",
       "hero.scrollHint": "向下滚动",
       "nav.about": "关于我",
       "nav.contact": "联系方式",
@@ -39,21 +40,20 @@
       "contact.phone": "电话",
       "projects.tag1": "学习辅助",
       "projects.t1": "vibe coding 制作学习辅助网页",
-      "projects.d1": "通过 vibe coding 方式制作的学习辅助网页，帮助更高效地学习。",
+      "projects.d1": "用 vibe coding 制作的学习辅助网页。",
       "projects.tag2": "游戏",
       "projects.t2": "侦探解密游戏《奇迹demo》",
-      "projects.d2": "一款侦探解密题材的游戏 demo，正在持续打磨中。",
+      "projects.d2": "侦探解密题材的游戏 demo，持续打磨中。",
       "projects.tag3": "探索中",
       "projects.t3": "下一步正在探索中！",
-      "projects.d3": "更多有趣的想法正在孵化，敬请期待。",
+      "projects.d3": "更多有趣的想法正在孵化。",
       "interests.i1": "乒乓球",
       "interests.i2": "武术",
       "interests.i3": "散步",
       "interests.i4": "游戏",
       "interests.i5": "音乐",
-      "interests.i6": "写剧本",
+      "interests.i6": "写东西",
       "interests.i7": "捣鼓奇怪的东西",
-      "interests.note": "爱好不多，但都很上头。",
       "form.name": "姓名",
       "form.namePh": "请输入姓名（可以不填写真实姓名）",
       "form.email": "邮箱",
@@ -92,6 +92,9 @@
       "ui.sfxOnShort": "音效 开",
       "ui.sfxOffShort": "音效 关",
       "ui.sfxAria": "音效开关",
+      // v3.6（用户第⑤条）：背景音乐开关 + 被自动播放策略拦下时的提示
+      "ui.bgmAria": "背景音乐开关",
+      "ui.bgmTapHint": "点一下任意位置，开始播放背景音乐",
       "ui.lampOn": "吊灯亮了，屋里暖起来。",
       "ui.lampOff": "吊灯灭了，屋里暗了一档。",
       "ui.weatherSun": "窗外放晴了。",
@@ -102,7 +105,7 @@
       // v3.3：窄屏背景平移箭头
       "ui.scenePrev": "背景向左移动",
       "ui.sceneNext": "背景向右移动",
-      footer: "© 2026 郑先生 · 个人主页",
+      footer: "© 2026 郑瑞航 · 个人主页",
       speakGreet: "你好！有什么能帮到您？",
       speakIdle: "陷入了什么思考呀？我能帮忙吗？",
       "hover.email": "有事欢迎与我邮箱联系！",
@@ -110,19 +113,46 @@
       "hover.proj1": "还在持续优化中！欢迎使用！",
       "hover.proj2": "正在努力改进美术和修bug...（掉头发）",
       "hover.proj3": "敬请期待！",
-      "hover.submit": "新人一个，手下留情，不要骂我..."
+      "hover.submit": "新人一个，手下留情，不要骂我...",
+      /* v3.23：详情气泡 + 遮挡提示 + 聊天窗（标题复用 projects.t*）
+         v3.24（需求②③）：聊天窗从「每个项目一套写死台词」改成【单个全局对话】——
+         chat.more / chat.note / chat.p1a-c / chat.p2a-c 全部退场，换成下面这套：
+         入口文案 + 首次问候 + 兜底 + 4 个快捷提问 / 2 个自动提问 + 6 组关键词应答。 */
+      "hover.detail": "点击这里查看详情",
+      "hint.occluded": "内容被遮挡可以试试将光标移动到卡片上哦",
+      "chat.close": "关闭",
+      "chat.enter": "进入对话",
+      "chat.title": "和郑瑞航聊聊",
+      "chat.hello": "您好！我是郑瑞航，现就读于天津大学香港理工大学深圳未来技术学院，您有什么问题欢迎向我提问！但我只是数字分身，无法做到全知全能哦。您也可以点击下方的快捷提问！让我们开始聊天吧！",
+      "chat.fallback": "不好意思，我暂时无法回答您这个问题...但我肯定能回答下方的快捷提问！",
+      "chat.ph": "输入你想问的问题…",
+      "chat.inputAria": "输入你想问的问题",
+      "chat.logAria": "对话记录",
+      "chat.send": "发送",
+      "chat.q1": "你是谁？",
+      "chat.q2": "你的联系方式是什么？",
+      "chat.q3": "你有什么项目与作品？",
+      "chat.q4": "你的兴趣有哪些？",
+      "chat.ask1": "可以详细说说你的学习辅助项目吗？",
+      "chat.ask2": "可以详细说说你的侦探游戏项目吗？",
+      "chat.a.who": "我是郑瑞航，现在是一名学生，平时喜欢捣鼓像素风和各种奇怪的小玩意，这个主页就是我自己一点点搭起来的。想了解别的，点下面的快捷提问就行！",
+      "chat.a.contact": "邮箱：3490216203@qq.com；电话：13826692189。有事欢迎与我联系，也可以直接在下面的「意见反馈」里给我留言。",
+      "chat.a.projects": "目前并没有什么很拿得出手的项目，一个是学习辅助，一个是侦探解谜游戏，还有一个就是现在您进入的我的个人网页。虽然寥若晨星，但是每一个我都细心打磨每一个细节，如个人网页光是产品迭代报告目前就已经纯文本写了七百多 KB，之后还可能继续增长，加上已经删除记录的废案，已经迭代了八十多个版本。如果你想详细了解「学习辅助」项目和「游戏」项目，回复关键词「学习辅助」或「游戏」即可~",
+      "chat.a.interests": "乒乓球、武术、散步、游戏、音乐、写剧本，还有捣鼓各种奇怪的东西。",
+      "chat.a.proj1": "学习辅助网页是用 vibe coding 做出来的，想法来自平时学习时的需要，现在还在持续优化中，欢迎使用！在这个网页里，一切知识点需要自己添加、撰写，包括含义、边界、应用、证明过程、逆转思考角度等等，全由自己手动搭建，网页提供撰写卡片和分类功能，让知识不再零散。不用担心自己总结会导致错误，网页配备的 AI 辅助检查功能，只需要在设置里接入 AI，就可以让 AI 帮助我们检查正误！网页也配备了复习功能，复习计划将自动遵循艾宾浩斯遗忘曲线制定，让我们高效复习。当然，完成一次复习是需要一定门槛的，为了防止走马观花，每次复习后需要输入此次复习的感悟或想法才能够完成一次复习！目前还在内测使用，尚未公布链接，如有需要欢迎联系我获取！",
+      "chat.a.proj2": "《奇迹》是一个侦探解密题材的游戏 demo，现在正在努力改进美术和修 bug 中。侦探真新是一位来自乡下的新人，偶然卷入了一场噩梦中，他能否一次次诞生奇迹，绝境逢生呢？目前 demo 只开放了第一章，并未开放所有玩法，目前还在修改剧情 bug 和游戏画面，如果有兴趣欢迎与我联系获取软件~"
     },
     en: {
       /* v3.5（用户裁定③）：与中文 brand 同步 —— 窄屏顶栏提示去电脑上体验 */
       brand: "Best viewed on desktop",
-      name: "Mr. Zheng",
-      role: "Student",
+      name: "Zheng Ruihang",
+      role: "You can chat with me by clicking on my little floating character",
       avatar: "Zheng",
       avatarShort: "Zheng",
       "hero.greet": "Welcome to my homepage 👋",
       "hero.badge": "The warm lamp is on",
       "hero.badgeOff": "The lamp is off — the room is dark",
-      "hero.deskNote": "Made a cup of coffee — take your time.",
+      "hero.deskNote": "You've worked hard. Made a cup of coffee — take your time.",
       "hero.scrollHint": "Scroll down",
       "nav.about": "About Me",
       "nav.contact": "Contact",
@@ -136,21 +166,20 @@
       "contact.phone": "Phone",
       "projects.tag1": "Study Tool",
       "projects.t1": "Study-assist webpage made with vibe coding",
-      "projects.d1": "A study-assist webpage built through vibe coding to help learn more efficiently.",
+      "projects.d1": "Study-assist webpage built by vibe coding.",
       "projects.tag2": "Game",
       "projects.t2": "Detective puzzle game \"Miracle (demo)\"",
-      "projects.d2": "A detective puzzle game demo, still being polished.",
+      "projects.d2": "A detective puzzle demo, still polishing.",
       "projects.tag3": "Exploring",
       "projects.t3": "Next step: exploring!",
-      "projects.d3": "More fun ideas are hatching, stay tuned.",
+      "projects.d3": "More fun ideas are hatching.",
       "interests.i1": "Table Tennis",
       "interests.i2": "Martial Arts",
       "interests.i3": "Walking",
       "interests.i4": "Gaming",
       "interests.i5": "Music",
-      "interests.i6": "Screenwriting",
+      "interests.i6": "writing",
       "interests.i7": "Tinkering with curious things",
-      "interests.note": "Not many hobbies, but each one sticks.",
       "form.name": "Name",
       "form.email": "Email",
       "form.namePh": "Enter your name (real name optional)",
@@ -183,6 +212,9 @@
       "ui.sfxOnShort": "Sound On",
       "ui.sfxOffShort": "Sound Off",
       "ui.sfxAria": "Sound switch",
+      // v3.6 (user item ⑤): background-music switch + autoplay-blocked hint
+      "ui.bgmAria": "Background music switch",
+      "ui.bgmTapHint": "Tap anywhere to start the background music",
       "ui.lampOn": "Lamp on — the room feels warm.",
       "ui.lampOff": "Lamp off — the room dims a notch.",
       "ui.weatherSun": "It cleared up outside.",
@@ -193,7 +225,7 @@
       // v3.3: narrow-screen background pan arrows
       "ui.scenePrev": "Move the background left",
       "ui.sceneNext": "Move the background right",
-      footer: "© 2026 Mr. Zheng · Homepage",
+      footer: "© 2026 Zheng Ruihang · Homepage",
       speakGreet: "Hello! How can I help you?",
       speakIdle: "Lost in thought? Can I help?",
       "hover.email": "Feel free to reach me by email!",
@@ -201,7 +233,35 @@
       "hover.proj1": "Still improving — welcome to try it!",
       "hover.proj2": "Working on the art and fixing bugs... (losing hair)",
       "hover.proj3": "Stay tuned!",
-      "hover.submit": "Just a newbie, please be gentle..."
+      "hover.submit": "Just a newbie, please be gentle...",
+      /* v3.23: detail bubbles + occlusion hint + chat window (titles reuse projects.t*)
+         v3.24 (asks 2 & 3): the chat window becomes ONE global conversation —
+         chat.more / chat.note / chat.p1a-c / chat.p2a-c are gone; the set below
+         holds the entry label, first-time greeting, fallback, quick / auto
+         questions and the six keyword answers. */
+      "hover.detail": "Click here for details",
+      "hint.occluded": "The content is covered — try moving your cursor onto the card.",
+      "chat.close": "Close",
+      "chat.enter": "Open the chat",
+      "chat.title": "Chat with Zheng Ruihang",
+      "chat.hello": "Hi! I'm Zheng Ruihang, currently studying at Tianjin University-Hong Kong Polytechnic University Shenzhen Future Technology Institute. Feel free to ask me anything! I'm only a digital stand-in though, so I'm not all-knowing. You can also tap a quick question below — let's chat!",
+      "chat.fallback": "Sorry, I can't answer that one yet... but the quick questions below I definitely can!",
+      "chat.ph": "Type your question…",
+      "chat.inputAria": "Type your question",
+      "chat.logAria": "Conversation",
+      "chat.send": "Send",
+      "chat.q1": "Who are you?",
+      "chat.q2": "How can I reach you?",
+      "chat.q3": "What projects do you have?",
+      "chat.q4": "What are your interests?",
+      "chat.ask1": "Can you tell me more about the study-assist project?",
+      "chat.ask2": "Can you tell me more about the detective game?",
+      "chat.a.who": "I'm Zheng Ruihang, a student who likes tinkering with pixel art and all sorts of odd little things. I built this homepage myself, bit by bit. Tap a quick question below to learn more!",
+      "chat.a.contact": "Email: 3490216203@qq.com; Phone: 13826692189. Feel free to get in touch, or just leave me a note in the feedback form below.",
+      "chat.a.projects": "There isn't much I can proudly show off yet: a study-assist tool, a detective puzzle game, and this personal homepage you're on right now. Sparse as they are, I've polished every detail of each one — the homepage alone has already got a product iteration report of over 700 KB of plain text, and it may keep growing; counting deleted drafts, it's been through 80-plus versions. If you'd like to hear more about the study-assist project or the game, just type the keyword \"study\" or \"game\"~",
+      "chat.a.interests": "Table tennis, martial arts, walking, games, music, screenwriting, and tinkering with weird stuff.",
+      "chat.a.proj1": "The study-assist site was built with vibe coding, out of a need I kept running into while studying, and it's still being improved — welcome to try it! In it, every knowledge point has to be added and written by yourself: meaning, boundaries, applications, proofs, reverse-thinking angles, all built by hand, with cards and categories so knowledge stops being scattered. Don't worry that writing it yourself will get it wrong: there's an AI check built in — just connect an AI in the settings and it will help verify your notes! It also has a review feature, and the schedule follows the Ebbinghaus forgetting curve so reviewing stays efficient. And a review has a threshold: to keep you from skimming, you have to write down a thought or insight after each session before it counts. It's still in closed beta with no public link yet, so get in touch if you'd like access!",
+      "chat.a.proj2": "\"Miracle\" is a detective puzzle game demo; I'm working on the art and fixing bugs. Detective Zhen Xin is a newcomer from the countryside who stumbles into a nightmare — can he keep working miracles and find a way out? Only chapter one is open in the demo and not all mechanics are available yet; I'm still fixing story bugs and the visuals. If you're interested, get in touch and I'll send you the build~"
     }
   };
 
@@ -526,9 +586,19 @@
 
     updateSfxLabel();
 
-    if (speechBubble && speechBubble.classList.contains("show")) {
-      speechBubble.textContent = dict[speechBubbleKey];
-    }
+    // v3.23：气泡改成对话栈之后，气泡是动态创建的 —— 换语言时按 key
+    // 重刷栈里每一条的文案（气泡本身还在，只是字要跟着换）。
+    // 聊天窗开着就顺手一起重刷。
+    speechList.slice().forEach(function (b) {
+      var t = b.el.querySelector(".speech-text");
+      if (t) t.textContent = dict[b.key] || "";
+      var d = b.el.querySelector(".speech-detail");
+      if (d) d.textContent = dict["hover.detail"] || "";
+      var m = b.el.querySelector(".speech-enter");
+      if (m) m.textContent = dict["chat.enter"] || "";
+    });
+    // 聊天窗开着就顺手把标题 / 输入框 / 快捷提问 / 聊天记录一起重刷
+    if (chatEl && !chatEl.hidden) refreshChatTexts();
   }
 
   function toggleLanguage() {
@@ -607,13 +677,15 @@
    * ============================================================ */
   var floatAvatarWrap = document.getElementById("floatAvatarWrap");
   var floatAvatar = document.getElementById("floatAvatar");
-  var speechBubble = document.getElementById("speechBubble");
-  var speechBubbleKey = "speakGreet";
+  /* v3.23：#speechBubble 这个单气泡元素已换成 #speechStack 对话栈，
+     文案与定时全部由第 11 节的栈逻辑接管，这里不再留引用。 */
   var heroSlot = document.getElementById("heroAvatarSlot");
   var heroName = document.getElementById("heroName");
 
   var AVATAR_SIZE = 96;    // 与 CSS 中 .float-avatar 尺寸保持一致（v2.7: 64 -> 96；v2.8 只换 32x32 素材，尺寸不变）
-  var BUBBLE_SPACE = 60;
+  /* v3.23：头顶要给"对话栈"留位置 —— 最多两条（各约 52px）+ 6px 间距
+     + 14px 底距 ≈ 124px，所以从 60 提到 140（原来只放一条气泡）。 */
+  var BUBBLE_SPACE = 140;
   var EDGE_PAD = 26;
   /* v2.6：跳跃改走路 —— 时长按"距离 / 速度"算，不再是固定 4200ms 跳三段。
      420px/s 比原来明显快，620ms 是最短保底，避免小位移读起来像瞬移。 */
@@ -669,7 +741,7 @@
     /* 夹在可视范围内（和 followPos 同一套边界：右边让开侧边栏，
        上边给对话气泡留出 BUBBLE_SPACE）—— 极窄屏下窗户被挪到右上角，
        不夹的话小人会被带到视口外 */
-    var isDesktop = window.innerWidth > 820;
+    var isDesktop = window.innerWidth > 1024;
     var sbEl = document.getElementById("sidebar");
     var vpMinLeft = ((isDesktop && sbEl) ? sbEl.offsetWidth + EDGE_PAD : EDGE_PAD);
     var vpMaxLeft = Math.max(vpMinLeft + 1, window.innerWidth - AVATAR_SIZE - EDGE_PAD);
@@ -685,7 +757,7 @@
   }
 
   function followPos() {
-    var isDesktop = window.innerWidth > 820;
+    var isDesktop = window.innerWidth > 1024;
     var sb = document.getElementById("sidebar");
     var sidePad = (isDesktop && sb) ? sb.offsetWidth + EDGE_PAD : EDGE_PAD;
     var minLeft = sidePad;
@@ -851,7 +923,7 @@
     floatAvatarWrap.style.transition = OPACITY_TRANSITION;
 
     if (!drag.moved) {
-      showSpeech("speakGreet");
+      showSpeech("speakGreet", { enter: true });
       PixelSFX.play("pop");
       PixelParticles.burst(
         parseFloat(floatAvatarWrap.style.left) - window.scrollX + AVATAR_SIZE / 2,
@@ -915,8 +987,16 @@
   /* 窄屏判定（v3.4 从 16-B 搬到这里）：
      第 10 节的 layoutSigns / 拖拽守卫、第 16-B 的取景、箭头状态都要用它，
      而 layoutSigns 在本节末尾就会执行一次 —— 留在 16-B 的话那时 NARROW_Q
-     还没赋值（var 只有声明被提升），窄屏首帧会静默按桌面规则布局。 */
-  var NARROW_Q = "(max-width: 820px)";
+     还没赋值（var 只有声明被提升），窄屏首帧会静默按桌面规则布局。
+     v3.6（用户第③条）：口径与 CSS 那批窄屏覆盖完全一致 ——
+     CSS 侧全部 @media (max-width: 1024px) 都写成
+     "(max-width: 1024px), (orientation: landscape) and (max-height: 560px)"，
+     这里必须同步加横屏那一段，否则"手机横屏"会出现 CSS 按窄屏排版、
+     JS 按桌面算绳长/取景的错配（v3.5 之前这就是横屏错位的根）。
+     横屏判据用 max-height: 560px 而不是 max-width —— 横屏 iPhone 的
+     视口宽是 844/932，按宽度判会掉进电脑端那套规则。
+     v3.7：宽度阈值 820 -> 1024，与 CSS 同步抬高（理由见 style.css 响应式段）。 */
+  var NARROW_Q = "(max-width: 1024px), (orientation: landscape) and (max-height: 560px)";
 
   function isNarrow() {
     return !!(window.matchMedia && window.matchMedia(NARROW_Q).matches);
@@ -1129,7 +1209,7 @@
       /* v3.4（用户裁定）：手机端吊牌不许手动移动 —— 手指落在牌上时，
          手势交还页面（滚动），牌不动。CSS 那边也把 touch-action 改回 pan-y，
          两层都留着：任一层改动漏掉都不会把牌拖走。
-         桌面/平板（>820px）行为完全不变：拖动对象 = 整块牌。 */
+         桌面/平板（>1024px）行为完全不变：拖动对象 = 整块牌。 */
       if (isNarrow()) return;
       nDrag.sign = sign;
       nDrag.active = true;
@@ -1200,31 +1280,648 @@
   initFloat();
 
   /* ============================================================
-   * 11. 对话气泡
+   * 11. 对话栈（v3.23）
+   *     用户裁定的规则，逐条落在下面：
+   *       · 最多同时 2 条 —— 第 3 条进来时把最老的一条【立即】删掉
+   *         （不是等它到期，用户明确说过"不管到没到时间"）；
+   *       · 新的在下、旧的被顶到上面：DOM 顺序从老到新，
+   *         .speech-stack 是 column 布局，最新的自然贴底（离小人最近）；
+   *       · 离开触发区不立刻消失，5 秒后才消失；
+   *       · 光标移到气泡上（或触发它的元素上）→ 暂停（豆豆保持 5 颗），
+   *         移开后【重新从 5 秒】计时（所以暂停时把 remaining 复位成 5，
+   *         而不是接着往下数）；
+   *       · 气泡右外侧 5 颗黄豆豆，每秒从下到上消失一颗，全没了气泡消失。
+   *     另外"同一句话不重复堆"：key 已在栈里就只把它的倒计时复位，
+   *     不再追加一条 —— 遮挡提示连续触发的那种情况全靠这条兜住。
    * ============================================================ */
-  var speechTimer = null;
+  var STACK_MAX = 2;
+  var BUBBLE_LIFE_SEC = 5;                    // 5 颗豆豆 = 5 秒
+  var speechStackEl = document.getElementById("speechStack");
+  var speechList = [];                        // 从老到新
 
-  function showSpeech(key) {
-    speechBubbleKey = key;
-    var dict = I18N[currentLang];
-    speechBubble.textContent = dict[key];
-    speechBubble.classList.add("show");
-    clearTimeout(speechTimer);
-    speechTimer = setTimeout(hideSpeech, 3500);
+  function findSpeech(key) {
+    for (var i = 0; i < speechList.length; i++) {
+      if (speechList[i].key === key) return speechList[i];
+    }
+    return null;
   }
 
-  function hideSpeech() {
-    speechBubble.classList.remove("show");
+  // 把豆豆数量画成 b.remaining 颗（少则删尾巴，多则补）
+  function renderBeans(b) {
+    while (b.beans.children.length > b.remaining) {
+      b.beans.removeChild(b.beans.lastChild);
+    }
+    while (b.beans.children.length < b.remaining) {
+      var d = document.createElement("span");
+      d.className = "speech-bean";
+      b.beans.appendChild(d);
+    }
+  }
+
+  function stopCountdown(b) {
+    if (b.tick) { clearInterval(b.tick); b.tick = null; }
+  }
+
+  function detachSpeech(b) {
+    stopCountdown(b);
+    var i = speechList.indexOf(b);
+    if (i >= 0) speechList.splice(i, 1);
+    if (!b.el.parentNode) return;
+    if (b.immediate) {
+      b.el.parentNode.removeChild(b.el);
+      return;
+    }
+    b.el.classList.remove("show");
+    setTimeout(function () {
+      if (b.el.parentNode) b.el.parentNode.removeChild(b.el);
+    }, 240);   // 与 CSS 的 opacity 过渡同长
+  }
+
+  function removeSpeech(b, immediate) {
+    b.immediate = !!immediate;
+    detachSpeech(b);
+  }
+
+  function clearSpeechStack() {
+    speechList.slice().forEach(function (b) { removeSpeech(b, false); });
+  }
+
+  // 开始/重启倒计时：remaining 复位成 5，再每秒掉一颗
+  function startCountdown(b) {
+    stopCountdown(b);
+    b.remaining = BUBBLE_LIFE_SEC;
+    renderBeans(b);
+    b.tick = setInterval(function () {
+      b.remaining -= 1;
+      renderBeans(b);
+      if (b.remaining <= 0) removeSpeech(b, false);
+    }, 1000);
+  }
+
+  function pauseSpeech(b) {
+    if (!b || b.paused) return;
+    b.paused = true;
+    stopCountdown(b);
+    b.remaining = BUBBLE_LIFE_SEC;   // 移开后要"重新从 5 秒计时"
+    renderBeans(b);
+  }
+
+  function resumeSpeech(b) {
+    if (!b || !b.el.parentNode) return;
+    b.paused = false;
+    startCountdown(b);
+  }
+
+  /* 压入一条气泡。
+     opts.owner  触发它的元素（光标停在那上面时同样算暂停）
+     opts.detail 带「点击这里查看详情」那一行，整块可点
+     opts.chat   进聊天窗并自动问一句（1 / 2，对应项目卡的 data-chat）
+     opts.enter  进聊天窗但不自动提问（问候 / 发呆气泡的「进入对话」） */
+  function showSpeech(key, opts) {
+    opts = opts || {};
+    var dict = I18N[currentLang];
+    var text = dict[key];
+    if (text == null) return null;
+
+    var exist = findSpeech(key);
+    if (exist) return exist;    // 同一句不重复堆，交给 hover 的暂停/恢复管
+
+    // 顶掉最老的一条：立即消失，不等它到期
+    while (speechList.length >= STACK_MAX) {
+      removeSpeech(speechList[0], true);
+    }
+
+    var el = document.createElement("div");
+    el.className = "speech-bubble";
+    var textEl = document.createElement("span");
+    textEl.className = "speech-text";
+    textEl.textContent = text;
+    el.appendChild(textEl);
+    if (opts.detail) {
+      el.classList.add("speech-bubble--detail");
+      var detailEl = document.createElement("span");
+      detailEl.className = "speech-detail";
+      detailEl.textContent = dict["hover.detail"] || "";
+      el.appendChild(detailEl);
+    }
+    // v3.24（需求②）：右下角那行小字不再挂在项目气泡上（那里只留内联的
+    // 「点击这里查看详情」），改成只给问候 / 发呆气泡当聊天入口。
+    if (opts.enter) {
+      var enterEl = document.createElement("span");
+      enterEl.className = "speech-enter";
+      enterEl.textContent = dict["chat.enter"] || "";
+      el.appendChild(enterEl);
+      el.classList.add("speech-bubble--enter");
+    }
+    // 整块可点（也能 Tab + 回车）：项目气泡顺便自动问一句，问候气泡只开窗
+    if (opts.detail || opts.enter) {
+      el.setAttribute("role", "button");
+      el.setAttribute("tabindex", "0");
+    }
+
+    var beans = document.createElement("span");
+    beans.className = "speech-beans";
+    el.appendChild(beans);
+
+    var b = {
+      key: key, el: el, beans: beans, owner: opts.owner || null,
+      paused: false, remaining: BUBBLE_LIFE_SEC, tick: null, immediate: false
+    };
+    // 光标停在气泡上 → 暂停；离开 → 重新从 5 秒计时
+    el.addEventListener("mouseenter", function () { pauseSpeech(b); });
+    el.addEventListener("mouseleave", function () { resumeSpeech(b); });
+    if (opts.chat || opts.enter) {
+      // 项目气泡：开窗 + 自动问一句（chat = "1" / "2"）；
+      // 问候 / 发呆气泡：只开窗，不带自动提问（enter = true）
+      var chatId = opts.chat || null;
+      el.addEventListener("click", function () { openChat(chatId); });
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openChat(chatId);
+        }
+      });
+    }
+
+    renderBeans(b);              // 先把 5 颗豆豆摆好
+    speechStackEl.appendChild(el);
+    void el.offsetWidth;         // 强制一次布局，让 .show 的过渡真的跑起来
+    el.classList.add("show");
+    // 小人贴右缘时"框外右侧"会顶出屏幕（豆豆在视口外 = 倒计时看不见），
+    // 这种情况整列翻到气泡左侧，窄屏由 CSS 媒体查询同样处理。
+    var elRect = el.getBoundingClientRect();
+    if (elRect.right + 26 > window.innerWidth) {
+      el.classList.add("speech-bubble--beans-left");
+    }
+    speechList.push(b);
+
+    // 触发元素上已经有光标 → 先暂停；没有才立刻开始 5 秒倒计时
+    if (b.owner) pauseSpeech(b);
+    else resumeSpeech(b);
+    return b;
+  }
+
+  function hideSpeech() { clearSpeechStack(); }
+
+  /* ============================================================
+   * 11-B. 像素风聊天窗（v3.23 需求③ / v3.24 需求②③ / v3.25 需求①）
+   *       v3.24 起不再是"每个项目一套写死的静态台词"，而是【单个全局对话】：
+   *         · CHAT_LOG 存整段聊天记录 —— 左 = 主页主人（郑先生，带头像、
+   *           奶油气泡），右 = 访客（豆绿气泡、无头像），沿用 v3.23 的左右惯例；
+   *         · 输入框 + 发送按钮；4 个快捷提问木牌；关键词应答 + 兜底回复；
+   *         · 首次进入自动问候一句（内存标记，不写 localStorage，刷新即重置）；
+   *         · 从项目卡 / 详情气泡进来时替访客自动问一句（chat.ask1 / ask2）；
+   *         · 记录只在内存里：关掉再开还在，往上滚能翻，刷新就清空。
+   *       v3.25 需求①（用户裁定）：「我」的回复不再秒回，分两拍 ——
+   *         ① 气泡先挂着，里面是一串跳动的省略号（正在输入）；
+   *         ② 随机停 0.75~1s 后逐字吐出来（50 字/秒，像 AI 在打字）。
+   *         访客自己的话仍然立即出场；主人的回复排队一条条说。
+   *       打开：气泡点击 / 回车、"进入对话"、项目卡回车（键盘通路）；
+   *       关闭：右上角像素 ×、点窗外遮罩、Esc —— 用户裁定的三件套。
+   * ============================================================ */
+  var chatEl = document.getElementById("pxChat");
+  var chatWindowEl = document.getElementById("pxChatWindow");
+  var chatBodyEl = document.getElementById("pxChatBody");
+  var chatTitleEl = document.getElementById("pxChatTitle");
+  var chatQuickEl = document.getElementById("pxChatQuick");
+  var chatFormEl = document.getElementById("pxChatForm");
+  var chatInputEl = document.getElementById("pxChatInput");
+  var chatSendEl = document.getElementById("pxChatSend");
+  var chatCloseEl = document.getElementById("pxChatClose");
+  var chatBackdropEl = document.getElementById("pxChatBackdrop");
+  var chatLastFocus = null;
+  var chatGreeted = false;      // 本次打开页面是否已经问候过（用户裁定：不写盘）
+
+  /* 聊天记录：一条 = { from: "me" | "them", key: i18n 键?, text: 访客原话? }
+     带 key 的（问候 / 应答 / 自动提问）换语言时按 key 重刷成另一种语言；
+     带 text 的是访客自己打的字，原样保留。 */
+  var CHAT_LOG = [];
+
+  /* 快捷提问木牌：问句 + 直接对应的答案键。
+     点木牌不再走关键词（保证中英都能一问一答），
+     只有"自己打字"才交给下面的 CHAT_RULES 猜意图。 */
+  var QUICK_ASKS = [
+    { q: "chat.q1", a: "chat.a.who" },
+    { q: "chat.q2", a: "chat.a.contact" },
+    { q: "chat.q3", a: "chat.a.projects" },
+    { q: "chat.q4", a: "chat.a.interests" }
+  ];
+
+  /* 关键词应答表（v3.24 需求③）：从上往下第一条命中的就用它。
+     顺序有意：两个"具体项目"规则排在"项目 / 作品"这类泛词之前，
+     否则"学习辅助项目"会先撞上泛词；"兴趣"排在"游戏"之前，
+     免得"你喜欢什么游戏"被当成在问侦探游戏；"游戏 / game"
+     留在侦探那条里，"侦探游戏做得怎么样"仍然接得住。 */
+  var CHAT_RULES = [
+    { key: "chat.a.proj1", words: ["学习辅助", "学习", "网页", "vibe", "web", "study"] },
+    { key: "chat.a.who", words: ["你是谁", "你叫", "你的名字", "自我介绍", "who are you", "your name"] },
+    { key: "chat.a.contact", words: ["联系方式", "联系", "邮箱", "邮件", "电话", "手机", "微信", "contact", "email", "mail", "phone", "reach"] },
+    { key: "chat.a.interests", words: ["兴趣", "爱好", "喜欢", "平时", "interest", "hobby", "like"] },
+    { key: "chat.a.proj2", words: ["侦探", "解密", "解谜", "奇迹", "游戏", "demo", "detective", "puzzle", "game", "miracle"] },
+    { key: "chat.a.projects", words: ["项目", "作品", "做过", "project", "portfolio", "work"] }
+  ];
+
+  // 归一化：小写 + 只留中英文与数字（空格、标点全丢掉），
+  // 这样"你是谁？"和"Who are you?"能被同一张表接住。
+  function normAsk(s) {
+    return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, "");
+  }
+
+  /* 英文名词的单复数兜底：-y → -ies（hobby → hobbies）、-s / -es
+     （project → projects）。词表里写单数，问题里写复数也算命中 ——
+     真机实测踩到过：打字 "hobbies" 掉进了兜底回答。中文词不受影响。 */
+  function wordForms(w) {
+    var f = [w];
+    if (/^[a-z]+$/.test(w)) {
+      f.push(w + "s");
+      f.push(w + "es");
+      if (/[^aeiou]y$/.test(w)) f.push(w.slice(0, -1) + "ies");
+    }
+    return f;
+  }
+
+  function answerKeyFor(text) {
+    var n = normAsk(text);
+    if (!n) return "chat.fallback";
+    for (var i = 0; i < CHAT_RULES.length; i++) {
+      var words = CHAT_RULES[i].words;
+      for (var j = 0; j < words.length; j++) {
+        var forms = wordForms(normAsk(words[j]));
+        for (var k = 0; k < forms.length; k++) {
+          if (forms[k] && n.indexOf(forms[k]) !== -1) return CHAT_RULES[i].key;
+        }
+      }
+    }
+    return "chat.fallback";
+  }
+
+  // 造一行：from = "me"（左侧 + 头像）/ "them"（右侧）
+  function makeChatRow(m) {
+    var dict = I18N[currentLang];
+    var row = document.createElement("div");
+    row.className = "px-chat-row px-chat-row--" + m.from;
+    if (m.from === "me") {
+      var face = document.createElement("span");
+      face.className = "px-chat-face";
+      row.appendChild(face);
+    }
+    var bub = document.createElement("div");
+    bub.className = "px-chat-bubble";
+    bub.textContent = m.key ? (dict[m.key] || "") : (m.text || "");
+    row.appendChild(bub);
+    return row;
+  }
+
+  function renderChatLog() {
+    if (!chatBodyEl) return;
+    chatBodyEl.textContent = "";
+    CHAT_LOG.forEach(function (m) { chatBodyEl.appendChild(makeChatRow(m)); });
+    chatBodyEl.scrollTop = chatBodyEl.scrollHeight;   // 最新一条留在视野里
+  }
+
+  function pushChat(m) {
+    CHAT_LOG.push(m);
+    if (chatEl && !chatEl.hidden && chatBodyEl) {
+      var row = makeChatRow(m);
+      chatBodyEl.appendChild(row);
+      chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
+      return row;                 // v3.25：出场的这一行要给"吐字"接手
+    }
+    return null;
+  }
+
+  /* ------------------------------------------------------------
+   * v3.25 需求①：主人不再"秒回"。
+   *   一条回复分两拍 ——
+   *     ① 先把气泡挂出来，里面是一串跳动的省略号（正在输入）；
+   *     ② 随机停 0.75~1s，再像 AI 一样逐字吐出来（默认 50 字/秒）。
+   *   访客自己说的话仍然立即出现（不能让用户觉得自己的字也没发出去）；
+   *   主人这边排队：上一条还在说，下一条就等它说完 —— 连问三句也不会
+   *   两条回复挤在同一个气泡里。
+   *   尊重系统"减少动态效果"：那种情况下直接出全文（等同 v3.24 的行为）。
+   * ------------------------------------------------------------ */
+  var CHAT_WAIT_MIN = 750;    // "正在输入"最短停顿（ms）
+  var CHAT_WAIT_MAX = 1000;   // 最长停顿（ms）
+  var CHAT_TYPE_CPS = 50;     // 吐字速度：每秒 50 个字（≈ 每字 20ms，像 AI）
+  var chatQueue = [];         // 待播序列：主人的回复在这里排队
+  var chatBusy = false;       // 是否有一条主人回复正在"等待 / 吐字"
+  var chatTyping = null;      // 进行中那条：{ row, bub, full, timer, raf, startAt, shown, onDone }
+
+  function chatReduceMotion() {
+    return !!(window.matchMedia
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  // 省略号气泡：三个像素小方块，CSS 里依次跳动（.px-chat-dots）
+  function makeTypingDots() {
+    var dots = document.createElement("span");
+    dots.className = "px-chat-dots";
+    dots.setAttribute("aria-hidden", "true");
+    for (var i = 0; i < 3; i++) dots.appendChild(document.createElement("i"));
+    return dots;
+  }
+
+  // 用户自己滚上去看历史时别把他拽回来：只有原本贴着底才跟着滚
+  function chatStuckToBottom() {
+    if (!chatBodyEl) return false;
+    return chatBodyEl.scrollHeight - chatBodyEl.scrollTop
+      - chatBodyEl.clientHeight < 60;
+  }
+
+  /* 把正在说的那条一次性补齐（关窗 / 换语言 / 被下一条顶掉时用）。
+     记录里本来就有这条（存的是 key），所以补齐只是把动画收尾，不是丢内容。 */
+  function finishMeReply() {
+    var t = chatTyping;
+    if (!t) return;
+    chatTyping = null;
+    if (t.timer) { clearTimeout(t.timer); t.timer = 0; }
+    if (t.raf) { cancelAnimationFrame(t.raf); t.raf = 0; }
+    if (t.row && document.contains(t.row)) {
+      t.row.classList.remove("px-chat-row--typing");
+      if (t.bub) t.bub.textContent = t.full;
+    }
+    if (t.onDone) t.onDone();
+  }
+
+  // 队列泵：访客的话立即出场，主人的回复一条一条慢慢说
+  function chatPump() {
+    while (!chatBusy && chatQueue.length) {
+      var m = chatQueue.shift();
+      if (m.from === "me") {
+        chatBusy = true;
+        startMeReply(m.key, function () { chatBusy = false; chatPump(); });
+        return;
+      }
+      pushChat(m);
+    }
+  }
+
+  function chatEnqueue(list) {
+    chatQueue = chatQueue.concat(list);
+    chatPump();
+  }
+
+  /* 一条主人回复：省略号 → 停 0.75~1s → 逐字吐出。
+     窗口没开（记录照写、下次打开看到全文）或"减少动态效果"时直接落全文。 */
+  function startMeReply(key, onDone) {
+    var row = pushChat({ from: "me", key: key });
+    if (!row || chatReduceMotion()) { if (onDone) onDone(); return; }
+    var bub = row.querySelector(".px-chat-bubble");
+    if (!bub) { if (onDone) onDone(); return; }
+    var t = {
+      row: row, bub: bub, onDone: onDone,
+      full: I18N[currentLang][key] || "",
+      timer: 0, raf: 0, startAt: 0, shown: 0
+    };
+    chatTyping = t;
+    bub.textContent = "";
+    bub.appendChild(makeTypingDots());          // 第一拍：省略号
+    row.classList.add("px-chat-row--typing");
+    chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
+    t.timer = setTimeout(function () {
+      t.timer = 0;
+      if (chatTyping !== t) return;             // 已被 finish 收尾
+      bub.textContent = "";
+      t.raf = requestAnimationFrame(function (now) { typeMeReply(t, now); });
+    }, CHAT_WAIT_MIN + Math.random() * (CHAT_WAIT_MAX - CHAT_WAIT_MIN));
+  }
+
+  /* 吐字：按真实时间推进（掉帧也不改速度），每帧只改一次 textContent。
+     不用 setInterval(20ms)：后台标签会被降频成 1s 一跳，吐字会一顿一顿。 */
+  function typeMeReply(t, now) {
+    if (chatTyping !== t) return;
+    if (!t.startAt) t.startAt = now;
+    var stuck = chatStuckToBottom();
+    var n = Math.floor((now - t.startAt) / 1000 * CHAT_TYPE_CPS);
+    if (n > t.full.length) n = t.full.length;
+    if (n !== t.shown) {
+      t.shown = n;
+      t.bub.textContent = t.full.slice(0, n);
+      if (stuck) chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
+    }
+    if (n < t.full.length) {
+      t.raf = requestAnimationFrame(function (next) { typeMeReply(t, next); });
+      return;
+    }
+    t.raf = 0;
+    chatTyping = null;
+    t.row.classList.remove("px-chat-row--typing");
+    if (t.onDone) t.onDone();
+  }
+
+  /* 关窗 / 换语言：正在说的补齐、还没出场的直接写进记录（不再放动画）。 */
+  function stopChatSeq() {
+    chatBusy = false;
+    if (chatQueue.length) {
+      chatQueue.forEach(function (m) { CHAT_LOG.push(m); });
+      chatQueue.length = 0;
+    }
+    finishMeReply();
+  }
+
+  /* 一问一答：访客原话（text）留在记录里并且**立即出场**，主人的应答
+     只存 i18n 键（换语言时跟着变），交给队列慢慢说（v3.25 需求①）。
+     ansKey 给了就用它（快捷提问 / 自动提问），没给才走关键词表（自己打字）。 */
+  function askChat(text, ansKey) {
+    var t = String(text == null ? "" : text).replace(/^\s+|\s+$/g, "");
+    if (!t) return;
+    pushChat({ from: "them", text: t });
+    chatEnqueue([{ from: "me", key: ansKey || answerKeyFor(t) }]);
+    // 音效交给调用方：快捷提问木牌带 data-sfx（全局委托会响），
+    // 输入框回车 / 点发送由 submit 处理器响 —— 这里再响一次就重了。
+  }
+
+  function buildQuickAsks() {
+    if (!chatQuickEl) return;
+    var dict = I18N[currentLang];
+    chatQuickEl.textContent = "";
+    QUICK_ASKS.forEach(function (qa) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "px-chat-chip";
+      btn.setAttribute("data-sfx", "click");
+      btn.textContent = dict[qa.q] || "";
+      btn.addEventListener("click", function () { askChat(dict[qa.q] || "", qa.a); });
+      chatQuickEl.appendChild(btn);
+    });
+  }
+
+  // 标题 / 关闭按钮 / 输入框 / 快捷提问 / 记录一起重刷（换语言时调用）
+  function refreshChatTexts() {
+    var dict = I18N[currentLang];
+    // v3.25：先把动画落定再重建 DOM —— 正在吐的那条补齐、没出场的写进记录，
+    // 否则重建后 rAF 还握着一个已经脱离文档的气泡，那一条就永远不显示了。
+    stopChatSeq();
+    if (chatTitleEl) chatTitleEl.textContent = dict["chat.title"] || "";
+    if (chatCloseEl) chatCloseEl.setAttribute("aria-label", dict["chat.close"] || "close");
+    if (chatBodyEl) chatBodyEl.setAttribute("aria-label", dict["chat.logAria"] || "");
+    if (chatInputEl) {
+      chatInputEl.setAttribute("aria-label", dict["chat.inputAria"] || "");
+      chatInputEl.setAttribute("placeholder", dict["chat.ph"] || "");
+    }
+    if (chatSendEl) chatSendEl.textContent = dict["chat.send"] || "";
+    buildQuickAsks();
+    renderChatLog();
+  }
+
+  /* 开窗。enter = "1" / "2" ⇒ 进来就替访客自动问一句项目问题
+     （项目卡的「点击这里查看详情」走这条路）；其余（问候 / 发呆气泡的
+     「进入对话」）只开窗。首次进入先让主人自我介绍一句。
+     v3.25：开场这几句也一律走"省略号 → 停一拍 → 逐字说"（排队播），
+     免得同一扇窗里有的字会蹦、有的字是整段砸下来。 */
+  function openChat(enter) {
+    if (!chatEl) return;
+    chatLastFocus = document.activeElement;
+    chatEl.hidden = false;
+    document.body.classList.add("px-chat-open");   // 锁住背后的页面滚动
+    refreshChatTexts();
+    var seq = [];
+    if (!chatGreeted) {
+      chatGreeted = true;
+      seq.push({ from: "me", key: "chat.hello" });
+    }
+    if (enter === "1" || enter === "2") {
+      var askKey = "chat.ask" + enter;
+      // 上一条"访客说的话"就是这个同一个问题 ⇒ 不重复问（连点两次卡片）
+      var lastThem = null;
+      for (var i = CHAT_LOG.length - 1; i >= 0; i--) {
+        if (CHAT_LOG[i].from === "them") { lastThem = CHAT_LOG[i]; break; }
+      }
+      if (!(lastThem && lastThem.key === askKey)) {
+        seq.push({ from: "them", key: askKey });
+        seq.push({ from: "me", key: "chat.a.proj" + enter });
+      }
+    }
+    chatEnqueue(seq);
+    if (chatWindowEl && chatWindowEl.focus) chatWindowEl.focus();
+    PixelSFX.play("pop");
+  }
+
+  function closeChat() {
+    if (!chatEl || chatEl.hidden) return;
+    // v3.25：正在说的补齐、排队还没出场的直接写进记录（下次打开是完整对话）
+    stopChatSeq();
+    chatEl.hidden = true;
+    document.body.classList.remove("px-chat-open");
+    if (chatLastFocus && chatLastFocus.focus) chatLastFocus.focus();
+  }
+
+  function initChat() {
+    if (!chatEl) return;
+    if (chatCloseEl) chatCloseEl.addEventListener("click", closeChat);
+    if (chatBackdropEl) chatBackdropEl.addEventListener("click", closeChat);
+    // 回车和点「发送」都走 submit，键盘用户不用摸鼠标。
+    // 音效在这里响（发送按钮故意不带 data-sfx：走全局委托会和这里重复一声）。
+    if (chatFormEl) chatFormEl.addEventListener("submit", function (e) {
+      e.preventDefault();
+      askChat(chatInputEl ? chatInputEl.value : "");
+      if (chatInputEl) { chatInputEl.value = ""; chatInputEl.focus(); }
+      PixelSFX.play("pop");
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !chatEl.hidden) closeChat();
+    });
   }
 
   /* ============================================================
-   * 12. 鼠标悬浮特定信息 → 头像说话
+   * 11-C. 卡片被挡住时提示（v3.23 需求①）
+   *       用户裁定：卡片与「桌面 / 桌上三件物品」的矩形【相交】就算被遮挡，
+   *       不设面积阈值；猫、吊灯、遮挡层都不算。
+   *       提示走同一个对话栈（和别的对话同规则：5 秒 / 最多 2 条），
+   *       但"不重复说"：同一次遮挡只说一次，卡片先脱离遮挡、再次被挡才重说。
+   *       桌面是整张剪影图（.px-table 铺满全屏 + mask），所以它的矩形要按
+   *       图片在底图里的位置算：底图原点 --px-ox/--px-oy，桌面素材贴在
+   *       底图 y = 686 处（648x259），--px-scene-slack 抵掉场景上移量。
+   * ============================================================ */
+  var OCCLUDED_KEY = "hint.occluded";
+  var OCCLUDED_PROPS = [".px-prop--oillamp", ".px-prop--cup", ".px-prop--apples"];
+  var occShown = new Map();    // 卡片 -> 本轮遮挡是否已经说过
+  var occRaf = 0;
+
+  function occRects() {
+    var rects = [];
+    var rs = getComputedStyle(document.documentElement);
+    var table = document.querySelector(".px-table");
+    var scale = parseFloat(rs.getPropertyValue("--px-scale"));
+    var ox = parseFloat(rs.getPropertyValue("--px-ox"));
+    var oy = parseFloat(rs.getPropertyValue("--px-oy"));
+    var slack = parseFloat(rs.getPropertyValue("--px-scene-slack")) || 0;
+    // .px-table 自己铺满视口、真实形状在 mask 里，所以只有在拿得到
+    // 场景变换参数时才按素材几何算；窄屏它是 display:none（rect 为 0）。
+    if (table && scale > 0 && !isNaN(ox) && !isNaN(oy)) {
+      var tr = table.getBoundingClientRect();
+      if (tr.width > 0) {
+        var top = tr.top + oy + slack + 686 * scale;
+        rects.push({
+          left: tr.left + ox,
+          top: top,
+          right: tr.left + ox + 648 * scale,
+          bottom: top + 259 * scale
+        });
+      }
+    }
+    OCCLUDED_PROPS.forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (!el) return;
+      var cs = getComputedStyle(el);
+      if (cs.display === "none" || cs.visibility === "hidden") return;
+      var r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return;
+      rects.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+    });
+    return rects;
+  }
+
+  function rectsHit(a, b) {
+    return a.left < b.right && b.left < a.right &&
+           a.top < b.bottom && b.top < a.bottom;
+  }
+
+  function checkOcclusion() {
+    var rects = occRects();
+    var cards = document.querySelectorAll(".card");
+    Array.prototype.forEach.call(cards, function (card) {
+      var r = card.getBoundingClientRect();
+      var inView = r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+      var hit = false;
+      if (inView && rects.length) {
+        for (var i = 0; i < rects.length; i++) {
+          if (rectsHit(r, rects[i])) { hit = true; break; }
+        }
+      }
+      if (!hit) { occShown.delete(card); return; }   // 脱离遮挡 → 允许下次再说
+      if (occShown.get(card)) return;                // 这一轮遮挡已经说过了
+      occShown.set(card, true);
+      ensureAvatarVisible();
+      showSpeech(OCCLUDED_KEY);
+    });
+  }
+
+  function scheduleOcclusionCheck() {
+    if (occRaf) return;
+    occRaf = window.requestAnimationFrame(function () {
+      occRaf = 0;
+      checkOcclusion();
+    });
+  }
+
+  function initOcclusionHint() {
+    window.addEventListener("scroll", scheduleOcclusionCheck, { passive: true });
+    window.addEventListener("resize", scheduleOcclusionCheck);
+    scheduleOcclusionCheck();
+  }
+
+  /* ============================================================
+   * 12. 鼠标悬浮特定信息 → 头像说话（v3.23 改走对话栈）
+   *     进入 = 压一条气泡并暂停倒计时；离开 = 开始 5 秒倒计时（不立刻消失）。
+   *     两个项目卡的气泡带「点击这里查看详情」，整块可点；
+   *     卡片本身也支持键盘（Enter / 空格）直接开详情窗。
    * ============================================================ */
   var hoverSpeech = [
     { sel: 'a[href^="mailto:"]', key: "hover.email" },
     { sel: 'a[href^="tel:"]', key: "hover.phone" },
-    { sel: "#projects .project-card:nth-child(1)", key: "hover.proj1" },
-    { sel: "#projects .project-card:nth-child(2)", key: "hover.proj2" },
+    { sel: "#projects .project-card:nth-child(1)", key: "hover.proj1", chat: "1" },
+    { sel: "#projects .project-card:nth-child(2)", key: "hover.proj2", chat: "2" },
     { sel: "#projects .project-card:nth-child(3)", key: "hover.proj3" },
     { sel: ".submit-btn", key: "hover.submit" }
   ];
@@ -1233,11 +1930,24 @@
     if (!el) return;
     el.addEventListener("mouseenter", function () {
       ensureAvatarVisible();
-      showSpeech(item.key);
+      showSpeech(item.key, {
+        owner: el,
+        detail: !!item.chat,
+        chat: item.chat
+      });
+      pauseSpeech(findSpeech(item.key));
     });
     el.addEventListener("mouseleave", function () {
-      hideSpeech();
+      resumeSpeech(findSpeech(item.key));
     });
+    if (item.chat) {
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openChat(item.chat);
+        }
+      });
+    }
   });
 
   /* ============================================================
@@ -1250,7 +1960,7 @@
     clearTimeout(idleTimer);
     idleTimer = setTimeout(function () {
       if (floatVisible) {
-        showSpeech("speakIdle");
+        showSpeech("speakIdle", { enter: true });
       }
     }, IDLE_DELAY);
   }
@@ -1282,6 +1992,203 @@
   }
 
   /* ============================================================
+   * 14-B. 背景音乐（v3.6 用户第⑤条）
+   *   需求原文："增加背景音乐，进入网站自动播放，可以关闭；关闭的按钮
+   *             在右上角那个音效按钮的下面，也是像素风、AI 画；
+   *             要告诉我音频文件放在哪个位置；手机端按钮在左下角猫猫上面。"
+   *
+   *   实现要点（为什么这么写）：
+   *   ① 音频文件走 HTML 里的 <audio id="bgmAudio"> 三个 <source>，
+   *      文件统一放 assets/bgm/（bgm.mp3 首选，.ogg/.m4a 是退路）。
+   *      JS 不硬编码路径 —— 换歌只是替换文件，不用改代码。
+   *   ② 自动播放一定会被浏览器拦（Chrome/Safari 的策略：没跟页面
+   *      交互过不许出声）。所以 play() 失败 → 提示一次"点一下开始播放音乐"
+   *      + 挂一次性 pointerdown，用户随手一点就接着放。
+   *   ③ 音量从 0 淡入 1.5s（BGM_VOLUME = 0.4）：背景音乐是"底"、音效是"面"，
+   *      一上来满音量会盖掉点击音效。想改音量就改这个常量。
+   *   ④ 读不出音频（没放文件 / 格式不支持）**不报错、不弹提示**，
+   *      只 console.info 一句 + 把按钮隐藏 —— 没放歌时页面必须一切照常。
+   *   ⑤ ?bgm=<url> 是调试口：临时换别的音源试听，不写就走 assets/bgm/。
+   * ============================================================ */
+  function initBgmToggle() {
+    var bgmAudio = document.getElementById("bgmAudio");
+    var bgmToggleEl = document.getElementById("bgmToggle");
+    if (!bgmAudio || !bgmToggleEl) return;
+
+    var BGM_VOLUME = 0.4;     // 目标音量（用户嫌吵/嫌小就改这一个数）
+    var FADE_IN_MS = 1500;
+    var FADE_OUT_MS = 400;
+    var enabled = true;
+    var ready = false;        // 读出元数据 = 文件真的在
+    var missing = false;      // 三个音源全读不出来
+    var hinted = false;       // 自动播放被拦的提示只弹一次
+    var armed = false;        // 是否已挂好"等用户点一下"的监听
+    var hiddenPause = false;  // 这次暂停是"切走标签页"造成的
+    var fadeTimer = null;
+
+    /* ?bgm=<url> 调试口：要把 <audio> 里那三个 <source> 先清掉再加一个，
+       否则浏览器会继续按第一个能用的 source 播。 */
+    var q = /[?&]bgm=([^&#]+)/.exec(window.location.search);
+    if (q) {
+      while (bgmAudio.firstChild) bgmAudio.removeChild(bgmAudio.firstChild);
+      var alt = document.createElement("source");
+      alt.src = decodeURIComponent(q[1]);
+      bgmAudio.appendChild(alt);
+    }
+
+    function markMissing(why) {
+      if (missing) return;
+      missing = true;
+      console.info("[bgm] 背景音乐未启用：" + why +
+        "。把音频放到 assets/bgm/bgm.mp3 即可（见 assets/bgm/README.txt），" +
+        "不放也不影响其它任何功能。");
+      bgmToggleEl.classList.add("is-missing");
+      if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
+    }
+
+    function fadeTo(target, ms, done) {
+      if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
+      if (!ms) {
+        try { bgmAudio.volume = target; } catch (err) { /* 忽略 */ }
+        if (done) done();
+        return;
+      }
+      var from = bgmAudio.volume;
+      var t0 = Date.now();
+      fadeTimer = setInterval(function () {
+        var k = Math.min(1, (Date.now() - t0) / ms);
+        try { bgmAudio.volume = Math.max(0, Math.min(1, from + (target - from) * k)); }
+        catch (err) { /* 个别浏览器读 volume 会抛，忽略 */ }
+        if (k >= 1) {
+          clearInterval(fadeTimer);
+          fadeTimer = null;
+          if (done) done();
+        }
+      }, 60);
+    }
+
+    /* 自动播放被拦时提示 + 等下一个手势。1.2 秒后再判断一次：
+       音源本身读不出来（networkState 3 = NO_SOURCE）就当作"没放文件"直接
+       降级 —— 那时提示"点一下播放"是骗人的，用户点了也不会响。 */
+    function hintTapSoon() {
+      window.setTimeout(function () {
+        /* 这里千万别拿 ready 当挡箭牌：文件读得出来（ready=true）恰恰是"被自动播放
+           策略拦住"最典型的场景，那才是最该提示的时候。第一轮验收探针实测到
+           "readyState=4 却停在 paused、提示一直不弹"，就是旧写法把 ready 也算成
+           "不用提示"了。真正要跳过的是：文件根本没放（missing）、已经在响、已经提示过。 */
+        if (missing || hinted) return;
+        if (!bgmAudio.paused) return;
+        if (bgmAudio.networkState === 3 || bgmAudio.error) {
+          markMissing("三个候选音源都读不出来");
+          return;
+        }
+        hinted = true;
+        showToast("ui.bgmTapHint");
+      }, 1200);
+    }
+
+    function armUnlock() {
+      if (armed || missing) return;
+      armed = true;
+      var onGesture = function () {
+        window.removeEventListener("pointerdown", onGesture);
+        armed = false;
+        start();
+      };
+      window.addEventListener("pointerdown", onGesture);
+    }
+
+    function start() {
+      if (missing || !enabled) return;
+      /* 后台标签页里浏览器同样不许出声，而且这时的提示用户也看不见；
+         等 visibilitychange 切回前台再试（见下面的监听）。 */
+      if (document.hidden) { armUnlock(); return; }
+      try { bgmAudio.volume = 0; } catch (err) { /* 忽略 */ }
+      var p = null;
+      try { p = bgmAudio.play(); } catch (err) { p = null; }
+      if (p && p.then) {
+        p.then(function () {
+          fadeTo(BGM_VOLUME, FADE_IN_MS);
+        }).catch(function () {
+          armUnlock();
+          hintTapSoon();
+        });
+      } else {
+        // 老浏览器 play() 不返回 Promise：直接淡入，同时留好手势退路
+        fadeTo(BGM_VOLUME, FADE_IN_MS);
+        armUnlock();
+      }
+    }
+
+    function setEnabled(next) {
+      enabled = !!next;
+      try { localStorage.setItem("px_bgm", enabled ? "1" : "0"); } catch (err) { /* 忽略 */ }
+      bgmToggleEl.setAttribute("aria-pressed", enabled ? "true" : "false");
+      if (missing) return;
+      if (enabled) start();
+      else fadeTo(0, FADE_OUT_MS, function () { bgmAudio.pause(); });
+    }
+
+    bgmToggleEl.addEventListener("click", function () {
+      setEnabled(!enabled);
+    });
+
+    // 读出元数据 = 文件真的在。三张音源里任意一张能用都算 ready。
+    ["loadedmetadata", "canplay", "canplaythrough"].forEach(function (ev) {
+      bgmAudio.addEventListener(ev, function () {
+        if (ready) return;
+        ready = true;
+        bgmToggleEl.classList.remove("is-missing");
+      });
+    });
+
+    // 三个 <source> 全失败时，浏览器才在 <audio> 上派 error
+    bgmAudio.addEventListener("error", function () {
+      if (bgmAudio.networkState === 3) markMissing("三个候选音源都读不出来");
+    });
+
+    /* 快速降级：三张音源全 404 时 networkState 立刻就是 3，不用白等 6 秒。
+       （实测：这种"没有音源"的情形下 play() 的 promise 一直是 pending，
+       既不走 then 也不走 catch，所以 hintTapSoon 那条路指望不上。） */
+    window.setTimeout(function () {
+      if (!ready && (bgmAudio.networkState === 3 || bgmAudio.error)) {
+        markMissing("三个候选音源都读不出来（2.5s 快速判定）");
+      }
+    }, 2500);
+
+    /* 兜底：6 秒还没读出任何元数据就按"没放文件"处理。
+       不直接信 error 事件 —— <source> 失败时 Chrome 只在 <source> 上派 error，
+       <audio> 上的监听收不到，靠 readyState 判断更实在。 */
+    window.setTimeout(function () {
+      if (!ready && bgmAudio.readyState === 0) {
+        markMissing("assets/bgm/ 下 6 秒内没读出可用音频");
+      }
+    }, 6000);
+
+    /* 切走标签页先停、切回来续上：用户开了音乐却切走后，
+       与其让浏览器把它压成静音，不如主动停掉，回来接着放，行为可预期。 */
+    document.addEventListener("visibilitychange", function () {
+      if (missing) return;
+      if (document.hidden) {
+        if (!bgmAudio.paused) { hiddenPause = true; bgmAudio.pause(); }
+      } else if (hiddenPause) {
+        hiddenPause = false;
+        if (enabled) start();
+      } else if (enabled && bgmAudio.paused && ready) {
+        // 首次是在后台标签页里打开的：切回前台补一次尝试
+        start();
+      }
+    });
+
+    // 默认开（用户第⑤条：进站自动播放）；存过 "0" 就一直保持关
+    var saved = null;
+    try { saved = localStorage.getItem("px_bgm"); } catch (err) { saved = null; }
+    enabled = saved !== "0";
+    bgmToggleEl.setAttribute("aria-pressed", enabled ? "true" : "false");
+    if (enabled) start();
+  }
+
+  /* ============================================================
    * 15. 交互动效绑定：点击音效 / 悬停音效 / 点击粒子
    * ============================================================ */
   function initFx() {
@@ -1305,6 +2212,12 @@
 
     // 点击粒子：点击页面（除输入框外）冒出像素爱心 / 星星 / 音符 / 叶子 / 雪花
     // v1.2 彩蛋 3：快速连点会叠加粒子数量（combo）
+    // v3.6（用户第⑥条）：单次上限减半 —— 原来连点 5 下是 5 * 3 = 15 颗，
+    // 现在封顶 CLICK_BURST_MAX = 8（15 / 2 向上取整），同屏总量 MAX = 96 不变。
+    // 系数同时从 3 收到 1.6：连点 2/3/4/5 下依次 3/5/6/8 颗，既保留
+    // "越点越多"的手感，又不会连点两下就顶到上限（那样 2~5 下看着一样多）。
+    var CLICK_BURST_MAX = 8;
+    var CLICK_BURST_RATE = 1.6;
     var combo = 0;
     var comboTimer = null;
     document.addEventListener("click", function (e) {
@@ -1314,7 +2227,8 @@
       clearTimeout(comboTimer);
       comboTimer = setTimeout(function () { combo = 0; }, 500);
       if (combo > 1) {
-        PixelParticles.burst(e.clientX, e.clientY, combo * 3);
+        PixelParticles.burst(e.clientX, e.clientY,
+          Math.min(CLICK_BURST_MAX, Math.round(combo * CLICK_BURST_RATE)));
       } else {
         PixelParticles.spawn(e.clientX, e.clientY);
       }
@@ -1366,7 +2280,7 @@
        画面外 —— 所以窄屏改成「取景右移」：把底图往左推，让桌面剪影的
        右边缘正好落在屏幕横向中间，桌子连同桌上三件物品一起进画面；
        桌子没显示全没关系（.px-table 自己在窄屏不再 display:none）。
-       桌面端（>820px）的居中取景一个像素都不动。 */
+       桌面端（>1024px）的居中取景一个像素都不动。 */
     if (isNarrow()) {
       var cam = vw / 2 - DESK_ART_RIGHT * scale;   // 默认取景（v2.14e 那一档）
       /* 底图能走的范围：minOx（底图右缘贴屏幕右缘）~ 0（底图左缘贴屏幕左缘）。
@@ -1456,12 +2370,12 @@
     // 尊重系统"减少动态效果"：不做视差
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    // v1.8 景深：分两档速率 —— 房间（远景）几乎不动所以显得远，
-    // 前景的干草束与吊灯走得明显更快所以显得近，两者拉开前后层次
+    // v1.8 景深：房间（远景）几乎不动所以显得远。
+    // v3.21 需求④：近景层（干草束/吊灯）整层删除，这一路速率
+    // （RATE_FG / MAX_FG）与 --px-fg-y 的写入随之撤除；
+    // 房间视差与卡片跟随不受影响。
     var RATE_ROOM = 0.025;   // 远景房间
-    var RATE_FG = 0.085;     // 近景物件（约 3.4 倍）
     var MAX_ROOM = 44;       // JS 已保证背景图上下各留 >=54px 余量，不会露边
-    var MAX_FG = 150;        // 前景挂在视口顶部，走出画面即可
     // v2.4 卡片挂墙：卡片跟着墙面同向微动（房间幅度的 1/5，最大约 9px）。
     // 目的不是"卡片也做视差"，而是让卡片读起来是贴在墙面上的一件东西 ——
     // 完全不动的卡片会像是浮在画面上的一层 UI。
@@ -1478,11 +2392,6 @@
       if (room < -MAX_ROOM) room = -MAX_ROOM;
       root.style.setProperty("--px-bg-y", room.toFixed(2) + "px");
 
-      var fg = -y * RATE_FG;
-      if (fg > MAX_FG) fg = MAX_FG;
-      if (fg < -MAX_FG) fg = -MAX_FG;
-      root.style.setProperty("--px-fg-y", fg.toFixed(2) + "px");
-
       // v2.4：卡片随墙微动。取整 —— 卡片里有像素字，半像素平移会糊。
       root.style.setProperty("--px-card-y", Math.round(room * CARD_FOLLOW) + "px");
     }
@@ -1495,6 +2404,90 @@
     }, { passive: true });
 
     update();
+  }
+
+  /* ============================================================
+   * 16-C. v3.6（用户第①条）系统"字体放大 / 显示大小"下的兜底
+   *   手机端的"大量错位"有两个来源：
+   *   ① 浏览器把 12px 的像素字自动放大（15.6 / 18.2 这种非 12 的整倍数）
+   *      ⇒ 字糊 + 照 12px 网格钉死的像素件被撑破。
+   *      → 结构件一律 text-size-adjust: 100%（css 的 html 那条 +
+   *        v3.6 段里给长正文开的 auto 例外）。
+   *   ② 倍率没法穷举：Android 的"字体大小 / 显示大小"各有好几档，
+   *      再叠浏览器缩放、再叠用户自己改的默认字号 —— 断点写不完。
+   *      → 这里改成"量"：量到横向溢出就挂 .is-fit 收紧（CSS 里那条），
+   *        并在控制台留下一行"谁溢出、溢出多少"，下次照着补断点就行。
+   *   只在视口尺寸变了 / 像素字加载完成后量，不在滚动过程中量。
+   * ============================================================ */
+  function describeEl(el) {
+    if (!el || !el.tagName) return "(未知元素)";
+    var s = el.tagName.toLowerCase();
+    if (el.id) s += "#" + el.id;
+    if (typeof el.className === "string" && el.className.trim()) {
+      s += "." + el.className.trim().split(/\s+/).slice(0, 2).join(".");
+    }
+    return s;
+  }
+
+  function fitChrome() {
+    if (!document.body) return;
+    var de = document.documentElement;
+    var vw = de.clientWidth;
+
+    /* ① 先摘掉上一轮的降档标记 —— 已经收窄过会掩盖这一轮的真实宽度，
+          不摘就会"一旦溢出、永远溢出"。 */
+    var marks = document.querySelectorAll(".is-fit");
+    for (var i = 0; i < marks.length; i++) marks[i].classList.remove("is-fit");
+
+    /* ② 逐件量：像素件里 scrollWidth > clientWidth 就是"字把框撑破了" */
+    var targets = document.querySelectorAll(
+      ".mobile-brand, .sfx-btn, .bgm-btn, .hero-name, .px-sign-face"
+    );
+    for (var j = 0; j < targets.length; j++) {
+      var el = targets[j];
+      if (el.scrollWidth > el.clientWidth + 1) {
+        el.classList.add("is-fit");
+        console.info("[v3.6/fit] 横向溢出已降档：" + describeEl(el) +
+          "（scrollWidth " + el.scrollWidth + " > clientWidth " + el.clientWidth + "）");
+      }
+    }
+
+    /* ③ 整页横向溢出（手机上最直观的"错位"就是画面能左右晃）：
+          报一次，并指出最右的越界元素，省得下次靠肉眼找。 */
+    if (de.scrollWidth > vw + 1) {
+      var worst = null;
+      var worstRight = vw;
+      var all = document.body.querySelectorAll("*");
+      for (var k = 0; k < all.length; k++) {
+        var node = all[k];
+        if (node.classList && node.classList.contains("is-fit")) continue;
+        var r = node.getBoundingClientRect();
+        if (r.width < 2 || r.height < 2) continue;
+        if (r.right > worstRight) { worstRight = r.right; worst = node; }
+      }
+      console.warn("[v3.6/fit] 页面横向溢出：" + de.scrollWidth + " > " + vw +
+        (worst ? "；最右越界元素 " + describeEl(worst) +
+          " 右缘 " + Math.round(worstRight) : ""));
+    }
+  }
+
+  function initFitChrome() {
+    var timerId = null;
+    var schedule = function () {
+      if (timerId) clearTimeout(timerId);
+      timerId = setTimeout(function () {
+        timerId = null;
+        fitChrome();
+      }, 220);
+    };
+    window.addEventListener("resize", schedule, { passive: true });
+    window.addEventListener("orientationchange", schedule, { passive: true });
+    /* 像素字是 woff2：首帧量到的是备用字体的宽度（不是最终版式）⇒
+       等字体就绪再量一次。document.fonts 在 Safari 10+ / Chrome 35+ 都有。 */
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(function () { fitChrome(); });
+    }
+    fitChrome();
   }
 
   /* ============================================================
@@ -1935,13 +2928,17 @@
     var calm = 0;            // 连续静止帧数
     var EASE = 0.14;         // 越小越"慢半拍"
 
-    /* ---------- v1.9：沿指针轨迹跟随 ----------
+    /* v1.9：沿指针轨迹跟随 ----------
        v1.8 是"光标左下角固定偏移"(mx - 0.72W)，所以猫永远贴在光标旁边。
        用户要的是"跟在指针走过的轨迹后面"：把光标经过的点记成一条路径，
        再沿路径从末端往回量 TRAIL_GAP 的距离，猫的目标就是那个点 ——
-       猫走的是光标刚走过的路，始终落在后面一段，而不是挂在光标身上。 */
+       猫走的是光标刚走过的路，始终落在后面一段，而不是挂在光标身上。
+       v3.6（用户第④条）：电脑端的猫缩到 2/3（CSS 54x60 -> 36x40，见
+       .px-cat），个头小了还按 92px 落在后面就显得"离指针很远"，
+       所以跟随距离一起收到 74（92 的 0.8 倍左右；再小会贴在光标下）。
+       TRAIL_KEEP 是轨迹保留长度，与猫的大小无关，不动。 */
     var trail = [];              // [{x, y}]，屏幕坐标
-    var TRAIL_GAP = 92;          // 猫落在光标后面多远（沿路径长度，px）
+    var TRAIL_GAP = 74;          // 猫落在光标后面多远（沿路径长度，px）
     var TRAIL_KEEP = 460;        // 轨迹最多保留的长度（更旧的点丢掉）
     var IDLE_MS = 1100;          // 停手多久后回窝
     var lastMove = 0;
@@ -2186,13 +3183,17 @@
     });
 
     initSfxToggle();
+    initBgmToggle();   // v3.6：背景音乐开关（14-B 节，见那里的长注释）
     initCardLift();
     initTheme();
     initFx();
     initScenePan();   // v3.4：先接上那枚「往右看」箭头，再让 initParallax 首次 layoutScene
     initParallax();
+    initFitChrome();   // v3.6：系统字体放大兜底（16-C 节）
     initLamp();
     initWeather();
+    initChat();           // v3.23：聊天窗三关闭（× / 遮罩 / Esc）
+    initOcclusionHint();  // v3.23：卡片被桌面或桌上物品挡住时的提示
     CatFollow.start();
 
     // 首次交互解锁音频上下文（浏览器自动播放策略）

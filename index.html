@@ -6,7 +6,7 @@
        真正生效的是 css/style.css 里窄屏的 html { touch-action: pan-y }）。
        interactive-widget=resizes-content：键盘弹出时缩内容视口，固定层跟着缩，不留白边。 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
-  <title>郑先生 · 个人主页</title>
+  <title>郑瑞航 · 个人主页</title>
   <meta name="description" content="郑先生的个人主页 —— 一间亮着暖灯的像素小店：关于我、联系方式、项目与作品、我的兴趣，以及一个可以随手拖走的像素小人。" />
   <!-- v3.4：#F7E9D2（浅米）→ #2E2419（墙面木色），对齐位图场景底色。
        手机端原本会在地址栏/状态栏露一条浅色，与深色房间接在一起很扎眼。 -->
@@ -53,6 +53,11 @@
        像素小店场景（固定全屏，静态装饰层）
        ============================================================ -->
   <div class="px-scene" aria-hidden="true">
+
+    <!-- v3.12「窗户周围的清晰小岛」：与 .px-scene-bg 逐字相同的底图/盒/坐标/视差，
+         但不吃 blur —— 靠 .px-scene-bg 与 .px-occluder 上那条 mask 椭圆洞露出来。
+         必须排在背景层之前（同为 z-index: auto ⇒ 后画的盖住先画的）。 -->
+    <div class="px-focus-patch"></div>
 
     <!-- 房间位图背景（独立一层，用于随滚动做轻微视差） -->
     <div class="px-scene-bg"></div>
@@ -230,12 +235,12 @@
        于是屏幕上多出一条竖直黑线。只有卡片那么高的阴影才有意义。 -->
 
   <!-- ============================================================
-       v1.8 近景层：真正独立的前景物件（自带 alpha + 独立视差）
-       比房间滚得更快，并在卡片上投出贴轮廓的硬边投影 ——
-       这是"景深 / 前后层次"的主要来源
+       v3.21 需求④：v1.8 的「近景层」整段删除 —— 右侧的干草束
+       （px-fg-herbs）与吊灯（px-fg-lamp）是用户裁定要删掉的遗留物件。
+       一并撤除的还有：--px-fg-y 那条独立视差（JS 的 RATE_FG/MAX_FG）、
+       开灯态的降亮 + 投影复制、≤1500px 的整层 display: none。
+       素材归档在 .deepworks/tmp/v321/fg-archive/，全套规则可原样回滚。
        ============================================================ -->
-  <div class="px-fg px-fg--herbs" aria-hidden="true"></div>
-  <div class="px-fg px-fg--lamp" aria-hidden="true"></div>
 
   <!-- ============================================================
        木质店招 + 串灯（顶部）
@@ -253,10 +258,10 @@
   <span class="sr-only" id="pxWindowHint">点击窗户可以切换窗外的天气</span>
 
   <!-- ============================================================
-        v3.3：窄屏背景平移箭头（只在 ≤820px 显示）
+        v3.3：窄屏背景平移箭头（只在 ≤1024px 显示；v3.7 前是 ≤820px）
         用户要求：屏幕左右各加一个 AI 像素风小箭头，点一下背景平移一段，
         左右各三下正好到背景能走的边界（步长按当前取景自适应，见 JS layoutScene）。
-        桌面端（>820px）不显示 —— 桌面取景本来就居中，且滚动视差是设计的一部分。
+        桌面端（>1024px）不显示 —— 桌面取景本来就居中，且滚动视差是设计的一部分。
         素材：assets/px-scene-arrow.webp（32x31，1 像素 = 1 CSS 像素），
         左箭头用 scaleX(-1) 镜像同一张素材（只画了一个朝右的箭头）。
         命中区 44x44（WCAG 2.5.5），素材本身不缩放 —— 像素图放大就会糊。
@@ -280,7 +285,7 @@
     <button class="menu-btn" id="menuBtn" aria-label="菜单" data-sfx="click">
       <span></span><span></span><span></span>
     </button>
-    <span class="mobile-brand" data-i18n="brand">郑先生</span>
+    <span class="mobile-brand" data-i18n="brand">郑瑞航</span>
     <div class="lang-switch lang-switch-mobile" id="langToggleMobile" role="switch" aria-label="切换语言" data-sfx="toggle">
       <span class="lang-switch-thumb"></span>
       <span class="lang-switch-label is-active" data-lang-opt="zh">中</span>
@@ -317,8 +322,8 @@
         <span class="sr-only" data-i18n="avatarShort">郑</span>
       </div>
 
-      <div class="sidebar-name" data-i18n="name">郑先生</div>
-      <div class="sidebar-role" data-i18n="role">学生</div>
+      <div class="sidebar-name" data-i18n="name">郑瑞航</div>
+      <div class="sidebar-role" data-i18n="role">点击我的浮动小人可以与我聊天哦</div>
 
       <nav class="nav">
         <a href="#about" class="nav-link active" data-i18n="nav.about" data-sfx="click">关于我</a>
@@ -361,6 +366,27 @@
     <span class="sfx-btn-label" data-i18n="ui.sfxOnShort">音效 开</span>
   </button>
 
+  <!-- v3.6 背景音乐（用户第⑤条：进站自动播放、可关闭）
+       ① 音频文件放在 assets/bgm/ 下，名为 bgm.mp3（首选；bgm.ogg / bgm.m4a
+          是 Safari 与老浏览器的退路，随便放哪个都行，详见 assets/bgm/README.txt）。
+          三个文件一个都没放也**不算错**：JS 检测到读不出来就把按钮自己隐藏，
+          其它功能一切照常（见 js/script.js 的 initBgmToggle）。
+       ② 按钮位置：桌面在右上角音效钮正下方；窄屏与手机横屏挪到左下角猫猫上方
+          （两条见 css 里 v3.6 段）。图标是 AI 画的像素音符，
+          关闭态是在同一张音符上叠红斜杠（生成脚本 .deepworks/tmp/v36/make-bgm-icons.py）。
+       ③ 默认开（记在 localStorage 的 px_bgm；存过 "0" 就保持关）。
+          被浏览器自动播放策略拦下时提示一次"点一下开始播放音乐"，
+          用户随手一点就接着放（见 armBgmUnlock）。 -->
+  <audio id="bgmAudio" loop preload="auto">
+    <source src="assets/bgm/bgm.mp3" type="audio/mpeg" />
+    <source src="assets/bgm/bgm.ogg" type="audio/ogg" />
+    <source src="assets/bgm/bgm.m4a" type="audio/mp4" />
+  </audio>
+  <button class="bgm-btn" id="bgmToggle" type="button" aria-pressed="true"
+          aria-label="背景音乐开关" data-i18n-aria="ui.bgmAria" data-sfx="toggle">
+    <span class="bgm-btn-icon" aria-hidden="true"></span>
+  </button>
+
   <!-- ============================================================
        主内容（每块卡片都是店里的一件木器）
        ============================================================ -->
@@ -384,26 +410,34 @@
 
         <!-- 牌 A：名牌 -->
         <div class="px-sign px-sign--name">
-          <span class="px-sign-rope" aria-hidden="true"></span>
-          <div class="px-sign-face">
-            <h1 class="hero-name" id="heroName" data-i18n="name">郑先生</h1>
-            <p class="hero-role" data-i18n="role">学生</p>
+          <!-- v3.21 需求①：绳与牌面包进同一层 .px-sign-swing，
+               摆动时绕「绳子上端挂点」整体转 —— 绳随牌动、
+               像钟摆一样从竖直开始左右摆（见 css 的 px-sway-*） -->
+          <div class="px-sign-swing">
+            <span class="px-sign-rope" aria-hidden="true"></span>
+            <div class="px-sign-face">
+              <h1 class="hero-name" id="heroName" data-i18n="name">郑瑞航</h1>
+              <p class="hero-role" data-i18n="role">点击我的浮动小人可以与我聊天哦</p>
+            </div>
           </div>
         </div>
 
         <!-- 牌 B：问候 + 咖啡（咖啡杯仍是 32x32 AI 素材，1 倍点阵） -->
         <div class="px-sign px-sign--note">
-          <span class="px-sign-rope" aria-hidden="true"></span>
-          <div class="px-sign-face">
-            <p class="hero-greet" data-i18n="hero.greet">欢迎来到我的个人主页 👋</p>
-            <div class="px-sign-row">
-              <img class="px-icon-cup" src="assets/px-icon-cup.webp" alt="" aria-hidden="true" width="32" height="32" draggable="false" />
-              <p class="px-desk-note" data-i18n="hero.deskNote">泡了杯咖啡，慢慢看。</p>
-            </div>
-            <!-- v2.2 一屏一节之后首屏很干净，需要明确告诉用户"下面还有" -->
-            <div class="scroll-hint">
-              <span class="scroll-hint-arrow" aria-hidden="true"></span>
-              <span data-i18n="hero.scrollHint">向下滚动</span>
+          <!-- v3.21 需求①：同牌 A，绳 + 牌面一起摆 -->
+          <div class="px-sign-swing">
+            <span class="px-sign-rope" aria-hidden="true"></span>
+            <div class="px-sign-face">
+              <p class="hero-greet" data-i18n="hero.greet">欢迎来到我的个人主页 👋</p>
+              <div class="px-sign-row">
+                <img class="px-icon-cup" src="assets/px-icon-cup.webp" alt="" aria-hidden="true" width="32" height="32" draggable="false" />
+                <p class="px-desk-note" data-i18n="hero.deskNote">辛苦了，泡了杯咖啡，慢慢看。</p>
+              </div>
+              <!-- v2.2 一屏一节之后首屏很干净，需要明确告诉用户"下面还有" -->
+              <div class="scroll-hint">
+                <span class="scroll-hint-arrow" aria-hidden="true"></span>
+                <span data-i18n="hero.scrollHint">向下滚动</span>
+              </div>
             </div>
           </div>
         </div>
@@ -436,11 +470,11 @@
       <div class="card card--plank">
         <div class="contact-item">
           <span class="contact-label" data-i18n="contact.email">邮箱</span>
-          <a class="contact-value" href="mailto:123456@qq.com" data-sfx="click">123456@qq.com</a>
+          <a class="contact-value" href="mailto:123456@qq.com" data-sfx="click">3490216203@qq.com</a>
         </div>
         <div class="contact-item">
           <span class="contact-label" data-i18n="contact.phone">电话</span>
-          <a class="contact-value" href="tel:123456789" data-sfx="click">123456789</a>
+          <a class="contact-value" href="tel:123456789" data-sfx="click">13826692189</a>
         </div>
       </div>
     </section>
@@ -462,20 +496,67 @@
         <span data-i18n="nav.projects">项目与作品</span>
       </h2>
       <div class="cards-grid">
-        <div class="card card--crate project-card">
+        <div class="card card--crate project-card" data-chat="1"
+             tabindex="0" role="button" aria-haspopup="dialog">
+          <!-- v3.15~v3.17 在这张卡上钉过一张泛黄纸（div.project-paper）；
+               v3.18（用户裁定「项目卡回到和其他卡一样的木箱」）已整条撤除，
+               标签也移到卡片左侧外面竖排（见 css/style.css 的 .project-tag）。
+               v3.23：加 data-chat / role=button —— 键盘（回车/空格）也能开详情窗。 -->
           <div class="project-tag" data-i18n="projects.tag1">学习辅助</div>
           <h3 class="project-title" data-i18n="projects.t1">vibe coding 制作学习辅助网页</h3>
-          <p class="project-desc" data-i18n="projects.d1">通过 vibe coding 方式制作的学习辅助网页，帮助更高效地学习。</p>
+          <p class="project-desc" data-i18n="projects.d1">用 vibe coding 制作的学习辅助网页。</p>
+          <!-- v3.13：右下角的类型小戳（与左上角标签对角呼应，给纯木纹一块落点）。
+               装饰性，类型文字已由 .project-tag 给出，故 aria-hidden。 -->
+          <svg class="px-svg project-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="2" width="12" height="12" fill="#D9644A" />
+            <rect x="2" y="2" width="12" height="1" fill="#F2953F" />
+            <rect x="2" y="13" width="12" height="1" fill="#6E4A2E" />
+            <rect x="4" y="2" width="8" height="12" fill="#FFFDF6" />
+            <rect x="4" y="2" width="8" height="1" fill="#E8DCC8" />
+            <rect x="5" y="5" width="6" height="1" fill="#8B5E3C" />
+            <rect x="5" y="8" width="4" height="1" fill="#8B5E3C" />
+            <rect x="5" y="11" width="6" height="1" fill="#8B5E3C" />
+          </svg>
         </div>
-        <div class="card card--crate project-card">
+        <div class="card card--crate project-card" data-chat="2"
+             tabindex="0" role="button" aria-haspopup="dialog">
           <div class="project-tag" data-i18n="projects.tag2">游戏</div>
           <h3 class="project-title" data-i18n="projects.t2">侦探解密游戏《奇迹demo》</h3>
-          <p class="project-desc" data-i18n="projects.d2">一款侦探解密题材的游戏 demo，正在持续打磨中。</p>
+          <p class="project-desc" data-i18n="projects.d2">侦探解密题材的游戏 demo，持续打磨中。</p>
+          <!-- v3.13：类型小戳 —— 放大镜（侦探解密）；镜片 8×8、2px 斜柄，32px 下可辨 -->
+          <svg class="px-svg project-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="3" y="3" width="6" height="6" fill="#E8DCC8" />
+            <rect x="4" y="2" width="4" height="1" fill="#E8DCC8" />
+            <rect x="4" y="9" width="4" height="1" fill="#E8DCC8" />
+            <rect x="4" y="3" width="2" height="2" fill="#FFFDF6" />
+            <rect x="4" y="2" width="4" height="1" fill="#D9644A" />
+            <rect x="3" y="3" width="1" height="1" fill="#D9644A" />
+            <rect x="8" y="3" width="1" height="1" fill="#D9644A" />
+            <rect x="2" y="4" width="1" height="4" fill="#D9644A" />
+            <rect x="9" y="4" width="1" height="4" fill="#D9644A" />
+            <rect x="3" y="8" width="1" height="1" fill="#D9644A" />
+            <rect x="8" y="8" width="1" height="1" fill="#D9644A" />
+            <rect x="4" y="9" width="4" height="1" fill="#D9644A" />
+            <rect x="9" y="9" width="2" height="2" fill="#8B5E3C" />
+            <rect x="10" y="10" width="2" height="2" fill="#8B5E3C" />
+            <rect x="11" y="11" width="2" height="2" fill="#8B5E3C" />
+            <rect x="12" y="12" width="2" height="2" fill="#8B5E3C" />
+            <rect x="13" y="13" width="2" height="2" fill="#6E4A2E" />
+          </svg>
         </div>
         <div class="card card--crate project-card project-next">
           <div class="project-tag tag-explore" data-i18n="projects.tag3">探索中</div>
           <h3 class="project-title" data-i18n="projects.t3">下一步正在探索中！</h3>
-          <p class="project-desc" data-i18n="projects.d3">更多有趣的想法正在孵化，敬请期待。</p>
+          <p class="project-desc" data-i18n="projects.d3">更多有趣的想法正在孵化。</p>
+          <!-- v3.13：类型小戳 —— 问号（探索中） -->
+          <svg class="px-svg project-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="7" y="1" width="3" height="2" fill="#F2953F" />
+            <rect x="6" y="2" width="1" height="2" fill="#F2953F" />
+            <rect x="9" y="3" width="2" height="2" fill="#F2953F" />
+            <rect x="8" y="5" width="2" height="2" fill="#F2953F" />
+            <rect x="7" y="7" width="2" height="3" fill="#F2953F" />
+            <rect x="7" y="11" width="2" height="2" fill="#F2953F" />
+          </svg>
         </div>
       </div>
     </section>
@@ -514,10 +595,9 @@
           <span class="tag" data-i18n="interests.i3" data-sfx="click">散步</span>
           <span class="tag" data-i18n="interests.i4" data-sfx="click">游戏</span>
           <span class="tag" data-i18n="interests.i5" data-sfx="click">音乐</span>
-          <span class="tag" data-i18n="interests.i6" data-sfx="click">写剧本</span>
+          <span class="tag" data-i18n="interests.i6" data-sfx="click">写东西</span>
           <span class="tag" data-i18n="interests.i7" data-sfx="click">捣鼓奇怪的东西</span>
         </div>
-        <p class="px-desk-note" data-i18n="interests.note">爱好不多，但都很上头。</p>
       </div>
     </section>
 
@@ -607,7 +687,7 @@
           <rect x="11" y="6" width="1" height="1" fill="#D9644A" />
         </svg>
       </span>
-      <span data-i18n="footer">© 2026 郑先生 · 个人主页</span>
+      <span data-i18n="footer">© 2026 郑瑞航 · 个人主页</span>
     </footer>
   </main>
 
@@ -615,11 +695,42 @@
        浮动像素小人 + 对话气泡
        ============================================================ -->
   <div class="float-avatar-wrap" id="floatAvatarWrap" aria-hidden="true">
-    <div class="speech-bubble" id="speechBubble"></div>
+    <!-- v3.23：单个 #speechBubble 换成"对话栈"容器 —— 气泡由 JS 动态创建，
+         最多同时 2 条（新的在下、贴近小人；旧的被顶到上面）。 -->
+    <div class="speech-stack" id="speechStack"></div>
     <button class="float-avatar" id="floatAvatar" aria-label="像素小人" data-sfx="pop">
       <!-- v2.6：全身素材（待机两帧 + 走路两帧），已经没有方框了 -->
       <span class="px-hero-img px-hero-img--float" aria-hidden="true"></span>
     </button>
+  </div>
+
+  <!-- ============================================================
+       v3.23：像素风「微信式」聊天窗；v3.24 改成「单个全局对话」——
+       不再是每个项目一套写死的静态台词，而是一段可输入、可点快捷提问、
+       按关键词应答的聊天记录（CHAT_LOG，见 script.js 第 11-B 节）。
+       入口：项目气泡的「点击这里查看详情」（顺带自动问一句）、
+       问候 / 发呆气泡右下角的「进入对话」、项目卡回车 / 空格。
+       关闭三件套：右上角像素 ×、点窗外遮罩、Esc。
+       ============================================================ -->
+  <div class="px-chat" id="pxChat" hidden>
+    <div class="px-chat-backdrop" id="pxChatBackdrop" aria-hidden="true"></div>
+    <div class="px-chat-window" id="pxChatWindow" role="dialog" aria-modal="true"
+         aria-labelledby="pxChatTitle" tabindex="-1">
+      <div class="px-chat-head">
+        <span class="px-chat-title" id="pxChatTitle"></span>
+        <button class="px-chat-close" id="pxChatClose" type="button" data-sfx="pop"></button>
+      </div>
+      <div class="px-chat-body" id="pxChatBody"></div>
+      <div class="px-chat-foot">
+        <!-- 快捷提问木牌由 JS 按 i18n（chat.q1..q4）生成 -->
+        <div class="px-chat-quick" id="pxChatQuick"></div>
+        <form class="px-chat-form" id="pxChatForm" autocomplete="off">
+          <input class="px-chat-input" id="pxChatInput" type="text" maxlength="60"
+                 aria-label="输入你想问的问题" placeholder="输入你想问的问题…">
+          <button class="px-chat-send" id="pxChatSend" type="submit">发送</button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- 点击粒子层 -->

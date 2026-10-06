@@ -25,6 +25,38 @@
   font-display: swap;
 }
 
+/* v3.18（用户裁定「项目卡的标题与正文换成思源黑体」）→ v3.20 需求①（扩到四张卡片
+   里全部文字）→ v3.23（覆盖口径从「i18n 全量」收窄到六个卡片前缀）：
+   只服务卡片里的字，站点其余地方仍是上面的 PixelSC。
+   两枚都是**自托管的静态子集**（wght 400 / 700），字符集 = index.html 里
+   #contact / #projects / #interests / #feedback 四节的 DOM 原文 ∪ js/script.js 里
+   contact. / projects. / interests. / form. / relation. / device. 六个前缀的中英取值
+   ∪ 可打印 ASCII（空格到波浪号），共 217 字、缺字 0。
+   体积 64540 B + 65988 B = 127.5 KB（两枚字节数在 tools/verify-page.py 里逐个钉住）。
+   chat.* / hint.occluded / hover.detail 不在这两枚里 —— 它们走像素字 PixelSC，
+   由自检的「像素字体覆盖页面用字」一项盯着。
+   font-family 末尾只留一个泛化 sans-serif，**不挂系统回退链**：换字体这件事
+   必须由本地文件说了算，不能让某台机器上恰好装了的思源黑体参与进来。
+   源字体 NotoSansSC-VF.ttf 是可变字体（轴 wght 100-900，且默认档是 100=Thin），
+   所以两枚子集是先在 wght=400 / 700 上实例化成静态字重、再裁字符集的；
+   构建脚本与字符集清单见 .deepworks/tmp/v320/build_subset320.py。
+   许可：fonts/LICENSE-NotoSansSC-OFL.txt（SIL OFL 1.1）。 */
+@font-face {
+  font-family: "Noto Sans SC Subset";
+  src: url("../fonts/noto-sans-sc-400-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans SC Subset";
+  src: url("../fonts/noto-sans-sc-700-subset.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* 暖色板（14 色） */
   --px-cream: #FFF6E4;
@@ -34,6 +66,15 @@
   --px-orange: #F2953F;
   --px-brick: #D9644A;
   --px-yellow: #FFC94B;
+  /* v3.15：--px-orange 的同色相压深一档 —— 旧亮纸（#F8D999）上
+     1.68:1 -> 3.35:1。只为"压在浅纸上的描边"准备（.tag-explore），
+     其余浅底场景仍用 --px-orange。两套 palette 下同值：
+     纸是纸，不随主题反相。
+     v3.16：纸换成压暗降饱和的旧羊皮纸（#BAA378）后，这一档同色只剩
+     1.87:1（原色 --px-orange 更低，1.07:1）—— 纸越暗，这枚 1px 橙描边
+     越不显。属本轮已知且接受的结果：用户裁定的纸色优先，
+     要补就下一轮把这枚描边再压深一档。 */
+  --px-orange-deep: #B85C1E;
   --px-ink: #4A3426;
   --px-ink-soft: #8B7355;
   --px-lamp: #FFE1A8;
@@ -67,13 +108,24 @@
   --fs-title: 36px;
   /* v2.2：48 -> 72。首屏现在是"游戏标题画面"，名字要成为画面主体，
      而不是卡片列表上方的一个小标题 */
-  --fs-hero: 72px;
+  /* v3.7：72 -> 60（用户反馈"大字太大"）。仍是 12 的整数倍（60 = 12×5），
+     像素字不会糊；配套行高 84 -> 72（见 .hero-name）。 */
+  --fs-hero: 60px;
   /* v2.4：36 -> 24，正文回到 2 倍行距（12 × 2） */
   --lh-body: 24px;
 
   /* v2.2：232 -> 176。侧边栏瘦身，内容列和房间场景都能多出一点空间，
      同时降低它作为"实体面板"的视觉重量（用户选择：瘦到 176px） */
   --sidebar-w: 176px;
+  /* v3.12（用户裁定「内容卡片（包括首屏的吊牌）稍微右移一点点」）：
+     内容列整体右移量。基础值 0px —— ≤1024 的窄屏块把 .main 的 margin-left
+     钉成 0，这条变量在那边根本不参与；真正生效的 32px 写在 .main 下面那段
+     ≥1025 媒体查询里（只有"侧边栏 + 内容列"这套桌面版式才谈得上右移）。
+     这里必须有 0 值兜底：--px-pendant-left（吊灯落点）与 --px-proj-col
+     （项目列宽"跟窗户算"）都引用了它，未定义会让整条 clamp()/calc()
+     在 ≤1024 变成无效值 —— 吊灯会掉回 left:auto、项目列会丢掉宽度。
+     内容列右移多少，卡片右缘就跟着右移多少：那两处算式必须一起减。 */
+  --px-main-shift: 0px;
 
   /* 位图场景几何：JS 会按视口重算，下面给的是 1920x1080 下的默认值。
      窗户 / 火苗 / 猫 / 遮挡层全部用这套坐标，才能与背景图逐像素对齐 */
@@ -148,6 +200,25 @@
   --vig-sizes: 100% 100%, 50% 50%, 50% 50%, 50% 50%, 50% 50%;
   --vig-positions: 0 0, 0 0, 100% 0, 0 100%, 100% 100%;
 
+  /* v3.11：中央聚光（v3.10 的"四周压暗"）抽成共用变量。
+     它与 --vig-layers 同属"全屏的明暗叠加"：凡是在 .px-scene 上画一遍的，
+     .px-occluder / .px-table 这些【背景图裁切副本】都必须复制同一份 ——
+     少复制一处，裁切缝上就会浮出一块色差硬边（v3.10 漏了这步，
+     用户看到的"窗户下面那块阴影"就是它）。
+     几何：圆心 556,354 = 两块吊牌并集 x224..888 y210..498 的中心；
+     712/434 让核心留白圈正好罩住信息列。整屏配光跟视口走，不做断点。
+     --vig-corner-* / --vig-ring-* 那套暗角另算，不在这里。 */
+  --spot-layers:
+    radial-gradient(ellipse 712px 434px at 556px 354px,
+      rgba(255, 226, 170, 0.09) 0%, rgba(255, 226, 170, 0) 62%),
+    radial-gradient(ellipse 712px 434px at 556px 354px,
+      rgba(6, 4, 3, 0) 0%, rgba(6, 4, 3, 0) 62%,
+      rgba(6, 4, 3, 0.26) 80%, rgba(6, 4, 3, 0.55) 100%);
+  /* 2 层 → 尺寸/位置必须给满 2 项：合并到别处时会和 --vig-sizes(5 项)
+     拼成 7 项，正好对上 .px-occluder::after 的 7 层图，不靠列表循环补齐。 */
+  --spot-sizes: 100% 100%, 100% 100%;
+  --spot-positions: 0 0, 0 0;
+
   /* v2.5 首屏文字承托底（半透明木牌）。
      与 --room-ink 同一套理由：底和字都属于"墙上的东西"，两版配色下都不变。
      0.72 的不透明度既压住木纹噪点、又还留着房间的层次。 */
@@ -159,6 +230,11 @@
   /* 位移类动效：平滑缓动 */
   --px-ease: 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
   --px-ease-fast: 0.14s cubic-bezier(0.2, 0.8, 0.3, 1);
+  /* v3.6（用户第⑦条）：卡片浮起/回落单独放慢一倍 —— 0.18s -> 0.36s。
+     只给 .card 用，不换全局 --px-ease：按钮、标签、遮罩那些快反馈
+     必须保持原节奏，否则整站"手感变迟钝"。同一条 transition 同时管
+     抬起与回落，所以"回去也减半"自动成立。 */
+  --px-card-ease: 0.36s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
 /* ============================================================
@@ -183,6 +259,15 @@
   /* 浅色小牌子（头像底 / 徽章 / 标签）上的文字永远是深色 ——
      这些是"被灯光照亮"的元素，底色保持浅，所以字色不能跟着 --px-ink 走 */
   --chip-ink: #2A1D14;
+  /* v3.16（用户裁定「描述文字改深灰色、与标题分出主次」）：羊皮纸上的次级墨色。
+     标题吃 --chip-ink（#2A1D14），正文/次要文字吃这一档，颜色本身也承担一层主次。
+     只加在 :root 一处：纸不随主题反相，两个 palette 下同值
+     （与 --chip-ink / --px-orange-deep 同惯例，不在 body.palette-mid 里重复声明）。
+     实测（压 v3.16 羊皮纸 #BAA378，取纸面实测中位色）：#33291F = 5.81:1，
+     过 WCAG 正文要求的 4.5:1；同一纸面上标题墨色是 6.69:1，
+     两级之间留出可读的落差。最暗斑处（素材落地时把暗部向中位色
+     收缩了 50%）正文仍有 4.67:1 —— 最坏点也过线。 */
+  --chip-ink-soft: #33291F;
 
   /* v2.3 面板色阶：按像素画规范的 hue shifting 做 ——
      亮部色相往琥珀偏、暗部往蓝紫偏（对应房间里夜窗的冷光），
@@ -245,6 +330,15 @@ img {
 
 html {
   scroll-behavior: smooth;
+  /* v3.6（用户第①条）：手机端"字体放大 / 显示大小 / 浏览器缩放"下大量错位的正因
+     是浏览器把 12px 的像素字**自动放大**（Android Chrome 的字体放大 / 字体增强），
+     放成 15.6 / 18.2 这种非 12 的整数倍 —— 像素字库只有 12 的倍数才不糊，
+     而"名牌木牌 / 顶栏 / 按钮"这些件的尺寸是照 12px 网格钉死的，字一涨就顶破。
+     所以这里把自动放大关掉（结构件锁死在像素网格上），
+     正文段落再单独开回 auto（见文件末尾 v3.6 段的 .px-fit / 长正文规则），
+     让"想看清正文"的用户仍然能靠系统设置把正文放大。 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   /* v2.2 沉浸单屏：一屏一节，滚动吸附。
      用 proximity 而不是 mandatory —— mandatory 会在"内容比视口高"或
      "末尾还有页脚"时把页面卡住，滚不到想看的地方。
@@ -367,6 +461,76 @@ body.scene--bitmap .px-scene-bg {
   image-rendering: pixelated;
   will-change: transform;
   transform: translate3d(0, var(--px-bg-y, 0px), 0);
+}
+
+/* ---------- v3.12（用户裁定）：窗户周围留一块"清晰小岛"
+
+   用户原话：「窗户周围一小块不要失焦，现在窗外风景太突兀」。
+   实测机制（探针 + 梯度能量，.deepworks/tmp/v312/）：
+   · 窗外景色（.px-window-view 里那张实拍图）本来就没进过 blur 名单，一直是清晰的；
+   · 被糊掉的是它四周"背景派生"的三层（.px-scene-bg 底图 / .px-occluder 裁切副本 /
+     .px-table 桌面，见那三层的 filter: blur(2px)）。
+   所以"突兀"= 清晰窗户 + 被糊掉的墙 的硬反差。修法不是把窗也糊掉，而是反向：
+   在窗周补一块"与被糊掉那层同底图同坐标"的清晰副本，让窗与窗周的墙同为清晰，
+   再由柔边过渡回整体轻失焦（局部锐度 4.57 -> 5.59，远处墙 4.73 -> 4.76 不动）。
+
+   两层配合，缺一不可：
+   ① .px-focus-patch —— 与 .px-scene-bg 逐字相同的盒 / 底图 / 坐标 / 视差，
+      但不进 blur 名单，它就是"清晰的那一份"。DOM 里排在 .px-scene-bg 之前
+      （同为 z-index: auto）⇒ 天然画在它下面，全程不动任何 z-index。
+   ② 给 .px-scene-bg 与 .px-occluder 同一条 mask-image，在窗中心挖一个柔边椭圆洞
+      ⇒ 洞口露出下面那张清晰副本。这与 v3.10 的教训同源：
+      · 两个选择器必须逐字同值 —— .px-occluder 是 .px-scene-bg 的裁切副本，
+        洞不一致就会在"顶 170px 横带"与窗的重叠区露出硬边（足迹暴涨的那次回归）；
+      · 洞中心用与 .px-window 同一套坐标（--px-ox / --px-oy / --px-scale），
+        任何视口下洞口都跟着窗户走；y 补 --px-scene-slack 是因为背景层的盒子上移了
+        slack，而 mask 的坐标原点是元素盒子左上角；
+      · mask 同样作用于被遮元素自己的伪元素 ⇒ .px-occluder::before/::after 那两份
+        "空气透视 / 暗角+聚光"副本在洞口一并让开，露出的正是 .px-scene::after 与
+        .px-vignette 的同款渐变（同一套渐变、同一个视口盒）⇒ 洞口内外仍是同一层叠加，
+        不会多压一层或漏一层。
+   ③ 关灯态：清晰副本必须跟着 ×0.78 / saturate 0.92（与三层同款、但不加 blur）——
+      否则关灯时窗周会浮出一圈"没被压暗"的亮岛。 */
+.px-focus-patch {
+  display: none;
+}
+
+body.scene--bitmap .px-focus-patch {
+  display: block;
+  position: absolute;
+  /* 盒子与 .px-scene-bg 逐字相同（含上下各多留的 slack）——
+     少一项就会与洞口露出区域错位，露出接缝 */
+  top: calc(var(--px-scene-slack) * -1);
+  bottom: calc(var(--px-scene-slack) * -1);
+  left: 0;
+  right: 0;
+  background-image: url("../assets/px-room-4.webp");
+  background-size: calc(1536px * var(--px-scale)) calc(945px * var(--px-scale));
+  background-position: var(--px-ox) calc(var(--px-oy) + var(--px-scene-slack));
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  will-change: transform;
+  transform: translate3d(0, var(--px-bg-y, 0px), 0);
+}
+
+body.scene--bitmap .px-scene-bg,
+body.scene--bitmap .px-occluder {
+  -webkit-mask-image: radial-gradient(
+    ellipse calc(290px * var(--px-scale)) calc(280px * var(--px-scale))
+      at calc(var(--px-ox) + 1287.5px * var(--px-scale))
+         calc(var(--px-oy) + 277.5px * var(--px-scale) + var(--px-scene-slack)),
+    transparent 0 58%,
+    #000 100%);
+  mask-image: radial-gradient(
+    ellipse calc(290px * var(--px-scale)) calc(280px * var(--px-scale))
+      at calc(var(--px-ox) + 1287.5px * var(--px-scale))
+         calc(var(--px-oy) + 277.5px * var(--px-scale) + var(--px-scene-slack)),
+    transparent 0 58%,
+    #000 100%);
+}
+
+body.lamp-off .px-focus-patch {
+  filter: brightness(0.78) saturate(0.92);
 }
 
 body.scene--bitmap .px-wall,
@@ -574,6 +738,12 @@ body.scene--bitmap .px-scene::after {
   padding: 0;
   background: none;
   border: 0;
+  /* v3.11：四边等宽的柔和窗影（用户裁定 A）。
+     第一层无偏移 = 四边等宽；第二层极轻下偏，免得整圈读成均匀光晕。
+     影子只长在热区盒子上，不碰 .px-window-view 里的窗外景色。 */
+  box-shadow:
+    0 0 20px 4px rgba(18, 10, 5, 0.45),
+    0 6px 16px rgba(18, 10, 5, 0.38);
   cursor: pointer;
   font-family: inherit;
   transition: filter var(--px-ease);
@@ -711,50 +881,17 @@ body.weather-snow .px-window-view {
 }
 
 /* ============================================================
-   v1.8 近景层：真正独立的前景物件（不是背景图的窗口切片）
-   串在顶部的干草束与吊灯，比房间滚得更快 —— 这是"前后层次"的来源。
-   素材自带 alpha，所以能投出贴着轮廓的硬边投影（drop-shadow 半径 0，
-   不是模糊阴影，符合像素风约束）
+   v3.21 需求④：v1.8 的「近景层」整段删除 —— 用户裁定删掉界面右侧
+   那两块遗留物件（干草束 px-fg-herbs / 吊灯 px-fg-lamp）。
+   下面留档原口径，规则本身已删（素材归档在
+   .deepworks/tmp/v321/fg-archive/，可原样回滚）：
+   · .px-fg 是 fixed、top: 0、z-index: 4（在卡片 5 之下，绝不压正文）、
+     transform 吃 --px-fg-y（JS 视差速率 0.085、上限 150px）、
+     drop-shadow(7px 8px 0) 硬投影（0 blur，符合像素风约束）；
+   · 两件排在同一列（left = sidebar + 1056px = 卡片右缘之外 16px）：
+     干草束 top 5vh / 96x168，吊灯 top 52vh / 72x116，均按 --px-scale 缩放；
+   · 卡片右缘之外留不出 ~180px 时（≤1500px）整层 display: none。
    ============================================================ */
-.px-fg {
-  position: fixed;
-  top: 0;
-  z-index: 4;              /* v1.9：降到卡片(5)之下 —— 近景物件绝不压正文 */
-  pointer-events: none;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  image-rendering: pixelated;
-  filter: drop-shadow(7px 8px 0 rgba(18, 10, 5, 0.42));
-  transform: translate3d(0, var(--px-fg-y, 0px), 0);
-  will-change: transform;
-}
-
-/* v1.9：近景物件整体挪到卡片右侧的空白区。
-   卡片左缘固定为 sidebar 宽、宽 1040px，所以右缘 = sidebar + 1040px；
-   这里从 sidebar+1056px 起排，永远贴在卡片右边之外，不碰正文。
-   （v1.8 时干草束在左侧 sidebar+4px，正好盖住卡片顶部正文，已改掉。） */
-.px-fg--herbs {
-  left: calc(var(--sidebar-w) + 1056px);
-  top: 5vh;
-  width: calc(96px * var(--px-scale));
-  height: calc(168px * var(--px-scale));
-  background-image: url("../assets/px-fg-herbs.webp");
-}
-
-.px-fg--lamp {
-  left: calc(var(--sidebar-w) + 1056px);
-  top: 52vh;
-  width: calc(72px * var(--px-scale));
-  height: calc(116px * var(--px-scale));
-  background-image: url("../assets/px-fg-lamp.webp");
-}
-
-/* 卡片右缘之外留不出 ~180px 就收起近景层，避免压到卡片 */
-@media (max-width: 1500px) {
-  .px-fg {
-    display: none;
-  }
-}
 
 /* 猫：三帧横排 sprite（睁眼 / 摆尾 / 眯眼）
    v1.7：尺寸由 80x90 缩到 54x60；位置不再固定蹲在炉边，
@@ -764,8 +901,13 @@ body.weather-snow .px-window-view {
   position: fixed;
   left: 0;
   top: 0;
-  width: calc(54px * var(--px-scale));
-  height: calc(60px * var(--px-scale));
+  /* v3.6（用户第④条）：电脑端跟随小猫缩小约 1/3 —— 54x60 -> 36x40
+     （正好 2/3，仍是 4 的整数倍，像素格不会碎）。窄屏那只固定蹲在
+     左下角的猫尺寸不动（见下面那份窄屏媒体查询里的 54x60 覆盖），
+     它是"房间里的猫"、不是跟随件。JS 的 CatFollow.measure() 读实际尺寸，
+     落点偏移（seatOn 的 0.5W / 0.62H）自动跟着变小。 */
+  width: calc(36px * var(--px-scale));
+  height: calc(40px * var(--px-scale));
   /* v2.1：猫要走在卡片之上。
      v2.0 时猫是 4，虽然高过窗户(3)，但仍在 .main(=5) 之下 ——
      猫一走进卡片范围就被卡片挡掉半截。用户要求"小猫要在卡片上面"，
@@ -976,6 +1118,8 @@ body.weather-snow .px-window-view {
   height: 100vh;
   transform: translate3d(0, calc(-1 * var(--px-bg-y, 0px)), 0);
   background-image:
+    /* v3.11：最上层复制一份中央聚光，与 .px-scene::before 同一套定义 */
+    var(--spot-layers),
     radial-gradient(115% 92% at 50% 50%,
       rgba(6, 4, 3, 0) 40%,
       rgba(6, 4, 3, calc(0.16 * var(--px-lamp-vig-op))) 66%,
@@ -990,7 +1134,7 @@ body.weather-snow .px-window-view {
       rgba(255, 232, 176, 0.04) 52%,
       rgba(59, 42, 30, 0.12) 78%,
       rgba(36, 24, 16, 0.32) 100%);
-  background-size: 100% 100%;
+  background-size: var(--spot-sizes), 100% 100%;
   background-repeat: no-repeat;
 }
 
@@ -1054,11 +1198,16 @@ body.weather-snow .px-window-view {
     transform: translate3d(0, var(--px-bg-y, 0px), 0);
   }
 
-  /* 空气透视：与 .px-scene::after 完全一致，避免窗口出现色差接缝 */
+  /* 空气透视：与 .px-scene::after 完全一致，避免窗口出现色差接缝。
+     v3.11：盒子补上 slack —— 本元素是 position: fixed + top/bottom 各外扩
+     slack，元素高 = 视口 + 2×64 = 1208；而 .px-scene::after 与 .px-vignette
+     都在 inset: 0 的视口盒（1080）里。原来这里写 inset: 0，渐变就被竖向
+     拉伸 1208/1080 = 1.119，与"完全一致"的意图不符（关灯态顶带那条横线
+     里也有它一份）。现在与下面的 .px-occluder::after 用同一个视口盒。 */
   .px-occluder::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: var(--px-scene-slack) 0;
     pointer-events: none;
     background: linear-gradient(
       to bottom,
@@ -1082,9 +1231,12 @@ body.weather-snow .px-window-view {
     position: absolute;
     inset: var(--px-scene-slack) 0;
     pointer-events: none;
-    background-image: var(--vig-layers);
-    background-size: var(--vig-sizes);
-    background-position: var(--vig-positions);
+    /* v3.11：最上层再复制一份中央聚光（--spot-layers，2 层）。
+       盒子 = 上下各让开 slack = 正好视口盒，与 .px-scene::before 同盒；
+       层序（自下而上：空气透视 → 暗角 → 聚光）与场景一致。 */
+    background-image: var(--spot-layers), var(--vig-layers);
+    background-size: var(--spot-sizes), var(--vig-sizes);
+    background-position: var(--spot-positions), var(--vig-positions);
     background-repeat: no-repeat;
   }
 
@@ -1272,6 +1424,15 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   /* v2.4：侧边栏姓名直接坐在木纹墙上，配色切换时钉死为浅色 */
   color: var(--room-ink);
   text-shadow: var(--room-ink-shadow);
+  /* v3.26（用户需求②「字体始终居中」）：这两行文字必须居中，不管折几行。
+     .sidebar-inner 是 align-items:center 的纵向 flex，而它的居中是**盒居中**：
+     文字只有一行时，盒宽贴着字 ⇒ 看起来本来就居中；一旦折成两行
+     （英文名 "Zheng Ruihang"、或改版后变长的身份句），盒宽被撑满 132px 内框，
+     text-align 默认的 start 就把每一行都贴到左边 —— 桌面 1440 实测：
+     名字两行左缘同为 x=20（中心偏左 19.5 / 4.5px），身份两行同样贴左
+     （第二行中心偏左 42px），只有"恰好占满整行"的那一行看着像居中。
+     这条只是把行内对齐钉成 center，盒子几何（宽度/间距/位置）一个字没动。 */
+  text-align: center;
 }
 
 .sidebar-role {
@@ -1279,6 +1440,8 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   color: var(--room-ink-dim);
   margin-bottom: 24px;
   text-shadow: var(--room-ink-shadow-sm);
+  /* v3.26：同上 —— 身份句折行后每一行都居中 */
+  text-align: center;
 }
 
 .nav {
@@ -1320,10 +1483,16 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   image-rendering: pixelated;
   border: 0;
   box-shadow: none;
-  color: var(--px-shadow);
+  /* v3.7：字色从 --px-shadow（深墨，压在深木牌面上只有 ~1.4:1）改成
+     "钉死的房间浅字" --room-ink + 深色像素投影 —— 牌子素材本身不随配色变
+     （见本段开头），字色也就不该跟着配色变。
+     实测：奶油字在牌面近黑木色上 ~13.9:1，落在较亮的箭尖处仍有 5.6:1。 */
+  color: var(--room-ink);
+  text-shadow: var(--room-ink-shadow);
   text-decoration: none;
   font-size: var(--fs-nav);
-  line-height: 1.35;
+  /* v3.7：1.35 -> 36px，行高回到 12 的整数倍 */
+  line-height: 36px;
   transition: transform var(--px-ease), filter var(--px-ease), color var(--px-ease);
 }
 
@@ -1335,7 +1504,9 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
 /* 当前所在分区：牌面提亮 + 字色换砖红（原来那条橙色内侧条木牌做不出来了，
    改用"整块牌子更亮 + 字更红"来区分，同样一眼可辨） */
 .nav-link.active {
-  color: var(--px-brick);
+  /* v3.7：砖红（牌面上 6.4:1，够但偏暗）换成暖黄 --px-yellow ——
+     与"选中 = 提亮"的语义一致，实测 ~11:1，两版配色下都清楚。 */
+  color: var(--px-yellow);
   filter: brightness(1.06) saturate(1.12);
   transform: translate(1px, 1px);
 }
@@ -1384,7 +1555,9 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
      现在边框和牌底一起撤掉，标签只剩文字这一层：
      没切的那一边浮在木凹槽的槽底（浅色字），
      切过来的那一边，拨片正好滑到它下面，字自然就压在凸起的木钮上（深色字）。 */
-  color: var(--px-ink-soft);
+  /* v3.7：凹槽是钉死的深色素材，未选中的字色也从"跟随主题"改成钉死的
+     --room-ink-dim（深色版观感不变；浅色版原来会反相成深墨压黑槽，只有 1.8:1）。 */
+  color: var(--room-ink-dim);
   background: none;
   border: 0;
   filter: none;
@@ -1460,7 +1633,9 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   margin: 0 2px;
   /* v2.9：同语言开关 —— 撤掉 4px 木牌边框和深棕牌底，只留文字这一层
      （未选中是浮在木凹槽上的浅色字，选中后拨片滑到它下面，字压在木钮上）。 */
-  color: var(--px-ink-soft);
+  /* v3.7：同语言开关 —— 深色凹槽素材钉死，未选中的字色也跟着钉死，
+     避免浅色版反相成深墨压黑槽。 */
+  color: var(--room-ink-dim);
   background: none;
   border: 0;
   filter: none;
@@ -1575,6 +1750,37 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   max-width: 760px;
 }
 
+/* ---------- v3.12（用户裁定 · 内容列右移 32px）
+
+   用户原话：「内容卡片（包括首屏的吊牌）稍微右移一点点，现在偏左了一些
+   感觉不太突出」。原版式里卡片左缘钉在 x=176（侧边栏右沿）、右缘 936，
+   左侧 176px 侧边栏 + 右侧近千像素的房间 ⇒ 视觉重心明显偏左。
+    这里把整条内容列（含首屏两块吊牌）右移 48px：v3.12 先移 32px，
+    v3.13 按用户「卡片再往右靠一点点」再加 16px（32 -> 48，只加一档，
+    与 v3.12 同一条算式，不动 .main 宽度）。实测卡片左缘 x224 -> 272，
+    吊牌与绳子同步右移、相对关系不变。
+
+   · 只加一个 margin-left：.main 上依旧没有 z-index（v2.9/v2.10 的层叠约定，
+     第 56 项自检盯着），列内卡片的 z-index 不会被锁死。
+   · 门槛取 1025，与项目列宽那段一致：≤1024 的窄屏块把 .main 的
+     margin-left 钉成 0（源序在更后面、条件只对窄屏成立），手机版式一个字不动。
+   · 位移量走 --px-main-shift（基础 :root 里是 0px）：
+     吊灯落点与 --px-proj-col 的"跟窗户算"都引用它，右移多少就一起减多少，
+     否则窄桌面（1025-1400）下卡片右缘会顶掉与窗户之间那 96px 净空。
+   · 实测（1920x1080，探针 .deepworks/tmp/v313）：卡片左缘 x224 -> 272，
+     .main 宽仍是 760（第 110 项自检不许 max-width 变），内容列右缘 936 -> 984。
+   · 窄桌面（1025-1400）下 --px-proj-col 的算式同样扣掉这 48px，
+     卡片会自动再收窄 16px，到窗户的 96px 净空仍然守住。 */
+@media (min-width: 1025px) {
+  :root {
+    --px-main-shift: 48px;
+  }
+
+  .main {
+    margin-left: calc(var(--sidebar-w) + var(--px-main-shift));
+  }
+}
+
 .section {
   display: flex;
   flex-direction: column;
@@ -1603,9 +1809,16 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   font-size: var(--fs-title);
   line-height: 48px;
   padding: 6px 20px;
-  margin-bottom: -6px;   /* 正好压住卡片 6px 的上边框 */
+  /* v3.21 需求③：木板整体上移 10px（-6 -> 4），并把层叠提到卡片之上。
+     真因：.card 是 z-index:5 的层叠上下文，木板这里原为 z-index:1 ——
+     木板不是"压住卡片"，而是被卡片压在下面（方向正好反了）。
+     叠加卡片自己的上移视差（--px-card-y 最多 -12px）之后，实测绘制
+     重叠 18px（#contact / #interests / #feedback 都中招）。
+     现在 margin-bottom: -6px -> 4px（让开卡片 10px）、z-index: 1 -> 6
+     （木板重新盖在卡片上边框之上，v2.3 那句注释描述的关系才成立）。 */
+  margin-bottom: 4px;
   position: relative;
-  z-index: 1;
+  z-index: 6;
   /* 木牌底是浅色，所以字色钉死为深色（同 --chip-ink 的道理） */
   color: var(--chip-ink);
   background-color: var(--px-wood-light);
@@ -1686,7 +1899,8 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
 
 .hero-name {
   font-size: var(--fs-hero);
-  line-height: 84px;
+  /* v3.7：84 -> 72，跟着 --fs-hero 72 -> 60 收一档（60 配 12 的整数倍行高） */
+  line-height: 72px;
   /* v2.11：名字搬进木牌（.px-sign--name），字色从"房间浅色 + 边缘光"
      改成牌面上的深墨色；边缘光反过来做成一道很淡的浅色高光，
      免得深字压在深木纹上糊掉。 */
@@ -1789,6 +2003,10 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   color: var(--px-ink-deep);
 }
 
+/* v3.20：兴趣区说明文（"爱好不多，但都很上头。"）按你要求撤除 —— 连同它
+   这条 #interests .px-desk-note 规则一并删；.px-desk-note 基础规则仍服务
+   首屏木牌（在 .px-sign-face 作用域里，见下方 4108 / 4302 行）。 */
+
 /* ---------- 卡片：钉在店里的一块木牌 ---------- */
 .card {
   position: relative;
@@ -1797,12 +2015,18 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
      multiply 之后纸纹的颗粒还在，但整体落到了和房间同一档明度。 */
   /* v2.9：整张卡片换成 AI 木纹贴图（用户："一整张都用 AI 来画，
      不要只画一个方框"），要有"隐蔽树林老屋木牌子"的感觉但也要温馨。
-     颗粒与木框同档：木框 16 源像素铺成 12px（0.75px/源像素），
-     木纹也按 0.75px 铺 —— 856x322 源像素 -> 642x242 CSS px。
+     v3.14：颗粒档位从 0.75 改回 1:1（856x322 源像素 = 856x322 CSS px）。
+       起因是用户报"卡片背后的木纹出现错位断层"：0.75 档只有 642px 宽，
+       而卡片在 v3.12 加宽到 736px（--px-proj-col 的 max 就是 736px），
+       横向要铺第二遍，第二遍的接缝就落在内容区里（padding box 704 宽，
+       642px 处 = 距右内缘 62px）。0.75 档当初的理由是"与 12px 木框同档"，
+       但 v2.10b 把木框改成一整张 AI 图之后，木框已经是
+       1 源像素 = 1 CSS 像素的整数映射 —— 木纹反而比木框细了一档。
+       改回 1:1 一次修两件事：① 颗粒与木框重新同档、源像素不被重采样；
+       ② 856px > 卡片上限 736px，横向永远只铺一遍，接缝从根上不存在。
      纵向 repeat：素材取的是整数个板周期（上下边缘都落在板缝上，
      实测相接落差 2.13 < 素材内部相邻行 4.29，比它自己还平顺），
-     卡片再高也不会露接缝；横向只铺一次（642px > 卡片内容区 640px），
-     左右边缘那点落差因此永远落在视野之外，不需要做无缝混合。
+     卡片再高也不会露接缝（窄屏两列时卡可能高过 322px，所以纵向必须 repeat）。
      这里不再 multiply 染色：木纹素材本身就是目标色，
      两版配色靠换素材（见下面 palette-mid 的规则）。 */
   background-color: var(--panel-bg);
@@ -1853,7 +2077,7 @@ background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rg
   /* v2.4：卡片与墙面联动 —— JS 按滚动量写入 --px-card-y。
      取整数 px（见 script.js），避免像素字被半像素平移糊掉 */
   transform: translate3d(0, var(--px-card-y, 0px), 0);
-  transition: transform var(--px-ease), box-shadow var(--px-ease);
+  transition: transform var(--px-card-ease), box-shadow var(--px-card-ease);
   /* v2.9：卡片自己变成能和桌子比大小的独立层。
      5 原来写在 .main 上（那时 .main 是层叠上下文），搬到这里效果等价，
      但卡片从此能和桌子(7)、桌上物品(8)、悬停卡片(10) 同台比较。 */
@@ -1903,17 +2127,23 @@ html.palette-mid body .card {
 
 /* v2.9：木纹贴图两版配色。background-image 吃 CSS 变量（不像 border-image 只能换图），
    所以这里用一个变量切图，省掉"卡片 + 四个变体 + 输入框 + 气泡"那一长串选择器。
-   浅色素材 856x385：385 x 0.75 = 288.75，取 289px。 */
+   v3.14：0.75 档 -> 1:1 档（856x322 深胡桃 / 856x385 暖橡木，源像素即 CSS px）。
+   0.75 档（642x242 / 642x289）是 v2.9 为"与 12px 木框同档"定的；木框在 v2.10b
+   改成 1:1 之后木纹没跟上，而 642px 宽又恰好铺不满 v3.12 加宽后的 736px 卡片 ——
+   横向第二遍的接缝落在内容区里，就是用户看到的"错位断层"。
+   不变式（tools/verify-page.py #117 盯着）：
+     --px-wood-w(856px) ≥ 卡片宽度上限 736px ⇒ 横向永远只铺一遍。
+   纵向仍靠 repeat（素材是整数个板周期、上下边缘落在板缝上，相接无痕）。 */
 :root {
   --px-wood: url("../assets/px-wood-dark.webp");
-  --px-wood-w: 642px;
-  --px-wood-h: 242px;
+  --px-wood-w: 856px;
+  --px-wood-h: 322px;
 }
 
 body.palette-mid,
 html.palette-mid body {
   --px-wood: url("../assets/px-wood-light.webp");
-  --px-wood-h: 289px;
+  --px-wood-h: 385px;
 }
 
 /* 四角铁钉（含受光高光） */
@@ -2023,6 +2253,39 @@ html.palette-mid body {
   gap: 20px;
 }
 
+/* v3.9（用户裁定 · 减量感）：项目区三卡之间的行距 20 -> 32。
+   三张卡收窄到 800 宽之后仍是单列竖排，"卡与卡之间"就是整块版面上唯一
+   的"墙缝" —— 20px 时三张木纹卡几乎连成一片，读起来是"一大坨木板"，
+   32px 之后三张卡才各自分明。（联系区那张门牌只有一张卡、兴趣区不是
+   栅格，都不受影响；≤1024 也照此拉宽，手机上一屏一张卡更不挤。）
+   用 row-gap 而不是 gap：单列下只有行距有意义，列距保持基类的 20。
+    v3.12（用户裁定「间距大一点」）：32 -> 40。卡宽同时收到 736（见文件末尾
+    ≥1025 段的 --px-proj-col），卡片更"瘦"之后行距再不跟着放大，三张卡就会
+    重新读成一整块 —— 40px 让每张卡各自成块。≤1024 同样生效：手机上一屏
+    一张卡，行距大一点更不挤。
+    v3.16（用户裁定「卡片垂直间距大一点、留点呼吸感」）：40 -> 64。
+    这一轮的卡同时从 736 收窄到 672（见文件末尾 ≥1025 段的 --px-proj-col），
+    卡片变矮变窄、纸又换成更暗的羊皮纸，块与块之间的"墙缝"必须跟着变宽，
+    否则三张暗色卡会重新粘成一片。64 = 16 的整数倍，与站点 4/8/16 的网格
+    习惯一致；上限取 64（不是 72）是为了不把整列撑得过于松散。
+    v3.22 需求②（用户：「第三张横卡和上面的卡片间距缩小一点，字不被
+    大幅遮盖就行，挡一部分卡片没关系」）：64 -> 32。
+    桌面档第 3 张卡是横版（高 116），行距 64 时它离上一行 64px，
+    桌上的油灯正压在它的标题上 —— 1920x1080 吸附态实测标题
+    「下一步正在探索中！」首字「下」被压掉 22/36px（61%），左缘那
+    一段整段落进灯体的不透明实心像素里（v3.21 §5 如实记录过）。
+    行距是这一节唯一能让标题与油灯错开的杠杆：.section 是
+    min-height:100vh + 内容垂直居中，缩行距 Δ 之后第 1 行两卡整体
+    下移 Δ/2、第 3 张卡上移 Δ/2，而文档总高、吸附滚动位置、油灯的
+    视口位置**全都不动**（实测 docH 5098 / scrollAbsY 1814.39 /
+    油灯 [297,699,71,155] 三个读数改前改后逐位相同）。
+    Δ = 32 时标题上移 16px，遮挡从 22px 降到 6px（17%）：只剩灯罩
+    边缘蹭到首字上沿，整句可读；卡底与桌面/桌上物品的距离反而变大。
+    （1920x1200 档油灯本来就不与标题相交，改后更宽裕，无需额外处理。） */
+#projects .cards-grid {
+  row-gap: 32px;
+}
+
 /* 联系方式 */
 /* v2.2：联系方式做成一块"门牌"，两条并排而不是上下堆叠，
    在 664px 宽里一次看完，不用再往下找 */
@@ -2035,7 +2298,11 @@ html.palette-mid body {
 .contact-item {
   display: flex;
   align-items: center;
-  gap: 16px;
+  /* v3.21 需求②：标签列收窄（72 -> 44）之后，标签与值之间的间距同步
+     16 -> 12，把省下的 32px 全给右侧的值 —— 28px 的邮箱要 218px。
+     v3.22 需求③：标签列 44 -> 48、值回落 24px（见下面两条），
+     12px 这道间距仍不动 —— 它是"标签列 / 值"之间唯一的分隔。 */
+  gap: 12px;
   padding: 12px 0;
 }
 
@@ -2044,13 +2311,43 @@ html.palette-mid body {
 }
 
 .contact-label {
-  min-width: 72px;
-  font-size: var(--fs-small);
-  color: var(--px-brick);
+  /* v3.21 需求②：值放大到 28px 后这一列随之收窄 72 -> 44。
+     两个标签都是 2 个字（12px × 2 = 24），44 仍比标签宽、又能让两行的
+     值左缘对齐（两列同宽），省下的 28px 全部让给值。
+     实测：值区可用宽 284 - 44 - 12 = 228px。
+     v3.22 需求③（用户：「要变大的是邮箱、电话这两个标签字本身」）：
+     12 -> 24px —— 站点唯一可走的放大档（像素字与自托管子集都只有
+     12 的倍数不糊，12 的下一个可用档就是 24）。
+     标签列同步 44 -> 48 = 24 × 2，正好是"两个 24px 的字"的净宽：
+     两行标签仍等宽、值左缘继续对齐，值区可用宽 284 - 48 - 12 = 224px。
+     值这一轮同时回落 24px（见下条）⇒ 标签与值同级，实测值只要
+     187 / 120px，224px 里有大量余量。卡高与行高都不动：item 65px、
+     卡片 141px 与 v3.21 逐像素相同。 */
+  min-width: 48px;
+  font-size: 24px;
+  /* v3.7：砖红在深色版压深木只有 2.0:1、浅色版压浅木 1.6:1，都不够。
+     改成随主题反相的 --px-ink：深色版是奶油字（6.2:1），浅色版是深墨字（9.5:1）。 */
+  color: var(--px-ink);
+  /* v3.22 需求④：木底墨字全部加上与侧栏木牌同一道硬边投影
+     （同 .project-title / .project-desc；意见反馈卡按用户裁定不动）。 */
+  text-shadow: var(--panel-text-shadow);
 }
 
 .contact-value {
+  /* v3.7：12 -> 24（用户反馈"小字太小"，这一档是唯一可走的放大档）；行高守 36 */
+  /* v3.21 需求②：24 -> 28（用户"邮箱和电话的字再大一点"）。
+     行高仍守 36px（12 的整数倍）—— 值区盒高与改版前逐像素相同：
+     卡片高度、整节高度都不动，只有字变大。
+     实测：邮箱 187 -> 218px、电话 120 -> 140px，可用 228px 都放得下。 */
+  /* v3.22 需求③：28 -> 24 回退（用户这一轮把话说明白了 ——
+     「邮箱」「电话」这两个标签字本身要变大，值不必比标签更大；
+     28px 的值在标签列涨到 48px 之后只剩 6px 余量）。行高仍守 36px ⇒
+     值区盒高、卡片高（141px）与 v3.21 逐像素相同。 */
+  font-size: 24px;
+  line-height: 36px;
   color: var(--px-ink);
+  /* v3.22 需求④：与标签同一道 --panel-text-shadow（木底墨字那一组）。 */
+  text-shadow: var(--panel-text-shadow);
   text-decoration: none;
   border-bottom: 2px solid var(--px-wood-light);
   transition: color var(--px-ease), border-color var(--px-ease);
@@ -2065,37 +2362,312 @@ html.palette-mid body {
 .project-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  /* v3.8：12 -> 20（用户"标题和正文之间没有秩序、挤在一起"）。
+     20 = 12 的整数倍档位里最克制的一档，配合 --fs-title 的 48 行高，
+     标题块与正文块之间终于有一条肉眼可辨的呼吸线；
+     再往上（24/36）会让 386 高的卡在单列里显得虚。 */
+  /* v3.9（用户裁定 · 减量感）：20 -> 16。这一档是"松"而不是"挤"——
+     卡片同时收窄了 64px（864 -> 800）、上下内边距各省 4px、"卡与卡"
+     的行距 20 -> 32，整块卡片的重心因此重新落回文字上；
+     16 仍是 4 的倍数，与 48 行高的标题、36 行高的正文同一条栅格。 */
+  gap: 16px;
 }
 
-/* 项目标签 = 钉在木箱上的价签 */
+/* ===== v3.18 已撤除：下面这一段是 v3.15~v3.17 的「纸质方案」留档 =====
+   v3.18（用户裁定「项目卡回到和其他卡一样的木箱」）把纸整条删掉了：
+   DOM 覆盖层 <div class="project-paper"> 三个都删了、规则
+   `#projects .project-card > .project-paper` 也删了、素材
+   assets/px-paper-note.webp 归档到 .deepworks/tmp/v318/paper-archive/。
+   下面这段只作为「当时为什么这么做」的留档保留，**不再描述当前实现**。
+   注意：调色板的 --px-paper 是另一件东西（#FFFDF6 / #2B1E15 的底色 token，
+   顶栏汉堡键等处仍在用），与本轮的纸质覆盖层无关，必须留着。
+   ------------------------------------------------------------------ */
+/* v3.15（用户裁定「三张项目卡里的字，写在一张钉在卡上的泛黄纸上」）；
+   v3.16（用户裁定「纸换成旧米黄羊皮纸」）：
+   素材从亮黄那版换成压暗、降饱和的旧羊皮纸 —— 纸面实测中位色 #BAA378、
+   逐点起伏 ±24、不透明占比 0.889，四边啃缺明显（"旧"的味道就在啃缺上）。
+   尺寸随之 315x329 -> 314x322，版本串 ?v=315 -> ?v=316；
+   v3.17 又清掉撕边上挂的红/绿斑：色相带外的 1351 像素就地改回纸色，
+   尺寸 314x322 与 alpha 通道逐字节不变（只动颜色、不动轮廓），版本串 -> ?v=317；
+   兜底色与下面所有对比度数字同步换成实测值。
+   落地时把素材暗部向中位色收缩了 50%：斑驳留着，但最暗斑上 12px 正文的
+   对比度从 3.75:1 拉回 4.67:1（过 4.5:1）。
+   取代 v3.14 的"内嵌凹槽面板"。凹槽那两层 background（上沿过渡线 + 面板）
+   已回滚，卡片重新回到「左上/右上两枚铁钉 + 1:1 木纹」——
+   而这正是 .card--crate 本来的三层，所以原来那条
+   `#projects .project-card { ... }` 整条删掉了：它当初只为压出凹槽，
+   钉子与木纹本来就是从 .card--crate 逐字抄来的，留着就是重复声明。
+   纸改由真 DOM 子元素 .project-paper 承载（.card::before / ::after 已被
+   上下两条铁钉带占用），三张卡各一个 <div class="project-paper" aria-hidden="true">。
+     · 绝对定位 + inset 8px：四边都留出 8px 木纹缝，纸不铺满卡片；
+       absolute 不入流，标签/标题/正文一个像素都不移动。
+     · z-index:-1：.card 自己有 z-index:5、本身是层叠上下文，
+       所以 -1 只会落到「卡片背景之上、流内文字之下」这一层 ——
+       纸压在木纹上、字压在纸上，不需要给正文抬 z-index。
+     · 九宫格 border-image：素材源像素 314x322，切 96 -> 画 48px，
+       四角四边都是 0.5x 的整数映射（素材本身就是 0.5x 硬采样过的，
+       所以这里 1 源像素 = 1 CSS 像素，配 image-rendering:pixelated 不糊）。
+       右下的卷角、左下与各边的啃缺都落在 96px 的角/边切片里（实测卷角约 30px）。
+       `fill` 让中宫用「同一张图的内部」连续拉伸：不用平铺，
+       中宫与四边天然接得上 —— v3.15 试做时用 background 平铺纸纹，
+       中宫与切片之间出现了一道色阶接缝，fill 从结构上消掉了那个问题。
+       纸面有老纸的斑驳（中央不透明像素中位色 rgb(186,163,120)、逐点起伏 ±24），
+       横向约 4x 拉伸实测只读成柔和的斑驳，不像"被拉长"。
+       v3.17（用户裁定「纸张背后不要纯色背板，直接露木纹」）：整条删掉原先的
+       background-color 兜底色（v3.15 rgb(248,217,153) -> v3.16 #BAA378）——
+       它本来只是解码出图前的兜底，后来在撕边之外显出一块平整浅褐矩形（背板），
+       所以撤掉：撕边外直接透出木纹（本段反向断言：不得再出现 background-color）。
+     · 两层 0 blur 硬边投影：让纸从木纹上"翘起来"一档；
+       最远 5px，仍在 8px 缝内，不会爬到木框上。
+     · pointer-events:none + aria-hidden：纯装饰，不吃点击、不进无障碍树。
+   纸上文字钉死用 --chip-ink（站点既有的"浅底深字"token，#2A1D14）——
+   纸在两版配色下都是浅色（一张纸不跟主题反相），
+   若跟着 --px-ink 走，浅色版会变成浅底浅字（--px-ink 在 palette-mid 下是 #2A1D14，
+   恰好可用，但深色版的 --px-ink 是奶油色 #F3E3C6，压纸面只有 1.2:1）。
+   同理标题/正文不再吃 --panel-text-shadow：深色版那道近黑投影
+   压在浅纸的深墨字上会糊成一团，浅色版那道奶油高光更是全无反相。
+   注：--panel-text-shadow 这对 token 仍留在两套 palette 里（v2.x 起的既有 token，
+   v3.14 是它唯一一次被消费），本版起重新变为未被消费，不再随卡片变化。
+   v3.22：纸已不在（v3.18 起底材回到木箱），上面这条"不吃投影"的结论随之反转 ——
+   卡片木底墨字重新消费 --panel-text-shadow，见 .project-title /
+   .project-desc / .contact-label / .contact-value 里的 v3.22 注（v3.15→v3.17
+   停用、v3.22 起重新被消费）。 */
+/* v3.18：项目卡回到 .card--crate 本来的样子（左上/右上两枚铁钉 + 1:1 木纹）。
+   出流的东西只有一件 —— 挂在卡片左侧外面的那枚竖排标签，所以要放开裁剪：
+   .card 自己是 z-index:5 的层叠上下文，不改 overflow 的话 40px 宽的挂签
+   会被裁在卡外、完全看不见。只给 #projects 里的卡开，其余卡片一个字不动。
+   （v3.14 那条"内嵌凹槽面板"的规则在 v3.15 就已整条删除，这里也不让它回潮：
+    这一条只声明 overflow，别的一概不写。） */
+#projects .project-card {
+  overflow: visible;
+}
+
+/* 项目标签 = 挂在卡片左侧外面的一枚竖排小木牌
+   （v3.13 轻量化 → v3.15 落在纸上 → v3.18 出卡竖排）
+   v3.13（用户裁定「类型概括再往左上角贴一些」）：负 margin 贴角 + 透明底 + 墨色字。
+   v3.15：字挪到浅纸上，贴角取消（纸自己 inset 8px），字色改 --chip-ink。
+   v3.18（用户裁定「标签移到卡片左侧的外面、竖着排」）：标签整块移出卡片，
+   挂在卡左缘外侧（right:100%）、竖排（writing-mode: vertical-rl），
+   像仓库木箱侧面挂的一枚货签。
+   · 外观（木牌底 + 木框 + 硬阴影）**无条件生效**，含 ≤1024 窄屏：
+     窄屏那一档 .main 的左右内边距只有 16px，40px 宽的挂签出卡会直接跑到
+     x = 16 - 8 - 40 = -32 出屏，所以 ≤1024 时标签留在流内、横着排，
+     只是底材跟着卡片一起从浅纸换回了木箱 —— 老写法（底透明 + 墨色描边）
+     在木纹上会变成深墨压深木、读不出来，所以材质必须无条件下发。
+     定位与竖排在下面的 @media (min-width: 1025px) 段里。
+   · 竖排尺寸：4 个字占 48px（竖直方向一个身位 = 12px 字号），
+     加 12/6 内边距与 2px 框，实测牌面 40x76（见定稿几何 JSON）。
+   · 挂签出流后在卡内腾出的那一行，正好让标题升到卡片第一行 —— 这是
+     用户「把标题放到上面」那条裁定的落点（DOM 顺序本来就没变）。
+   · 挂签里的字**保持像素字**、不换思源黑体：4x 特写实测思源黑体 12px
+     偏细发虚、行高更大，会把挂签拉长约 1/3（三轮候选图对比）。
+   · 实心砖红价签(--px-brick)仍是禁区，反向断言继续。 */
 .project-tag {
   align-self: flex-start;
-  padding: 3px 11px;
+  margin: 0;
+  padding: 2px 10px;
   font-size: var(--fs-body);
-  color: var(--px-paper);
-  background: var(--px-brick);
-  background-image: linear-gradient(to bottom, rgba(255, 232, 176, 0.4), rgba(0, 0, 0, 0) 55%);
+  /* 木牌底 = 吊灯黄 --px-lamp(#FFE1A8)，上面盖一层"上亮下暗"的 1px 玻璃感
+     渐变；字仍用站点既有的"浅底深字"token --chip-ink(#2A1D14)：
+     压灯罩黄实测 13.9:1，且两套 palette 同值、不随主题反相
+     （牌是浅色底，恒用深字 —— 跟着 --px-ink 走的话深色版会变成浅底浅字）。 */
+  color: var(--chip-ink);
+  background: var(--px-lamp);
+  background-image:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.45), rgba(0, 0, 0, 0) 55%);
   border: 2px solid var(--px-wood-dark);
-  box-shadow: inset 0 0 0 1px rgba(255, 232, 176, 0.45), 2px 2px 0 var(--px-shadow);
+  /* 两道 0 blur 内斜角 + 一道硬阴影，全是硬边：受光侧 --px-rim(#FFE8B0)、
+     背光侧 --panel-lo（浅色版 #6E5237 / 深色版 #1F1822，两版都"比牌面暗"
+     一档，木牌的厚度感不随主题散掉）、投影 --px-shadow(#3B2A1E)。 */
+  box-shadow:
+    inset -1px 1px 0 var(--px-rim),
+    inset 1px -1px 0 var(--panel-lo),
+    3px 3px 0 var(--px-shadow);
 }
 
 .tag-explore {
-  background: var(--px-yellow);
-  color: var(--px-ink);
+  /* v3.13：去掉实心黄块，只把描边换成暖橙 ——
+     类型仍然一眼可辨（其余两张是木色描边），但不再抢标题的注意力。
+     v3.15：底材由深木纹换成浅纸后，--px-orange(#F2953F) 压纸面只有
+     1.68:1 —— 一枚看不见的描边等于没有类型提示。改用同一色相压深一档的
+     --px-orange-deep(#B85C1E)，纸面上 3.35:1，达到非文本 UI 的 3:1 门槛；
+     其余地方仍吃 --px-orange，不受影响。
+     v3.19（用户裁定恢复「暖橙 = 类型区分」）：v3.18 曾在 ≥1025 的媒体块
+     里把这条覆盖成 --px-wood-dark（出卡竖排之后三枚挂签同色确实更像一套），
+     但暖橙是站点里唯一一条「类型」视觉线索 —— 撤掉等于三张卡的类型提示
+     全没了。本轮把那块覆盖整条删掉，两档都吃这条 --px-orange-deep
+     （自检 #115 改成「文件里不再出现任何 #projects .tag-explore 选择器」
+     的钉法，比只查媒体块里一段更严）。 */
+  border-color: var(--px-orange-deep);
+}
+
+/* v3.18（用户裁定「标签移到卡片左侧外面、竖着排」）—— 只在这一档生效：
+   ≤1024 的窄屏卡片左右只剩 16px 内边距，挂签出卡会出屏（x = -32），
+   所以窄屏保留流内的横向小牌；桌面档才有出卡竖排。
+   定位账（1920x1200 实测）：.main 左缘 272 + 卡片内容左内缩 36 = 308 是
+   文字左缘；挂签右缘 = 卡片左缘内侧 - 8px 间距 = 272 - 8 = 264，
+   牌宽 40 ⇒ 牌左缘 224（落在 .main 左缘 272 之外 48px，不压侧栏 176 右缘，
+   中间仍留 48px 墙面缝）。竖排后牌高 76px，从卡片顶（318）垂到 394，
+   整枚都在卡外的左侧空白里，不遮任何东西。 */
+@media (min-width: 1025px) {
+  .project-tag {
+    position: absolute;
+    right: 100%;
+    top: 0;
+    margin: 0 8px 0 0;
+    /* 竖排：right-to-left 的行内轴，4 个字占 48px + 上下各 12 内边距 = 76px。
+       横向那一档的 padding 是 2px 10px，这里必须跟着换成 12px 6px。 */
+    writing-mode: vertical-rl;
+    padding: 12px 6px;
+  }
 }
 
 .project-title {
+  /* v3.18（用户裁定「项目卡标题换思源黑体 + 真加粗 + 升到卡内第一行」）：
+     字体只在这一条覆盖成 "Noto Sans SC Subset"（自托管子集，见文件头两枚
+     @font-face）；font-weight: 700 走 700 那份静态子集，是**真粗体** ——
+     v3.16 那套"四向 1px currentColor 描边假粗"随之整条撤除
+     （站点只有一套 PixelSC 且只有 400，描边是当时唯一的加粗手段）。
+     字色回到随主题反相的 --px-ink：v3.15 之所以改 --chip-ink，是因为底材
+     从木纹换成了恒为浅色的纸；纸已撤除（见上面那条），底材又是木箱，
+     深色版需要奶油字、浅色版需要深墨 —— 这正是 --px-ink 的定义。
+     定稿预演实测（1920x1200 两版配色）：奶油 #F3E3C6 压深木 10.4:1、
+     深墨 #2A1D14 压浅木 8.9:1，都远过 36px 大字那档 3.0:1 的两倍。
+     标题仍占卡内第一行（挂签出流腾出了原先那一行），字号 36/行高 48 未动。 */
+  font-family: "Noto Sans SC Subset", sans-serif;
+  font-weight: 700;
   font-size: var(--fs-title);
   /* v2.4 修错位：原来是 32px，比自己的字号（36px）还小 ——
      标题一旦折成两行就会互相压字。按 --fs-title 的配套行高给 48px */
   line-height: 48px;
   color: var(--px-ink);
+  /* v3.18：真粗体到手之后不再需要描边假粗；留着还会把思源黑体的笔画
+     糊成一圈黑边（v3.15→v3.17 那四向描边整条撤除）。
+     v3.22 需求④（用户：「卡片内内容文字加像侧边栏木牌那种硬边文字
+     阴影、字有实体、略凸出」）：重新吃回 --panel-text-shadow ——
+     底材在 v3.18 已经回到木箱，v3.15 那句"浅纸再加投影只会是负担"
+     的前提不再成立：深色版那道 2px 2px 0 近黑投影压在木纹上，
+     正是侧栏 .nav-link / .sidebar-name 用的同一道影子。 */
+  text-shadow: var(--panel-text-shadow);
+}
+
+/* v3.19（用户裁定「不用纯靠缩字数，可以减小英语版本的标题大小」）——
+   英文标题专属字号档：往下走一档 36 -> 24px、行高 48 -> 36px，仍是
+   「12 的倍数」体系（24 / 36 也正是正文那一档）。
+   · 只覆盖字号与行高：font-family / font-weight: 700 / --px-ink 全部继承
+     上面那条 .project-title，正文 .project-desc 不受影响。
+   · 为什么只动标题：英文三张卡在 36px 下标题合计 13 行（t1 4 / t2 4 / t3 2，
+     按子集 hmtx 在内容宽 254px 实测折行），换到 24px 是 10 行 —— 卡片高度
+     就是被这几行顶长的；靠「缩字号」而不是砍词把高度拉回来。
+   · 选择器用 html[data-lang="en"]（js 的 applyLanguage 里
+     setAttribute("data-lang", lang)）⇒ 只对英文生效；权重 (0,2,1) 高于
+     .project-title 的 (0,1,0)，与本块位置无关，中文标题仍是 --fs-title。 */
+html[data-lang="en"] .project-title {
+  font-size: 24px;
+  line-height: 36px;
 }
 
 .project-desc {
-  font-size: var(--fs-body);
-  color: var(--px-ink-soft);
+  /* v3.7：12 -> 24（"小字太小"）。
+     v3.16（用户裁定「正文缩小一号 + 改深灰 + 控制在 1-2 行」）：24 -> 12、
+     行高 36 -> 24，并加 -webkit-line-clamp: 2。
+     v3.18（用户裁定「项目卡正文换思源黑体」）：字号回 24px、行高 36px。
+     "只取 12 的倍数"这条红线是**像素字库的栅格**（PixelSC 只有 12px 一档，
+     缩放就糊），24 / 36 仍是 12 的整数倍，红线不破；36 又刚好是 24 x 1.5，
+     与卡片 4px 栅格、标题 48px 行高同一条呼吸线。
+     底材回到木箱，字色同标题回到 --px-ink（见 .project-title 那条）。
+     line-clamp 保留（见下面那段）：中文三条正文本就是整整两行，
+     留着是给英文与将来更长的文案兜底，两行以内一个字都不会被截。 */
+  font-family: "Noto Sans SC Subset", sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 36px;
+  /* v3.8："乱"的第三个根因 —— 正文原来是 --px-ink-soft（深色版
+     rgb(192,162,121)），和标题的 --px-ink（rgb(243,227,198)）只差一档，
+     同一色系叠同一色系就发糊。正文改用与标题同一个墨色：层级交给
+     字号（36 vs 24）和粗细去分，颜色不再兼任层级。
+     v3.15：正文与标题一起挪到纸上，底材从木纹变浅纸，墨色换 --chip-ink。
+     v3.16：正文不再与标题同色 —— 用户要"描述用深灰色、与标题分出主次"。
+     改用本轮新增的次级墨色 --chip-ink-soft(#33291F)：标题 #2A1D14 压
+     羊皮纸 #BAA378 = 6.69:1，正文 #33291F 压同一纸面 = 5.81:1，
+     两条都过 WCAG 正文/大字的 4.5:1。上面两个数取纸面实测中位色；
+      这版纸的斑驳比 v3.15 的亮纸明显（逐点起伏 ±24，v3.15 只有 ±6），
+      所以落地素材时把暗部向中位色收缩了 50% —— 收缩前最暗斑处正文
+      只剩 3.75:1，收缩后同一处是 4.67:1，最坏点也过线。
+     纸不随主题反相，所以这一个色值
+     在两个 palette 下通用（同 --chip-ink 的道理）。 */
+  color: var(--px-ink);
+  /* v3.16（用户裁定「描述文字精简到 1-2 行，超出部分用 CSS 截断 + 省略号」）：
+     行数上限写死在 CSS 里 —— 即使以后文案又变长（或系统字号被放大），
+     正文最多占 2 行，卡片高度不被撑开。overflow: hidden 是 line-clamp
+     生效的前提，缺了它省略号不会出现。 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  /* v3.22 需求④：正文与标题一起回到 --panel-text-shadow
+     （用户要的是卡片内内容文字整体有实体感，理由见下面那段阴影注释）。 */
+  text-shadow: var(--panel-text-shadow);
+}
+
+/* v3.15（取代 v3.14「正文加阴影」）：标题与正文不再吃任何"投影"。
+   v3.14 之所以要影子，是因为字直接压在木纹上、底材本身有颗粒和明暗，
+   需要一道投影把字从木纹里"抠"出来（深色版近黑投影 / 浅色版奶油高光）。
+   v3.15 的底材换成了浅纸，深墨字压浅纸的对比已经足够，再加投影只会是负担 ——
+   深色版那道 rgba(20,12,6,.85) 的近黑投影压在深墨字上会糊成一坨，
+   浅色版那道奶油高光在浅纸上更是完全不可见。
+   所以这里不是"忘了加"，是显式声明：--panel-text-shadow 这对 token
+   重新回到"已定义、未消费"的状态（v2.x 起就是这样，v3.14 是它唯一一次
+   被消费），两套 palette 里的声明按既有惯例保留、不删。
+   tools/verify-page.py #119 原来盯这两条：正文显式归零、且整份 CSS
+   不再消费 var(--panel-text-shadow)（v3.22 起反向，见本注末尾）。
+
+   v3.16（用户裁定「标题加粗」）：原本标题与正文一起归零，本轮把标题拆出来。
+   站点只有一套 PixelSC（font-weight: 400，没有粗体变体），声明
+   font-weight: 700 只会让浏览器合成"假粗" —— 对点阵字是灾难（笔画糊成一坨）。
+   改用像素画惯用的「四向 0 blur 描边」：四个方向各叠一层 currentColor，
+   字干整体外扩 1px = 视觉加粗一档，且四层都是 0 blur 的硬边投影，
+   不触碰站点「禁止模糊阴影」的红线（自检的模糊判据扫的是滤波函数名 +
+   左括号，本规则不含任何滤波函数）。描边吃 currentColor，标题换色自动跟随。
+   外扩 1px 在 36px 的标题上是"加粗"，在 12px 的正文上会糊成一坨 ——
+   所以只有标题吃描边，正文必须留在 none。
+   （这两条 text-shadow 分别写在上面 .project-title 与 .project-desc 各自的规则块里，
+   这里只留说明文字，CSS 规则体不重复声明 —— 自检 #119 正是从这两个块里读值。）
+
+   v3.22 需求④ 再次反转（用户：「卡片内内容文字加像侧边栏木牌那种硬边
+   文字阴影，字有实体、略凸出」）：上面 v3.15 那两条"归零"的前提（底材是
+   浅纸、纸上是深墨）都已不存在 —— 底材在 v3.18 回到木箱，木底墨字重新
+   消费 --panel-text-shadow。
+   范围＝木底墨字全部：.project-title / .project-desc / .contact-label /
+   .contact-value，四条都写 text-shadow: var(--panel-text-shadow)
+   （深色版 2px 2px 0 rgba(20,12,6,.85) 近黑，浅色版
+   2px 2px 0 rgba(255,246,228,.55) 奶油高光，随 palette 自动反相）。
+   **意见反馈卡明确不动**（用户裁定）：.field-label / .field input /
+   .field textarea / .field select / .form-tip / .submit-btn 都不加 ——
+   #119 反向后盯的就是这条边界（木底四类必须消费、反馈卡必须不消费）。
+   浅底小牌（.project-tag / #interests .tag / .submit-btn）本来就有自己的
+   3px 硬投影做厚度，不吃这道 token（保持原样）。 */
+
+/* 项目类型图标（v3.13 新增）= 压在卡片右下角那块空白上的小戳
+   v3.13 诊断：736 宽的卡里文字只占左上一条"L 形"（标签 + 标题 + 正文），
+   右侧与下方约六成面积是纯木纹、没有任何落点 —— 这是"乱、不成一幅画"
+   的第一个根因。图标给那块空白一个锚，并与左上角的标签构成对角呼应，
+   卡面因此从"一条 L 形"读成"对角有物、中间透气"。
+   v3.15（用户裁定「图标内收 16px 让开卷角」）：底材换成纸之后，
+   右下角多了一个纸卷起来的角，原位置（right 20 / bottom 14）的图标
+   正好整个压在那个卷角上 —— 6× 特写里卷角只剩一丝边。
+   右 20 -> 36（+16px）、下 14 -> 26（+12px）之后图标挪到卷角内侧，
+   两件东西都完整：卷角露出来，图标仍是右下角的锚。
+   绝对定位、不占流：正文的换行行为与可用宽度一个字不变（仍是 664px）。
+   32px = 16 源像素网格的 2× 整数倍缩放，像素不糊。 */
+.project-icon {
+  position: absolute;
+  right: 36px;
+  bottom: 26px;
+  width: 32px;
+  height: 32px;
+  opacity: 0.92;
+  pointer-events: none;
 }
 
 /* 兴趣标签 = 一排小木牌 */
@@ -2249,7 +2821,10 @@ padding: 6px 14px;
   padding: 16px 36px;
   font-family: inherit;
   font-size: var(--fs-body);
-  color: var(--px-ink);
+  /* v3.7：按钮面是浅木色（还压了一层 rgba(255,232,176,.6) 高光），
+     不该配"跟随主题"的字色 —— 深色版会变成奶油字压浅木（1.99:1，糊）。
+     钉死 --chip-ink 后常态 5.8:1、悬停变黄底仍有 10.7:1。 */
+  color: var(--chip-ink);
   background-color: var(--px-wood-light);
   background-image:
     repeating-linear-gradient(0deg, rgba(110, 74, 46, 0.16) 0 2px, rgba(0, 0, 0, 0) 2px 8px),
@@ -2272,26 +2847,75 @@ padding: 6px 14px;
 }
 
 .form-tip {
-  font-size: var(--fs-small);
+  /* v3.7：12 -> 24（"小字太小"）；行高 36 守 12 的整数倍 */
+  font-size: 24px;
+  line-height: 36px;
   color: var(--px-ink-soft);
 }
 
-/* footer = 店门口的地垫 */
+/* ===== v3.20 ①：卡片内文字换思源黑体（首屏吊牌 / 挂签 / section 标题除外）=====
+   用户裁定「所有卡片里的文字都换成思源黑体」。范围 = 四张卡片里真正渲染
+   文字的元素：
+     · 联系方式：字段名 .contact-label + 字段值 .contact-value；
+     · 兴趣：标签 #interests .tag；
+     · 反馈表单：字段名 .field-label、输入框 / 多行框 / 下拉、提交按钮、
+       底部提示 .form-tip（占位符 ::placeholder 与 option 随控件继承，
+       不必单独声明）。
+   项目卡的 .project-title / .project-desc 已在 v3.18 换过，不重复声明。
+   仍走像素字（有意保留）：.section-title、挂签 .project-tag、侧栏 / 顶栏 /
+   页脚 / 导航、首屏吊牌 .px-sign（思源 12px 偏细发虚、行高更大，会把挂签
+   拉长约 1/3）。
+   字号一个都不动：全部沿用既有 12 的倍数档位（12 / 24）。
+   子集是自托管的 fonts/noto-sans-sc-{400,700}-subset.woff2，family 末尾只留
+   泛化 sans-serif，不挂系统回退链。 */
+.contact-label,
+.contact-value,
+#interests .tag,
+.field-label,
+.field input,
+.field textarea,
+.field select,
+.submit-btn,
+.form-tip {
+  font-family: "Noto Sans SC Subset", sans-serif;
+}
+
+/* footer = 店门口地板上的一行小字（v3.17：撤掉地垫）
+   v3.7 起它是「店门口的地垫」：浅木面 + 3px 木框 + 内斜角 + 5px 硬边投影的一整块方框。
+   v3.17（用户裁定「最下方那个方框删去，只留一行字在下方正中央，字号 12」）：
+     · 字号 24 -> 12、行高 36 -> 24（守「字号只取 12 的倍数」红线）；
+     · 地垫整块撤掉：background / background-image / 3px 木框 / 两层内斜角
+       与 5px 硬边投影全部删除，只留一行字；
+     · flex 居中、gap 12px、margin-top 20px、左边那只 .footer-cat（32x16）
+       原样保留（用户裁定「保留小猫」）；
+     · 地垫一去，字就直接站在深色木地板上：深墨 #2A1D14 压实测地板色
+       rgb(27,13,4) 只有 1.7:1（看不见），所以字色从 --chip-ink 改成固定
+       奶油色 #F3E3C6（= 深色版既有「奶油字」token 的取值），并补一层 0 blur
+       四向深墨描边 —— 描边让字压在木桌亮面上也立得住；四层都是硬边，
+       不越「禁止模糊阴影」红线。颜色钉死不跟主题反相：页脚底下（地板与
+       木桌下缘）在两套 palette 下实测同色（都是暗木），若用 --px-ink，
+       palette-mid 下会变成深墨压深木。
+     · position: relative + z-index: 35 —— 页脚原本被固定场景层压在下面
+       （.px-table z7 与 .px-window-sun z3 会切掉地垫中段，只留 x 746~935
+       那一小截，这正是「方框看着残缺」的成因）。35 高于场景全部可视层
+       （木头/猫 z12、灯罩暗角 z20、吊灯与扯线 z30），仍低于侧栏 z40 /
+       音效按钮 z60 / 粒子 z70 / toast z90；.main 依旧不给 z-index（红线）。
+       实测 1920x1200 滚到底：纯红底注入法下页脚整框 664x24 的 100% 像素
+       不再被场景覆盖，字与小猫清晰可读。 */
 .footer {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 20px 24px;
+  padding: 0;
   margin-top: 20px;
-  font-size: var(--fs-small);
-  color: var(--px-ink);
-  background: var(--px-wood-light);
-  background-image:
-    repeating-linear-gradient(0deg, rgba(110, 74, 46, 0.18) 0 2px, rgba(0, 0, 0, 0) 2px 6px),
-    linear-gradient(to bottom, rgba(255, 232, 176, 0.45), rgba(0, 0, 0, 0) 50%);
-  border: 3px solid var(--px-wood-dark);
-  box-shadow: inset -2px 2px 0 var(--px-rim), inset 2px -2px 0 var(--panel-lo), 5px 5px 0 rgba(59, 42, 30, 0.25);
+  /* v3.7：12 -> 24（"小字太小"）；地垫是浅木面，字色也从跟随主题改成钉死深墨 */
+  font-size: 12px;
+  line-height: 24px;
+  color: #F3E3C6;
+  text-shadow: 1px 1px 0 #1A1108, -1px -1px 0 #1A1108, 1px -1px 0 #1A1108, -1px 1px 0 #1A1108;
+  position: relative;
+  z-index: 35;
 }
 
 .footer-cat .px-svg {
@@ -2419,51 +3043,472 @@ padding: 6px 14px;
   100% { transform: rotate(0deg); }
 }
 
-/* 气泡 = 一张便签纸 */
-.speech-bubble {
+/* ============================================================
+   v3.23「双对话栈」
+   原来是"一个气泡绝对定位在头顶"。现在改成一个栈容器：
+     · .speech-stack 仍钉在小人头顶正上方，里面放 0~2 条气泡；
+     · DOM 顺序 = 从老到新 ⇒ 最新的那条永远在容器底部（离小人最近），
+       旧的自然被"顶"到上面去（用户在裁定里要的就是这个观感）；
+     · 第 3 条进来时由 JS 直接删掉第一条（见 script.js 第 11 节）。
+   容器本身 pointer-events: none，只有气泡可悬浮 / 可点
+   （带"查看详情"的那种要能吃点击；豆豆是纯装饰，也不吃点击）。
+   ============================================================ */
+.speech-stack {
   position: absolute;
   bottom: calc(100% + 14px);
   left: 50%;
-  width: max-content;
-  max-width: 240px;
-  padding: 10px 14px;
-  font-size: var(--fs-body);
-  color: var(--px-ink);
-  /* v2.2：和卡片同一套配色与纸纹（multiply 染深） */
-  background-color: var(--panel-bg-deep);
-  background-image: var(--px-wood);
-  background-size: var(--px-wood-w) var(--px-wood-h);
-  background-repeat: repeat;
-  background-blend-mode: normal;
-  border: 3px solid var(--panel-line);
-  box-shadow: inset 0 0 0 1px var(--panel-rim), 4px 4px 0 var(--px-shadow);
-  opacity: 0;
-  transform: translateX(-50%) translateY(6px);
-  transition: opacity var(--px-ease), transform var(--px-ease);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;   /* 老的在上面，新的贴底 */
+  align-items: center;
+  gap: 6px;
   pointer-events: none;
 }
 
-/* 像素阶梯尾巴 */
-.speech-bubble::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -9px;
-  width: 12px;
-  height: 9px;
-  margin-left: -6px;
-  background-image:
-    linear-gradient(var(--px-wood-dark), var(--px-wood-dark)),
-    linear-gradient(var(--px-wood-dark), var(--px-wood-dark)),
-    linear-gradient(var(--px-wood-dark), var(--px-wood-dark));
-  background-size: 12px 3px, 6px 3px, 3px 3px;
-  background-position: 0 0, 3px 3px, 6px 6px;
-  background-repeat: no-repeat;
+/* 气泡 = 像素便签（v3.23 换成 AI 画的 px-chat-bubble-l 素材）
+   九宫格 slice 取 10：实测素材四角是 8~10px 的像素阶梯
+   （px-chat-bubble-l 左上角 内缩 8px、r 内缩 10px），slice=10 刚好把
+   阶梯整个收进角块、1 源像素 = 1 CSS 像素；再小会把圆角切掉，
+   再大就把直线段也当角块拉走了。
+   repeat 而不是 round：气泡高度由文案行数决定（不固定），
+   round 会把边带整体缩放（近 1:3）把像素糊掉；repeat 是 1:1 平铺、
+   不够的那截直接裁掉 —— 边带基本是纯色描边（实测同一行内色差
+   平均 5/255），裁掉一截肉眼无感，像素反而更干净。
+   border-image 不吃 CSS 变量染色，所以左右两版气泡各一套图；
+   中心默认不填 ⇒ 另用 background-color 补纯色底（值为素材内芯实测 #FDFCF3）。
+   background-clip: padding-box 是必须的：素材四角是像素阶梯，
+   不裁的话纯色底会在四角把透明区填成方块，圆角就没了。 */
+.speech-bubble {
+  position: relative;
+  width: max-content;
+  max-width: 240px;
+  padding: 4px 6px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  /* 气泡底是固定浅色（#FDFCF3），两个 palette 下都不反相 ——
+     所以字色不能吃 --px-ink（默认 palette 下是 #F3E3C6 奶油色，
+     压在奶油底上等于看不见），要走 --chip-ink 这条「浅底永远深字」的惯例
+     （同 --chip-ink / --chip-ink-soft，见 :root 处的说明）。 */
+  color: var(--chip-ink);
+  background-color: #FDFCF3;
+  background-clip: padding-box;
+  border: 10px solid transparent;
+  border-image: url("../assets/px-chat-bubble-l.webp?v=323") 10 10 10 10 / 10px / 0 repeat;
+  box-shadow: 4px 4px 0 var(--px-shadow);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--px-ease), transform var(--px-ease);
+  pointer-events: auto;   /* v3.23：要能悬浮暂停倒计时、要能点「查看详情」 */
+  image-rendering: pixelated;
 }
 
 .speech-bubble.show {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
+}
+
+/* 尾巴也换成素材（原来是三段 linear-gradient 拼的阶梯）。
+   素材的根部就画在本体直边上、描边同色，接缝看不出来。
+   悬浮气泡的尾巴要居中对着小人，所以这里覆盖素材的原始左偏移。 */
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 13px);
+  bottom: -12px;
+  width: 26px;
+  height: 12px;
+  background-image: url("../assets/px-chat-bubble-l-tail.webp?v=323");
+  background-size: 26px 12px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* 倒计时豆豆：挂在气泡【框】右侧外（用户裁定"框外右侧"），5 颗竖排。
+   v3.24（需求①）：整列不再写死 66px（旧版 10px 豆 + 4px 间距比单行气泡还高，
+   视觉占比过大），改成跟着气泡高度自适应 —— 只占「可见框体」竖直高度的一半。
+   注意百分比高度的基准是气泡的 padding box（不含 10px 边框），所以要写
+   calc(50% + 10px)：（paddingBox + 20px 边框）/ 2 = paddingBox/2 + 10px。
+   display: grid + 固定的 5 条 1fr 轨道（不是 flex:1）：每秒掉一颗时
+   剩下豆豆的轨道尺寸与位置都不变，不会"越掉越大"或整体上移。
+   水平居中 + aspect-ratio: 1/1 ⇒ 豆豆是正方形，尺寸全由轨道高度推出来。
+   定位：right 的基准仍是 padding box ⇒ 10px 边框 + 4px 间距写 -14px，
+   再 translateX(100%) 用自身宽度把整列推出去（宽度是算出来的，不能写死）；
+   左边同理用 left: -14px + translateX(-100%)。
+   右边真没地方时（小人贴右缘）JS 会给气泡加 --beans-left，整列翻到左边。 */
+.speech-beans {
+  position: absolute;
+  right: -14px;
+  top: 0;
+  transform: translateX(100%);
+  height: calc(50% + 10px);
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  justify-items: center;
+  gap: 1px;
+  pointer-events: none;
+}
+
+.speech-bubble--beans-left .speech-beans {
+  left: -14px;
+  right: auto;
+  transform: translateX(-100%);
+}
+
+.speech-bean {
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  background-image: url("../assets/px-chat-dot.webp?v=323");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+/* 「点击这里查看详情」那类气泡：多一行提示 + 右下角一枚小字，
+   整块可点（光标与亮度给反馈）。 */
+.speech-bubble--detail {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.speech-bubble--detail:hover {
+  filter: brightness(1.06);
+}
+
+.speech-detail {
+  display: block;
+  margin-top: 2px;
+  /* 不用 --px-brick(#D9644A)：那是色板里的"砖红"、也是站内矢量图标
+     在用的那个红，压在奶油气泡底上只有 3.47:1，12px 小字过不了
+     WCAG AA 的 4.5:1。这里单独压深到 #B84A31 = 5.02:1（同一支砖红，
+     只是沉一档），色板 token 与图标红都不动。 */
+  color: #B84A31;
+}
+
+/* v3.24（需求②）：项目气泡右下角那枚「查看详情」小字删掉（那里只留内联的
+   「点击这里查看详情」）。这行改成问候 / 发呆气泡右下角的「进入对话」入口：
+   颜色钉 #B84A31（奶油底 5.02:1，同 .speech-detail），气泡整块可点。 */
+.speech-enter {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
+  font-size: var(--fs-small);
+  line-height: 1;
+  color: #B84A31;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 带「进入对话」的气泡整块可点（同 .speech-bubble--detail 的待遇） */
+.speech-bubble--enter {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* ============================================================
+   v3.23：像素风「微信式」聊天窗（项目详情占位）
+   左侧 = 我（头像 + 奶油气泡），右侧 = 访客（只有豆绿气泡）。
+   外壳用 px-chat-frame 九宫格 + 站内木纹内芯；
+   background-clip: padding-box 让框上那圈"内缩透明带"真的透出去，
+   露出后面的遮罩 —— 就是素材本身那种角码式包角的观感。
+   关闭三件套：右上角像素 ×、点窗外遮罩、Esc（见 script.js 第 11-B 节）。
+   ============================================================ */
+.px-chat {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* display: flex 会盖掉 [hidden] 的 display: none，必须显式写回来 */
+.px-chat[hidden] {
+  display: none;
+}
+
+.px-chat-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 12, 8, 0.55);
+}
+
+.px-chat-window {
+  position: relative;
+  width: min(680px, 100%);
+  max-height: min(78vh, 620px);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 10px;
+  background-color: var(--panel-bg);
+  background-image: var(--px-wood);
+  background-size: var(--px-wood-w) var(--px-wood-h);
+  background-repeat: repeat;
+  background-clip: padding-box;
+  border: 24px solid transparent;
+  border-image: url("../assets/px-chat-frame.webp?v=323") 24 24 24 24 / 24px / 0 round;
+  box-shadow: 8px 8px 0 rgba(12, 6, 3, 0.5);
+  image-rendering: pixelated;
+  outline: none;
+  animation: px-chat-in 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes px-chat-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.px-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--panel-line);
+}
+
+.px-chat-title {
+  font-size: var(--fs-nav);
+  line-height: 1;
+  color: var(--px-ink);
+}
+
+.px-chat-close {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: url("../assets/px-chat-close.webp?v=323") center / 28px 28px no-repeat;
+  image-rendering: pixelated;
+  cursor: pointer;
+  transition: transform var(--px-ease), filter var(--px-ease);
+}
+
+.px-chat-close:hover { transform: scale(1.08); filter: brightness(1.08); }
+.px-chat-close:active { transform: scale(0.94); }
+
+.px-chat-body {
+  flex: 1 1 auto;
+  min-height: 180px;
+  overflow-y: auto;
+  padding: 14px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.px-chat-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.px-chat-row--them { justify-content: flex-end; }
+
+.px-chat-face {
+  flex: none;
+  /* v3.24（需求④）：原来写死 32x32 正方形，而素材是 818x616 的
+     「2 帧横排」（单帧 409x616，竖构图，宽高比 0.664）⇒ 横向被拉伸 1.5 倍，
+     看着就是"压扁/胖了"。改成按素材比例算宽度：32 * 409 / 616 ≈ 21.25px，
+     与侧边栏 .px-hero-img--big 的 64x96 是同一个比例，像素不畸变。
+     保持 32px 高不变（行高与气泡对齐不变），只收窄。 */
+  width: calc(32px * 409 / 616);
+  height: 32px;
+  /* 复用侧边栏那张半身像（2 帧横排素材，取第 0 帧） */
+  background-image: url("../assets/px-hero-portrait.webp");
+  background-size: 200% 100%;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  box-shadow: 2px 2px 0 rgba(18, 10, 5, 0.35);
+}
+
+.px-chat-bubble {
+  position: relative;
+  max-width: min(320px, 72%);
+  padding: 4px 6px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  /* 同上：气泡底固定浅色（#FDFCF3 / 豆绿 #B7D299），字色走 --chip-ink。 */
+  color: var(--chip-ink);
+  background-color: #FDFCF3;
+  background-clip: padding-box;
+  border: 10px solid transparent;
+  border-image: url("../assets/px-chat-bubble-l.webp?v=323") 10 10 10 10 / 10px / 0 repeat;
+  image-rendering: pixelated;
+}
+
+.px-chat-row--them .px-chat-bubble {
+  border-image-source: url("../assets/px-chat-bubble-r.webp?v=323");
+  background-color: #B7D299;
+}
+
+/* 聊天窗里的气泡也带小尾巴（素材画在底部左/右内侧，按左右各自锚边） */
+.px-chat-bubble::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  bottom: -12px;
+  width: 26px;
+  height: 12px;
+  background-image: url("../assets/px-chat-bubble-l-tail.webp?v=323");
+  background-size: 26px 12px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.px-chat-row--them .px-chat-bubble::after {
+  left: auto;
+  right: 10px;
+  bottom: -14px;
+  width: 28px;
+  height: 14px;
+  background-image: url("../assets/px-chat-bubble-r-tail.webp?v=323");
+  background-size: 28px 14px;
+}
+
+/* v3.25（需求①）：「主人正在输入」的省略号 —— 三个像素小方块依次跳动。
+   ① 高度取一个正文行高（--lh-body = 24px），这样"省略号 → 正文"两拍之间
+      气泡不会先缩成一条再被撑开；
+   ② 用方块不用圆点，和站点其它像素件（豆豆、挂签、木牌）同一套方格语言；
+   ③ steps(1, end) 让它"跳"而不是"滑"，符合像素动画的走法。
+   注：@media (prefers-reduced-motion: reduce) 里全局把 animation-duration
+   压到 0.001ms，这串点会静止；JS 那边同时直接落全文（见 chatReduceMotion）。 */
+.px-chat-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--lh-body);
+}
+
+.px-chat-dots i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background-color: var(--chip-ink);
+  animation: px-chat-dot 1.2s steps(1, end) infinite;
+}
+
+.px-chat-dots i:nth-child(2) { animation-delay: 0.16s; }
+.px-chat-dots i:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes px-chat-dot {
+  0%   { opacity: 0.30; transform: translateY(0); }
+  25%  { opacity: 1;    transform: translateY(-3px); }
+  50%  { opacity: 0.55; transform: translateY(0); }
+  75%  { opacity: 0.85; transform: translateY(-1px); }
+  100% { opacity: 0.30; transform: translateY(0); }
+}
+
+/* 「正在输入」这一行的状态钩子（JS 在吐字期间挂上、补齐后摘掉）：
+   ① 那三个方块在跳，别让用户一不小心把它们框进选区、连成蓝色一块；
+   ② 它同时是"这一拍是省略号还是正文"的可读标记 —— 自动化取证（CDP 探针）
+      就靠等这个类出现/消失来抓帧，替代盲等固定毫秒数。 */
+.px-chat-row--typing .px-chat-bubble {
+  user-select: none;
+}
+
+/* v3.24（需求③）：底部从「一行占位说明」换成可交互区 ——
+   上面一排快捷提问木牌，下面一列输入框 + 发送。
+   底色一律走固定浅色（--px-cream / --px-yellow）
+   配固定深墨 --chip-ink，跟气泡同一套「浅底永远深字」惯例：
+   cream 上 15.23:1、黄底上 10.7:1，两个 palette 下都稳。
+   v3.24b 修：输入框原来写的 --px-paper 不属于"固定浅色"（它会随 palette
+   反相，深色版 #2B1E15），深墨压深底 = 1.01:1，已换成 --px-cream。 */
+.px-chat-foot {
+  flex: none;
+  padding-top: 8px;
+  border-top: 2px solid var(--panel-line);
+}
+
+.px-chat-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.px-chat-chip {
+  padding: 2px 8px;
+  font: inherit;
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--chip-ink);
+  background-color: var(--px-cream);
+  border: 2px solid var(--px-wood-dark);
+  cursor: pointer;
+  transition: background-color var(--px-ease), transform var(--px-ease);
+}
+
+.px-chat-chip:hover {
+  background-color: var(--px-yellow);
+  transform: translateY(-1px);
+}
+
+.px-chat-chip:active { transform: translateY(0) scale(0.97); }
+
+.px-chat-form {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.px-chat-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 8px;
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--chip-ink);
+  /* v3.24b：底不能用 --px-paper —— 它是「会反相」的底色 token
+     （:root #FFFDF6 / 深色版 :251 #2B1E15 / 浅色版 :299 #B08F66），
+     而这里钉死的是固定深墨 --chip-ink(#2A1D14)：深色版上算出来
+     1.01:1，输入的字、光标、占位符全看不见（真机 p3 复现）。
+     改用固定浅底 --px-cream(#FFF6E4)，与同一排的木牌 .px-chat-chip
+     完全同款（cream + chip-ink），两版配色下都 15.23:1。 */
+  background-color: var(--px-cream);
+  border: 2px solid var(--px-wood-dark);
+  outline: none;
+}
+
+/* 占位符要"比正文淡一档"但仍在同一块固定浅底上，所以取固定深棕
+   --px-wood-dark(#6E4A2E)：在 cream 上 7.29:1，过 AA。
+   （原来写 var(--px-wood) 是错的：--px-wood 在 :2122/:2130 已被重定义成
+   木纹图 url()，当 color 用是无效声明，整条规则被丢掉 —— 跟 :3667 记的
+   是同一个坑。） */
+.px-chat-input::placeholder { color: var(--px-wood-dark); }
+
+.px-chat-input:focus-visible {
+  border-color: var(--px-orange-deep);
+  box-shadow: 0 0 0 2px rgba(184, 92, 30, 0.35);
+}
+
+.px-chat-send {
+  flex: none;
+  padding: 3px 12px;
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--chip-ink);
+  background-color: var(--px-yellow);
+  border: 2px solid var(--px-wood-dark);
+  cursor: pointer;
+  transition: filter var(--px-ease), transform var(--px-ease);
+}
+
+.px-chat-send:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.px-chat-send:active { transform: translateY(0) scale(0.97); }
+
+/* 对话为空时（理论上只在首次问候之前）不撑高 */
+.px-chat-body:empty { padding: 0; }
+
+/* 开窗时锁住页面滚动，避免背后的场景跟着滚 */
+body.px-chat-open {
+  overflow: hidden;
 }
 
 /* ============================================================
@@ -2513,7 +3558,14 @@ padding: 6px 14px;
 }
 
 /* ============================================================
-   响应式（断点沿用 1.0 的 820px）
+   响应式（v3.7：断点 820 -> 1024）
+   ------------------------------------------------------------
+   v3.7 用户反馈：截图视口 ≈830px（物理 1661 / DPR2）时打开的还是
+   "电脑版"，而 821~1100 这一段桌面布局本来就局促（正文列 760 顶到
+   视口右缘、房间场景被切）。所以把桌面/移动的分界整体抬到 1024px：
+   ≤1024 一律走下面的移动版（顶栏 + 抽屉侧栏 + 单列内容），
+   >1024 保持原桌面版一个像素不动。
+   下面两条 1280 / 1080 的规则只对 1025~1280 这段宽屏生效，语义不变。
    ============================================================ */
 @media (max-width: 1280px) {
   .px-furn-clock {
@@ -2531,7 +3583,15 @@ padding: 6px 14px;
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
+  /* v3.12：这一段把 .main 的 margin-left 钉回 0（见下面 .main 那条）——
+     内容列没有右移时，--px-main-shift 也必须读 0：否则吊灯落点算式与
+     项目卡宽度算式会按"已经右移 32px"算，白白错开 32px（短横屏桌面窗口
+     与窄屏共用这一段）。 */
+  :root {
+    --px-main-shift: 0px;
+  }
+
   /* 移动端让位给顶部栏：收起店招 */
   .px-signboard {
     display: none;
@@ -2752,6 +3812,13 @@ padding: 6px 14px;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+
+  /* v3.21 需求①：吊牌摆动在"减少动态效果"下直接关掉 ——
+     现在关掉后就是"竖直静止"（v3.20 那条静态倾斜已随改版撤除，
+     不再留下一个"歪着的姿态"）。 */
+  .px-sign-swing {
+    animation: none !important;
+  }
 }
 
 /* ============================================================
@@ -2863,23 +3930,43 @@ body:not(.weather-rain):not(.weather-snow) .px-window-view {
    ============================================================ */
 
 /* ---------- AI 像素吊灯（挂在天花板上；"镜头前的东西"，层级压过卡片） ---------- */
-/* v3.0（用户裁定）：吊灯的横向落点从"贴着侧边栏"改成
-   「卡片右缘 与 窗户玻璃左缘 之间取 1/3，偏向卡片那一侧」。
-   · 卡片右缘 = var(--sidebar-w) + 712px —— .main 是 margin-left: 侧边栏 + max-width 760 +
-     左右各 48 内边距，所以卡片右缘恒等于 侧边栏 + (760 - 48)。
+/* v3.8（用户裁定）：项目卡放宽之后，吊灯再挪一次 ——
+   v3.0 的落点是「卡片右缘 与 窗户玻璃左缘 之间取 1/3，偏向卡片那一侧」
+   （1920 视口 = 888 + 555/3 = 1073），v3.8 那张卡右缘从 888 长到 1088，
+   1/3 点已经落进卡面里。用户要求"吊灯重新放在窗户左外缘和卡片之间的
+   间隙里"，于是改成取**这段间隙的正中**。
+   · 项目卡右缘 = var(--sidebar-w) + 48px + var(--px-proj-col)（见下面那条变量）。
+     注意这里说的是"项目卡"：.main 本身仍是 760，首屏 / 联系 / 兴趣都没动。
    · 窗户玻璃左缘 = var(--px-ox) + 1174px * var(--px-scale)（与 .px-window 同一套坐标）。
-   · 1920 视口实测：卡片右缘 888、窗左缘 1443 ⇒ 1/3 点 = 888 + 555/3 = 1073。
+   · v3.8 于 1920 视口实测：项目卡右缘 1088、窗左缘 1476 ⇒ 中点 = (1088 + 1476) / 2 = 1282。
+   · v3.9（收量感）：卡宽 864 -> 800 ⇒ 卡右缘 1088 -> 1024，中点随之 =
+     (1024 + 1476) / 2 = 1250，灯罩（62 宽）实占 1219..1281 —— 依旧正落在
+     "卡右缘 ↔ 窗左缘"这段间隙的正中，算式一个字没改，只是 --px-proj-col 变小了。
    · left 定位的是灯罩左缘，灯罩 62 宽 ⇒ 再减 31px，让"灯罩中心"落在那一点上。
-   · clamp 两端是兜底：窄一点的桌面（900px 上下）卡片右缘会顶到窗口右缘，
-     1/3 点会跑到屏幕外，这里把它夹在视口内（右缘留 78 = 灯罩 62 + 16 边距），
-     并且不让它压到侧边栏上。
+   · clamp 两端是兜底：中点跑到屏幕外时（窄桌面 / 极扁视口）夹回视口内
+     （右缘留 78 = 灯罩 62 + 16 边距），并且不让它压到侧边栏上。
    写成变量是为了让吊灯与扯线共用同一个落点 —— 这两处原来各抄一份
    "侧边栏 + 96px" 的算式，改一处漏一处就垂直错位。 */
 :root {
+  /* v3.8：项目区内容列的"名义宽"。
+     v3.9（用户裁定"收一档"）：上限 864 -> 800，生效门槛 1280 -> 1025。
+     ≥1025 时由文件末尾那段媒体查询改写为
+     max(664px, min(800px, 窗户左外缘 − 侧边栏 − 144px))，
+     144 = 卡片左内缩 48 + 到窗户的 96 净空（96 = 吊灯灯罩 62 + 两侧各 17）。
+     · 1920 视口取满 800；1280 -> 681、1366 -> 745，随窗户自动收窄；
+     · 1025–1279 这段原本落进"两列 322px"的老响应式分支（卡窄、标题折 3 行），
+       现在由 max(664px, …) 兜到 ≥664，改走单列；≤1024 一个字不动。
+     这里的 664 是 ≤1024 的默认值（= .main 的 760 减左右各 48），
+     与 v3.8 之前的行为完全一致。 */
+  --px-proj-col: 664px;
+  /* v3.12：内容列右移 --px-main-shift（=32px，≥1025）后，"卡右缘"也跟着
+     右移同样的量 —— 下面前后两处都要带上它，中点才是真的中点：
+     第一项 + var(--px-main-shift)，括号里再 - var(--px-main-shift)。 */
   --px-pendant-left: clamp(
     calc(var(--sidebar-w) + 16px),
-    calc(var(--sidebar-w) + 712px
-      + (var(--px-ox) + 1174px * var(--px-scale) - var(--sidebar-w) - 712px) / 3
+    calc(var(--sidebar-w) + var(--px-main-shift) + 48px + var(--px-proj-col)
+      + (var(--px-ox) + 1174px * var(--px-scale)
+         - var(--sidebar-w) - var(--px-main-shift) - 48px - var(--px-proj-col)) / 2
       - 31px),
     calc(100vw - 78px)
   );
@@ -2887,10 +3974,10 @@ body:not(.weather-rain):not(.weather-snow) .px-window-view {
 
 .px-pendant {
   position: fixed;
-  /* 挂在卡片右缘与窗户之间的天花板上（算式与理由见上面那个变量）。
-     灯罩 62 宽 ⇒ 1920 视口下 x 1042..1104，灯罩中心 1073 ——
-     既离开卡片（右缘 888，不压任何一行字、不压木牌），
-     也没顶到窗户（左缘 1443）。 */
+  /* 挂在项目卡右缘与窗户之间的天花板上（算式与理由见上面那个变量）。
+     灯罩 62 宽 ⇒ 1920 视口下 x 1251..1313，灯罩中心 1282 ——
+     左右各留 ~193 / ~163，既离开卡片（右缘 1088，不压任何一行字、不压木牌），
+     也没顶到窗户（左缘 1476）。 */
   left: var(--px-pendant-left);
   top: 0;
   width: 62px;
@@ -2955,8 +4042,8 @@ body.lamp-off .px-pendant-shade {
   /* 从灯罩下沿正中垂下来（灯罩中心 = 吊灯左缘 + 31）。
      命中区给足 25px 宽、84px 高，画出来的绳只有 5px —— 
      光标是条小鱼，命中区太小会点不着。
-     v3.0：吊灯落点改成 --px-pendant-left（卡片右缘与窗户 1/3 处）后，
-     这里改成跟着那个变量走，绳永远吊在灯罩中心下方。 */
+     v3.0：吊灯落点改成 --px-pendant-left（v3.8 起 = 项目卡右缘与窗左缘
+     之间的【正中】）后，这里改成跟着那个变量走，绳永远吊在灯罩中心下方。 */
   left: calc(var(--px-pendant-left) + 31px - 12px);
   top: 98px;
   z-index: 30;
@@ -3114,12 +4201,148 @@ body.lamp-off .px-lamp-vig {
 body.lamp-off .px-scene-bg,
 body.lamp-off .px-table,
 body.lamp-off .px-occluder {
-  filter: brightness(0.78) saturate(0.92);
+  /* v3.11：背景轻失焦（DOF）必须在这里补一份 —— 本选择器特异性 (0,2,1)
+     高于新加的 .px-scene-bg/.px-occluder/.px-table 基础规则 (0,0,1)，
+     不补的话一关灯背景就"忽然变锐"，开灯/关灯两张图不一致。
+     模糊值必须与基础规则逐字相同（同为 2px）：这三层是"背景图 + 它的
+     裁切副本 + 桌面"，只有同一次变换才能保持逐像素同源。 */
+  filter: blur(2px) brightness(0.78) saturate(0.92);
   transition: filter 0.3s steps(2, end);
+  /* v3.11：关灯态把中央聚光整层撤掉（与 v3.10 注释的 ④/⑥ 同一套开关逻辑）——
+     关灯态的 .px-lamp-vig 已经是一套同心暗角，再叠聚光就是双重压暗。
+     写法用"同层数、全透明"的替身，而不是 none：none 会让
+     .px-occluder::after 的 background-image 从 7 层掉到 6 层，而
+     background-size / background-position 仍给着 7 项，--vig-sizes 那 5 项
+     于是整体错位一格（`at 0 0` 的角暗层被喂成 100% 100%，整屏顶带被多压
+     一档）—— 实测关灯态因此差出 22.8 万 px。层数必须锁死在 2。
+     另：不要为这事新开一条 body.lamp-off 规则 —— verify-page.py 第 43 项
+     只取【第一条】body.lamp-off 的规则体来判 --px-night-opacity。 */
+  --spot-layers:
+    linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)),
+    linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+}
+
+/* ---------- v3.11 补丁：场景侧那几层"全屏明暗叠加"也乘 0.78（用户报的"关灯也有"）
+
+   症状：关灯态下画面顶带（y<194）、四边与四角会浮出一条横线 / 一块色差。
+   实测口径"有遮挡 vs 隐藏遮挡"：关灯态整屏差 37~43 万 px、顶带 4~8 色阶，
+   y=170 恰好一条横线（在窗户上方）；同样口径下开灯态只有 ≤2 色阶（干净）。
+   成因：.px-lamp-vig（关灯暗角）、.px-vignette（暗角）、.px-scene::after
+   （空气透视）都在 .px-scene 这个 z-index: 0 的层叠上下文内部，翻不出去；
+   遮挡层与桌子画在 .px-scene 之外，只能靠自己的 ::before / ::after 各复制
+   一份同款叠加层（v2.4.1 定下的规矩：凡是全屏的明暗叠加都必须复制一份）。
+   但上面那条 body.lamp-off 规则为了压暗这几层【的内容】，把
+   filter: brightness(0.78) 打在了元素上 —— 元素自带的叠加层也在同一个滤镜
+   里，于是副本侧 = 0.78 × 叠加层，而背景侧 = 1 × 叠加层。差 = 0.22 × 叠加层，
+   顶带那 6 色阶正是空气透视这一段（(1-0.78) × 0.20 × |(74,96,140) - 内容|）。
+   另外 .px-occluder::before 的盒子用 inset: 0（元素高 1208 = 视口 + 2×slack），
+   没像 ::after / .px-vignette 那样上下让开 slack，空气透视被竖向拉伸 1.119。
+
+   修法：既然"副本侧被乘了 0.78"这一条改不动（verify-page.py 第 65 项要求
+   brightness(0.78) 留在那条 body.lamp-off 里），就把场景侧这几层也乘同一个
+   0.78。两边都按同一个 sRGB 系数压暗 -> 逐像素相等，不需要给副本配魔数、
+   也不会有任何色值溢出（曾试过给副本先除以 0.78：(255,232,176) 会溢出到
+   (327,297,225)，夹回来后 R 通道反而差 2.24 色阶，故弃用）。
+   同时把 .px-occluder::before 的盒子补上 slack，让空气透视与 .px-scene::after
+   严格同盒、不再被拉伸（这是它注释里本来就声明的意图）。
+
+   只加在 body.lamp-off 下：开灯态这几层一个像素都不动。
+   位置必须在本文件靠后：第 43 项只取【第一条】body.lamp-off 的规则体。 */
+body.lamp-off .px-night,
+body.lamp-off .px-vignette,
+body.lamp-off .px-lamp-vig,
+body.lamp-off .px-scene::after {
+  /* 系数必须与上面那条 body.lamp-off 的 filter 一字不差（blur 除外：
+     这里没有需要模糊的内容）—— 副本就是被 brightness+saturate 一起压的，
+     场景侧少乘一个 saturate(0.92)，顶带就会剩下 3 色阶的均匀残差。 */
+  filter: brightness(0.78) saturate(0.92);
+}
+
+/* 遮挡层 ::after：关灯态还需要【同一份】关灯暗角（与 .px-lamp-vig /
+   .px-table::after 逐字相同的 5 层）。场景侧现在也乘了 0.78（上面那条），
+   所以这里直接用原色、不做任何补偿；开灯态 --px-lamp-vig-op = 0，
+   这 5 层全透明，等于没加。
+   只写在 body.lamp-off 下：开灯态收到的仍是基础规则那一份。 */
+body.lamp-off .px-occluder::after {
+  background-image:
+    var(--spot-layers),
+    radial-gradient(115% 92% at 50% 50%,
+      rgba(6, 4, 3, 0) 40%,
+      rgba(6, 4, 3, calc(0.16 * var(--px-lamp-vig-op))) 66%,
+      rgba(6, 4, 3, calc(0.5 * var(--px-lamp-vig-op))) 100%),
+    linear-gradient(to bottom, rgba(6, 4, 3, calc(0.42 * var(--px-lamp-vig-op))), rgba(6, 4, 3, 0) 18%),
+    linear-gradient(to top, rgba(6, 4, 3, calc(0.42 * var(--px-lamp-vig-op))), rgba(6, 4, 3, 0) 18%),
+    linear-gradient(to right, rgba(6, 4, 3, calc(0.42 * var(--px-lamp-vig-op))), rgba(6, 4, 3, 0) 14%),
+    linear-gradient(to left, rgba(6, 4, 3, calc(0.42 * var(--px-lamp-vig-op))), rgba(6, 4, 3, 0) 14%),
+    var(--vig-layers);
+  background-size: var(--spot-sizes), 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, var(--vig-sizes);
+  background-position: var(--spot-positions), 0 0, 0 0, 0 0, 0 0, 0 0, var(--vig-positions);
+  background-repeat: no-repeat;
+}
+
+/* ---------- v3.10：首屏中央聚光（只压背景，压不到正文） ----------
+
+   用户反馈「画面太过一体，主要要展现的信息不突出」。实测（1920x1080）：
+   邻墙 L46~60、牌内面 L79.8、牌间缝隙 L25.7 —— 全屏挤在一个暖棕色系的窄
+   明度带里，没有视觉重心（全屏最亮其实是窗景 L122，但它现在是可点按钮，
+   属于"光源"，不动）。做法：给 .px-scene 补一层中央留白、四周压暗的配光层。
+
+   ① 主体用 .px-scene::before —— 这个伪元素此前是【空闲】的
+      （.px-scene 只用了 ::after 做空气透视，见上面 scene--bitmap 那一段）。
+   ② 它在 .px-scene 里，而 .px-scene 是 z-index: 0 的层叠上下文 ->
+      这层只压得住房间（底图 / 桌子 / 家具），卡片（z 5 起，在根上下文）
+      永远盖在它上面 —— 与 .px-lamp-vig 同一个道理。
+   ③ 补丁：壁炉 / 窗景辉光 / 道具 / 猫（v3.21 需求④ 起 .px-fg 已删）
+      挂在 .px-scene 【之外】、画在它之上，不受 ① 影响。本站既有口径就是
+      这样（见上面 --vig-layers 那段的 v2.4.1 注释：凡是全屏的明暗叠加都
+      必须在这一层复制一份，否则会留下"没变暗的补丁"）。
+   ④ 只在【开灯态】生效。关灯态的 .px-lamp-vig 已经是一套同心的暗角
+      （radial 115% 92% at 50% 50%），再叠一层就是双重压暗。这里用
+      body:not(.lamp-off) 与上面的 body.lamp-off 规则天然互斥 ——
+      两个状态各压各的，谁也不会覆盖谁。
+   ⑤ 道具 .px-prop 带一条 drop-shadow（让物件"离墙一层"），
+      所以必须把原投影一起写回来，否则会把它自己的阴影顶掉。
+      （v3.21 需求④ 起 .px-fg 已删，本条只对 .px-prop 生效。）
+   ⑥ v3.11 返工（本节唯一一处）：初版用 filter: brightness(0.93) 把
+      .px-occluder / .px-table 一起近似掉了 —— 但这两件是【背景图的裁切
+      副本】，它们的前提就是"窗口里的像素与背景逐像素一致"（见上面
+      .px-occluder 那一段）。聚光是位置相关的径向渐变，filter 只是一个
+      常数近似，两者一减就在 clip-path 矩形边上露出一条硬边：
+      实测 1920x1080，遮挡层可见足迹由 6.8e4 px 涨到 5.8e5 px，
+      硬边正好落在 52vh / x=1197（= 用户报的"窗户下面那块阴影"）。
+      现在改成复制聚光本体：把它抽成 --spot-layers / --spot-sizes /
+      --spot-positions（与 --vig-layers 同一套口径），在上面三处
+      （.px-scene::before / .px-occluder::after / .px-table::after）
+      各复制一份，那条 filter 近似随之撤掉。 */
+body:not(.lamp-off) .px-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 19; /* 压在 .px-lamp-vig(20) 之下、远高于底图与家具 */
+  pointer-events: none;
+  background-image: var(--spot-layers);
+  background-size: var(--spot-sizes);
+  background-position: var(--spot-positions);
+  background-repeat: no-repeat;
+  /* 圆心/半径不是拍脑袋：556,354 = 两块吊牌（name 224,210 240x288 /
+     note 504,210 384x192）并集 x224..888 y210..498 的中心；712/434 让
+     核心留白圈正好罩住信息列。整屏配光跟着视口走，不做断点。 */
+}
+
+body:not(.lamp-off) .px-fire,
+body:not(.lamp-off) .px-hearth-glow,
+body:not(.lamp-off) .px-window-sun,
+body:not(.lamp-off) .px-window-halo,
+body:not(.lamp-off) .px-cat {
+  filter: brightness(0.93) saturate(0.97);
+}
+
+body:not(.lamp-off) .px-prop {
+  filter: drop-shadow(3px 4px 0 rgba(18, 10, 5, 0.4)) brightness(0.93) saturate(0.97);
 }
 
 /* ---------- 窄屏：吊灯挪到右上角，两块牌收窄 ---------- */
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
   .px-pendant {
     left: auto;
     right: 24px;
@@ -3165,7 +4388,7 @@ body.lamp-off .px-occluder {
    v2.12b 移动端：滚动手感 / 锚点落点 / 触控目标
    （用户反馈「现在感觉移动端太丑了」；纯窄屏覆盖，桌面端零影响）
    ============================================================ */
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
   /* ① 窄屏关掉滚动吸附。
      窄屏已经不是「一屏一节」了 —— 上面 .section 的 min-height 被改成 auto，
      实测节高 318 / 964 / 333 / 693px，而吸附点是「各节顶边」，两者对不上：
@@ -3236,7 +4459,7 @@ body.lamp-off .px-occluder {
      页面留白、首屏节奏、卡片行宽、固定元素与正文的关系。
      仍然只覆盖窄屏，桌面端零影响。）
    ============================================================ */
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
   /* ① 页面留白。顶栏 56px 高，原来 .main 顶留白 84px，而 html 的
      scroll-padding-top 是 72px —— 点导航与"自然滚到节顶"差 12px，
      同一个位置会有两个落点，手感是页面会跳一下。统一到 72px。
@@ -3348,6 +4571,49 @@ body.lamp-off .px-occluder {
   margin-left: 16px;
 }
 
+/* ============================================================
+   v3.26（用户需求①）：英文版名牌改横排 + 缩字，中文版一个字不碰
+   ------------------------------------------------------------
+   为什么只对英文改：牌 A 的竖排是给「郑先生」这种 3 字中文名的
+   （v2.14c 起：名字左列、身份右列）。同一个盒子装英文时，writing-mode:
+   vertical-rl 会把每颗拉丁字母转 90°（要歪头读），而且两块文字横着撑出牌面。
+   桌面 1440 实测（.deepworks/tmp/v326/shots/f0b_en_desktop.json）：
+     牌 A 内框 x 312.1 ~ 485.7（173.6 宽）
+     名字 "Zheng Ruihang"  最左 276.0   ⇒ 出左框 36.1px
+     身份（改版后那句 63 字符）最右 511.9 ⇒ 出右框 26.2px
+   ① 横排：writing-mode 回 horizontal-tb，flex 方向回 column（名字在上、
+      身份在下，DOM 顺序不动；竖排那条用 column-reverse 是把名字顶到左列）。
+   ② 缩字：名字 60 -> 24px、行高 72 -> 36px。像素字可选档位只有 12 的整数倍
+      （12 / 24 / 36 / 48 / 72），24 是"往下走一档"唯一的落点，不会糊。
+   ③ 居中：横排后文字块会撑满内框（多行时盒宽 = 内框宽），缺了 text-align
+      就是贴左。
+   改后实测（f1b_en_desktop.json）：名字 1 行 156px、身份 3 行 × 24 = 72px，
+   名字 36 + 间距 8 + 身份 72 = 116px，横竖两向都在内框（173.6 × 220.7）里，
+   两侧各余 ~9px；名字再长一点折成两行也仍装得下（152px，仍 < 220.7）。
+   窄屏（≤1024，牌 192 高、内框 120）同样是 36 + 8 + 2~3 行 ≥ … 实测量过，见
+   f1d/f1e 两帧，不出框。
+   ============================================================ */
+html[data-lang="en"] .px-sign--name .px-sign-face {
+  writing-mode: horizontal-tb;
+  flex-direction: column;
+  /* 竖排那 16px 是两列之间的列间距；横排下会变成两块之间的行距，
+     改回 .hero-role 自己的 8px 上边距（8/16/24/32 刻度，见 .hero-role） */
+  gap: 0;
+}
+
+html[data-lang="en"] .px-sign--name .hero-name {
+  font-size: 24px;
+  line-height: 36px;
+  text-align: center;
+}
+
+html[data-lang="en"] .px-sign--name .hero-role {
+  /* 竖排那条把间距挪到了 margin-left（列间距）；横排挪回上边距 */
+  margin-top: 8px;
+  margin-left: 0;
+  text-align: center;
+}
+
 /* 牌面：深胡桃木 */
 .px-sign-face {
   background-color: #6e4a2e;
@@ -3363,7 +4629,7 @@ body.lamp-off .px-occluder {
   text-shadow: -1px -1px 0 rgba(18, 9, 3, 0.55), 1px 1px 0 rgba(255, 214, 150, 0.3);
 }
 
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
   /* 窄屏名字缩到 36px（3 字 = 108），牌 A 回到 8 格高的 192 */
   .px-sign--name {
     width: 100%;
@@ -3410,11 +4676,100 @@ body.lamp-off .px-occluder {
   border-image-slice: 24;
   border-image-width: 24px;
   border-image-repeat: round;
+  /* 兜底色：tile 不透明，这个色值本身不参与显示（实测只改 background-color
+     无效、必须改 background-image），保留 #6e4a2e 是为了图片加载失败时
+     牌面仍是暖胡桃木而不是纯白。 */
   background-color: #6e4a2e;
-  background-image: url("../assets/px-sign-grain.webp?v=214c");
+  /* v3.11：牌面材质换 AI 重绘的 256x256 无缝木纹（同文件名替换，无新增文件）。
+     旧 tile 只有 24x24 拼出来、放大 4 倍后糊成一片；新 tile 由上采样前的
+     512 窗精确 4:1 降采样 + 2x2 镜像拼成，真实环绕差 h/v 均 0.00（构造无缝），
+     主色 rgb(89,66,45) —— 与暖墙 rgb(87,46,21) 的 R-G 差从 41→23，
+     材质分离靠"彩度"而不是"提亮"（提亮会糊进墙面高光）。 */
+  background-image: url("../assets/px-sign-grain.webp?v=311");
   background-repeat: repeat;
   background-blend-mode: normal;
   image-rendering: pixelated;
+  /* ① 墨线描边 + 更实投影：0 偏移 3px 环定性（牌与墙的分界线），
+     +10/12px 硬投影让牌"离开墙"，再补一层 20px 柔影拉开前后景。
+     .px-sign-face 原来没有任何 box-shadow ⇒ 本条是纯新增，零几何改动。 */
+  box-shadow:
+    0 0 0 3px rgba(22, 13, 7, 0.92),
+    10px 12px 0 rgba(14, 8, 3, 0.5),
+    10px 12px 20px rgba(14, 8, 3, 0.38);
+}
+
+/* ============================================================
+   v3.11 吊牌焦点 ②动势 + ③背景轻失焦
+   用户裁定原话：「材质换色分离 + 墨线描边/更实投影 + 动势抓注意力 + 背景轻失焦」，
+   色温取"暖木 R-G 23"档（冷灰档 15 分离更强但色差更大，不取）。
+   六档候选图见 outputs/v3.11-候选/，量测依据：牌面暖度 R-G 36→23（墙 41）。
+   ============================================================ */
+
+/* ① v3.21 需求①：吊牌改「钟摆」——绳 + 牌面一起包在 .px-sign-swing 里，
+   绕【绳子上端挂点】整体转：绳随牌一起倾斜（像真的挂在钉子上晃），
+   起始竖直（0°）、左右对称过零 —— v3.20 那套"牌面固定歪着、绳不动"的动势达不到用户要的效果。
+   transform-origin 用负值把原点从包裹层顶（= 牌面顶）上移到绳顶：
+   .px-sign-rope 的 top 正好是 calc(-1 * var(--px-rope))，与 JS 写的绳长同源（拖拽改绳长时支点跟着走）。
+   ⚠ 仍不能挂在 .px-sign 上 —— JS 拖拽/回摆会给 .px-sign 写 inline transform。 */
+.px-sign-swing {
+  position: relative;
+  /* 包裹层只多一层定位上下文，高度跟随 .px-sign（288 / 192），
+     里面的 .px-sign-face 仍是 height: 100% —— 牌面尺寸与改版前逐像素相同。 */
+  height: 100%;
+  transform-origin: 50% calc(-1 * var(--px-rope, 60px));
+}
+
+/* 分四段模拟正弦：竖直处最快（进入段 ease-out、离开段 ease-in），
+   两端点（±1.2°）自然减速—— 比单用 ease-in-out 更像真的钟摆。
+   0% 必须是 0°（用户："初始是竖直的"）；两牌同相起步但方向相反，
+   读起来是同一阵风吹过。时长 12.8s/全周期（A/B 各 ±1.2°）。 */
+@keyframes px-sway-name {
+  0%   { transform: rotate(0deg);    animation-timing-function: ease-out; }
+  25%  { transform: rotate(-1.2deg); animation-timing-function: ease-in; }
+  50%  { transform: rotate(0deg);    animation-timing-function: ease-out; }
+  75%  { transform: rotate(1.2deg);  animation-timing-function: ease-in; }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes px-sway-note {
+  0%   { transform: rotate(0deg);    animation-timing-function: ease-out; }
+  25%  { transform: rotate(1.2deg);  animation-timing-function: ease-in; }
+  50%  { transform: rotate(0deg);    animation-timing-function: ease-out; }
+  75%  { transform: rotate(-1.2deg); animation-timing-function: ease-in; }
+  100% { transform: rotate(0deg); }
+}
+
+.px-sign--name .px-sign-swing {
+  animation: px-sway-name 12.8s linear infinite;
+}
+
+.px-sign--note .px-sign-swing {
+  animation: px-sway-note 12.8s linear infinite;
+}
+
+/* 拖拽时暂停摆动 —— 免得拖到一半牌子在手里自己晃。
+   （回摆由 JS 写 inline transform，与这条 animation-play-state 不冲突。） */
+.px-sign.dragging .px-sign-swing {
+  animation-play-state: paused;
+}
+
+/* ③ 背景轻失焦（DOF）：只模糊"背景派生"的三层，牌/卡片/窗户一概不动。
+   ⚠ 三层必须同值。.px-occluder 是 .px-scene-bg 的裁切副本（顶 170px 横带 +
+     左下 307px + 右下 403px），两者只有逐像素完全相同、裁切缝才不可见。
+     v3.10 就是因为只把其中一层塞进 filter 名单而露馅（遮挡层足迹
+     68,151 → 557,661 px，y=561 出现满行硬边）。同值 blur() 对三层是同一次
+     变换，这份不变式依旧成立 —— 已复测：开灯态面板硬边没有回来，
+     关灯态差异仍只剩窗影环。
+   ⚠ 开灯态的 filter 名单（.px-fire/.px-hearth-glow/.px-window-sun/
+     .px-window-halo/.px-cat）不含这三层，所以不会与它叠加；
+     关灯态那份见 body.lamp-off 规则（已补同值 blur(2px)）。
+   ⚠ tools/verify-page.py 第 5 项「像素约束：无模糊」按用户本次裁定加了
+     窄例外：只放行这三层的等值 blur(2px)，其它任何 blur( 仍判红，
+     且新增一项检查盯"三层模糊值必须一致"。 */
+.px-scene-bg,
+.px-occluder,
+.px-table {
+  filter: blur(2px);
 }
 
 /* v2.14c：窄屏两块牌上下堆叠时，牌 B 的绳子（起点在牌 A 上方）必须从
@@ -3500,8 +4855,9 @@ body.lamp-off .px-occluder {
   70% { transform: translateX(-1px); }
 }
 
-.px-sign--taut .px-sign-face,
-.px-sign--taut .px-sign-rope {
+/* v3.21 需求①：拉到头的抖动改挂包裹层 —— 绳与牌面是同一根刚体，一起抖才对；
+   分别挂在里面两个元素上反而会把摆动拆开（且拖拽中两者会各自抖）。 */
+.px-sign--taut .px-sign-swing {
   animation: px-taut 260ms linear;
 }
 
@@ -3517,14 +4873,14 @@ body.lamp-off .px-occluder {
    牌面正文会被吃掉一大块。抬起之后，窄屏的层级是：
    卡片 5 < 桌子 7 < 桌上物品 8 < 牌 B 8 < 牌 A 9 < 悬停卡片 10。
    「桌子和桌上物品能遮住卡片」的效果不受影响。
-   桌面端（>820px）桌子带与两块牌矩形不相交，本规则对桌面零影响。
+   桌面端（>1024px）桌子带与两块牌矩形不相交，本规则对桌面零影响。
 
    ⚠ 必须保持 牌 A > 牌 B 的相对顺序（桌面端 1 > 0）：两块牌的绳子元素
    与牌面同宽（绳子是「绳子+两个绳结」的宽盒），牌 B 的绳子向上罩住牌 A
    的牌面区，若两块牌同层级（都写 9），后出现的牌 B 会在命中测试里抢走
    牌 A 的点击（390x844 实测：在牌 A 盘面中心按下，pointerdown 落在牌 B）。
    ============================================================ */
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
   .px-sign--name {
     z-index: 9;
   }
@@ -3540,10 +4896,10 @@ body.lamp-off .px-occluder {
    为什么全部写在文件末尾：这一节要盖掉的都是同权重的普通声明
    （.px-pendant 的 left、.px-window-sun 的 left/top…），
    同权重下后出现的规则胜出 —— 写在前面的媒体查询里会被它们反盖回来。
-   全部关在 max-width: 820px 里，桌面端（>820px）一个像素都不动。
+   全部关在 max-width: 1024px 里，桌面端（>1024px）一个像素都不动。
    ============================================================ */
 
-/* ---------- ① 背景左右平移箭头（只 ≤820px 出现） ----------
+/* ---------- ① 背景左右平移箭头（只 ≤1024px 出现） ----------
    素材 assets/px-scene-arrow.webp（32x31）由 AI 生成 → tools/px-prep.py
    抠品红底 + 裁水印 + 最近邻归一而成，只画了朝右的一枚。
    v3.4 曾按用户裁定「取消往左」删掉左侧那枚（含 scaleX(-1) 镜像规则）；
@@ -3555,7 +4911,7 @@ body.lamp-off .px-occluder {
   display: none;
 }
 
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
   .px-scene-arrow {
     display: block;
     position: fixed;
@@ -3619,24 +4975,33 @@ body.lamp-off .px-occluder {
     bottom: 66px;
   }
 
-  /* 气泡：小人贴右边缘，再按"以小人中心为轴"居中会顶出屏幕 ——
-     改成右缘对齐小人右缘，尾巴单独对准小人中心 */
-  .float-avatar-wrap.is-fixed .speech-bubble {
+  /* 气泡栈：整栈贴右缘（v3.23 之前是单个气泡 right: 0；现在气泡在栈里，
+     定位改由 .speech-stack 承担，气泡只保留自己的"冒出来"位移动画）。
+     豆豆列在窄屏改挂左侧：挂右侧会顶出屏幕外。 */
+  .float-avatar-wrap.is-fixed .speech-stack {
     left: auto;
     right: 0;
-    max-width: min(240px, calc(100vw - 40px));
-    transform: translateY(6px);
+    transform: none;
+    align-items: flex-end;
   }
 
-  .float-avatar-wrap.is-fixed .speech-bubble.show {
-    transform: translateY(0);
+  .float-avatar-wrap.is-fixed .speech-bubble {
+    max-width: min(240px, calc(100vw - 40px));
+  }
+
+  /* 豆豆列一律挂左侧（挂右侧会顶出屏幕外）。v3.24 起基准是
+     left: -14px（10px 边框 + 4px 间距）+ translateX(-100%)，
+     与基础样式里的 .speech-bubble--beans-left 完全一致。 */
+  .float-avatar-wrap.is-fixed .speech-beans {
+    left: -14px;
+    right: auto;
+    transform: translateX(-100%);
   }
 
   .float-avatar-wrap.is-fixed .speech-bubble::after {
     left: auto;
-    /* 小人 96 宽 ⇒ 中心距右缘 48；尾巴 12 宽 ⇒ right = 48 - 6 = 42 */
-    right: 42px;
-    margin-left: 0;
+    /* 小人 96 宽 ⇒ 中心距右缘 48；尾巴 26 宽 ⇒ right = 48 - 13 = 35 */
+    right: 35px;
   }
 
   /* ---------- ③ 吊灯 + 扯线：挪到左上角，叠在顶栏之上 ----------
@@ -3680,10 +5045,10 @@ body.lamp-off .px-occluder {
    为什么全部写在文件末尾（同 v3.3 的手法）：这一节要盖掉的都是同权重的
    普通声明（.px-pendant 的 top、.px-sign 的 touch-action…），
    同权重下后出现的规则胜出 —— 写在前面的媒体查询里会被反盖回来。
-   全部关在 max-width: 820px 里，桌面端（>820px）一个像素都不动。
+   全部关在 max-width: 1024px 里，桌面端（>1024px）一个像素都不动。
    取舍与验收口径见 docs/v3.4-临时计划.md。
    ============================================================ */
-@media (max-width: 820px) {
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
   /* ---------- ② 背景之外不再露白/灰 ----------
      根因：body 的底色是 --px-cream = #FFF6E4（近白），html 没有底色；
      固定层 .px-scene 只盖住布局视口那一块 —— 键盘弹出、橡皮筋回弹、
@@ -3711,7 +5076,7 @@ body.lamp-off .px-occluder {
      根因：.px-sign 带着 touch-action: none（css 3482，牌 A 又在自己那条
      3019 里单独写了一份），把整块牌上的滚动手势全吃掉；牌 300x192 正盖在
      首屏正中，手指落上去只能拖牌。
-     改成 pan-y：手势交还页面，牌子只在桌面/平板（>820px）还能拖。
+     改成 pan-y：手势交还页面，牌子只在桌面/平板（>1024px）还能拖。
      基础规则保持原样，靠"同权重、后出现者胜"覆写（.px-sign--name
      比 .px-sign 多一个类，所以两条都要写）。
      JS 侧还有第二道 guard（pointerdown 里 isNarrow() 直接 return）：
@@ -3830,4 +5195,416 @@ body.lamp-off .px-occluder {
   body.is-masked .px-cord {
     z-index: 9;
   }
+}
+
+/* ============================================================
+   v3.6
+   ① 手机端：系统"字体放大 / 显示大小 / 浏览器缩放"下不再错位
+   ③ 手机横屏：专用紧凑布局（不再掉进电脑端那套规则）
+   ⑤ 背景音乐开关（桌面：右上角音效钮正下方；窄屏与横屏：左下角猫猫上方）
+   ============================================================ */
+
+/* ---------- ① 兜底降档：JS 量到固定尺寸像素件横向溢出时挂上 .is-fit ----------
+   像素字库只有 12 的倍数这一档（见文件开头 :root 那段），所以降档不能动字号，
+   只收紧内边距与字距，让"比设计更大的系统字"先挤一挤。
+   fitChrome()（js/script.js）逐件量 scrollWidth > clientWidth，命中才挂，
+   并在控制台留痕 —— 宁可日志里吵，也不要静默错位。 */
+.is-fit {
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+  letter-spacing: -0.5px !important;
+}
+
+/* ---------- ① 长正文仍然跟随系统放大 ----------
+   html 上把 text-size-adjust 锁成 100%（结构件钉在像素网格上），
+   这四类内容再各自开回 auto：它们都不在固定尺寸像素件里，
+   容器高度本就自适应，字被放大只会"字更大、卡片更高"，不会顶破木牌。
+   —— 既保证"想看清正文"的用户能靠系统设置放大，又保证名牌/顶栏不错位。 */
+.project-desc,
+.form-tip,
+.footer {
+  -webkit-text-size-adjust: auto;
+  text-size-adjust: auto;
+}
+
+/* ---------- ⑤ 背景音乐开关 ----------
+   图标是 AI 画的像素音符（assets/px-bgm-on.webp / px-bgm-off.webp，32x32，
+   关闭态在同一张音符上叠了红色斜杠；生成与抠底脚本见
+   .deepworks/tmp/v36/make-bgm-icons.py），按 1:1 显示不做缩放，
+   所以开/关切换时按钮不会跳。
+   v3.20：按你要求去掉米色方块底 —— 按钮的底/边框/阴影全部撤除，只剩音符。
+   44x44 的触控热区（WCAG 2.5.5 最小可点尺寸）与 32px 音符都不动；
+   悬停改用 drop-shadow 落在音符轮廓上，不再露出一块方框。 */
+.bgm-btn {
+  position: fixed;
+  /* 音效钮 .sfx-btn 是 top 44 + 高 38 = 82，这里再留 8px 缝 */
+  top: 90px;
+  right: 20px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 44x44 = WCAG 2.5.5 的最小触控目标；图标 32 居中，余量 12（无边框） */
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform var(--px-ease), filter var(--px-ease);
+}
+
+.bgm-btn:hover {
+  transform: translate(-2px, -2px);
+}
+
+.bgm-btn:hover .bgm-btn-icon {
+  filter: drop-shadow(2px 2px 0 rgba(59, 42, 30, 0.28));
+}
+
+.bgm-btn:active {
+  transform: translate(1px, 1px);
+}
+
+.bgm-btn-icon {
+  width: 32px;
+  height: 32px;
+  background-image: url("../assets/px-bgm-on.webp");
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  /* 最近邻放大：AI 像素图被压缩过一档，再放大时必须保持硬边 */
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* 关（用户按过 / 记住了关）：换成红斜杠那张，尺寸不变 ⇒ 按钮不跳 */
+.bgm-btn[aria-pressed="false"] .bgm-btn-icon {
+  background-image: url("../assets/px-bgm-off.webp");
+}
+
+/* 降级：assets/bgm/ 下没放音频时按钮自己消失（JS 的 markMissing 挂这个类）——
+   一个点了没反应的按钮，比没有按钮更让人困惑。 */
+.bgm-btn.is-missing {
+  display: none;
+}
+
+/* ---------- ⑤ 窄屏与手机横屏：挪到左下角猫猫上方 ----------
+   猫猫是固定件（bottom 16 + 高 60 ⇒ 顶边 76），这里 bottom 84 留 8px 缝。
+   44x44 本身已达标，不需要像素材类控件那样再外扩透明热区。 */
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
+  .bgm-btn {
+    top: auto;
+    right: auto;
+    bottom: 84px;
+    left: 16px;
+  }
+}
+
+/* 音效钮的热区只需要补竖向：按钮 86x38，38 补到 44（= 最小可点尺寸）只用 -3px，
+   横向 86 本来就够。可上面那组"透明热区"给 .lang-switch / .theme-switch / .sfx-btn
+   统一写了 left/right:-6px —— 左右各多出的 6px 会把 .sfx-btn 的 scrollWidth 撑到 92
+   （clientWidth 86），JS 的 fitChrome() 于是每次都误判"横向溢出"并给它挂 .is-fit
+   （验收探针里表现为每个窄屏场景都报一句"降档后仍溢出 6px"）。
+   这里把音效钮单独改回竖向热区；两个小开关钮保持原样（它们不在 fitChrome 的名单里）。 */
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
+  .sfx-btn::after {
+    left: 0;
+    right: 0;
+    top: -3px;
+    bottom: -3px;
+    height: auto;
+    transform: none;
+  }
+}
+
+/* ---------- ③ 手机横屏专用紧凑布局 ----------
+   判据与 JS 的 isNarrow() 完全一致：(orientation: landscape) and (max-height: 560px)。
+   为什么不能沿用竖屏那套：竖屏窄屏是"一列两块牌"（每块 min-height 168），
+   横屏只有 390 上下，56 顶栏 + 168 + 64 行距 + 168 远超过一屏，
+   一进来就看不到首屏全貌 —— 这正是用户说的"横屏适配很差"。
+   横屏改回"两块牌并排 + 收紧纵向留白"。
+   顶栏高度仍取 56px：JS 的 TOPBAR_H（script.js 的牌降级开关）按它判断，
+   这里若是悄悄改成 44，牌的降级时机就跟 CSS 对不上了。 */
+@media (orientation: landscape) and (max-height: 560px) {
+  html {
+    scroll-snap-type: none;
+    scroll-padding-top: 64px;
+  }
+
+  .main {
+    padding: 64px 16px 40px;
+  }
+
+  .section {
+    padding: 24px 0;
+    /* 横屏只有 ~390px 高，"每节占满一屏 + 内容垂直居中"会把下一节的标题正好推到
+       折线下面（验收探针实测：844x390 下 #contact 标题 top=406 > vh=390，首屏
+       看不到任何"往下还有内容"的线索）。横屏这里取消满屏高度，节与节自然接续
+       —— 吸附本来也已经关掉了。 */
+    min-height: auto;
+  }
+
+  .section--hero {
+    min-height: auto;
+    padding: 8px 0 16px;
+  }
+
+  /* 竖屏的"一列两块牌"改回并排。两块牌的宽度仍是 300 / 324（牌顶吊绳的
+     两个绳结按 calc(50% ± 122px) 钉在牌面上，改宽度就会把绳结甩到牌外 ——
+     所以宽度一律不动），并排后 300 + 12 + 324 = 636，844 宽的横屏放得下。 */
+  .hero-panel {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 0;
+  }
+
+  /* 横屏的账是"一屏里要看见两块牌 + 下面那节的标题"。
+     这里给的 120 是个**下限**：真正的高度来自上面窄屏那套 height:192，
+     min-height 与 height 取大 ⇒ 横屏牌高仍是 192（实测牌底 312px < 390，装得下）。
+     刻意不去压到 120：牌面里 24px 名字 + 角色行 + 一行说明挤进 120 会贴边。
+     宽度一律不动的原因见上面那段（吊绳绳结钉在 calc(50% ± 122px)）。 */
+  .px-sign--name,
+  .px-sign--note {
+    min-height: 120px;
+  }
+
+  /* 空头像位 90px（.hero-avatar-wrap，只有桌面才往里放东西）+ 12px 下边距，
+     在横屏 390px 高里是 23% 的竖向预算。验收探针把竖排链摊开抓到了它：
+     avatar=block h=90 ⇒ hero[64→382] ⇒ contact[382] ⇒ 标题 t=406 > vh=390。
+     横屏收成一条"顶栏那么高"的空档：留 56 让牌顶永远在顶栏之下，其余让出来。 */
+  .hero-avatar-wrap {
+    height: 56px;
+    margin-bottom: 0;
+  }
+
+  .px-sign-face {
+    padding: 6px 10px;
+  }
+
+  /* 名字 36 -> 24（12 的整数倍，像素网格不碎），行高 48 -> 32，
+     否则 24px 以上的字在 120 高的牌里贴边 */
+  .hero-name {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .hero-role {
+    margin-top: 4px;
+  }
+}
+
+/* ============================================================
+   v3.8（用户裁定）：项目卡「横幅化」
+   —— 内容列不动，只把项目区的栅格单独放宽 + 改单列
+   v3.9（用户裁定 · 减量感）：同一条规则上「收一档 800」 +
+   纵向收紧 + 三卡行距 20 -> 32，并把门槛从 1280 下移到 1025
+   ============================================================ */
+/* 用户的诉求是「卡片区域有点乱」+「最右边扩充到现在吊灯所在的位置」，
+   讨论后裁定：**只加宽项目区**，.main 保持 760（首屏 / 联系 / 兴趣 / 反馈
+   一个字都不动）。所以这里不碰 .main，只给 #projects 里的栅格开个口子。
+
+   v3.8 账目（1920 视口，改前 -> 改后，实测见 .deepworks/tmp/v38/probe-card.py）：
+   · 栅格宽   664 -> 864   （右缘 888 -> 1088 ≈ 原吊灯中心 1084，正是用户说的「吊灯的位置」）
+   · 文字可用宽 250 -> 792  （322 里减 16×2 木框 + 20×2 内边距只剩 250，
+                            250 ÷ 36px 全角 ≈ 6.9 字/行 ⇒ 标题折 3 行、
+                            末行只剩一个「页」。792 之后标题与正文都只有一行）
+   · 列       322px 322px -> 1fr（单列）
+     原来 3 张卡摆 2 列会剩一个空槽（第 2 行只有 1 张卡、右边空一格），
+     单列之后三张卡竖排对齐，「秩序」来自同一根左基线 + 等距的行距。
+
+   v3.9（用户裁定 · 减量感）——用户反馈「一张卡像一大坨木板塞到眼前」，
+   诊断（.deepworks/tmp/v38/proj-sweep.py 实测 11 档视口）：
+   · 单卡面积 864×234 = 202,176（v3.8 加宽前 322×402 = 129,444，加宽让面积 +56%）
+   · 木纹占卡面 85%，文字墨迹只剩 14.5%（fit-probe.py 实测墨宽 492/700/48）
+   · 上下内边距 24/20 = 44px 纯白给；三卡行距 20 ⇒ 三张木纹卡连成一整面墙
+   裁定取「收一档 + 松一松」（不压暗木纹、不换素材）：
+   · 栅格宽   864 -> 800   （单卡面积 202,176 -> 172,780 = -14.6%，卡右缘 1088 -> 1024）
+   · 上下内边距 24/20 -> 20/16（卡高 234 -> 218 = -6.8%）
+   · 卡内间距 20 -> 16、三卡行距 20 -> 32（见上面 #projects .cards-grid 那条）
+   · 正文可用宽 792 -> 728，仍 ≥ 实测最长正文 700px ⇒ 标题与正文都还是单行
+   · 吊灯随之左移（落点算式用 --px-proj-col）：1920 视口 1251..1313 -> 1219..1281，
+     仍落在「卡右缘 1024 与窗左缘 1476」这段 452 间隙的正中。
+
+   门槛 1025（v3.8 是 1280）：body 上有 overflow-x: hidden（css 顶部），
+   卡片溢出视口会被**静默裁掉**、连横向滚动条都不会出现。
+   v3.8 把门槛定在 1280 是保守起见，代价是 1025~1279 的窄桌面回落成
+   「两列 322」（标题折 3 行、正文折 3 行），与「单列」的意图相悖 ——
+   v3.9 按用户裁定把这个缺陷一并修掉：门槛下移到 1025（= 窄屏那套规则的
+   分界，1024 及以下仍走窄屏），并用 max(664px, …) 兜底，
+   保证 1025~1279 拿到的是 664 —— 与 <1280 的默认值、联系卡、首屏吊牌
+   同一条基线，不会因为「跟着窗户算」在窄桌面上被算得比 664 还窄。
+
+   宽度不是写死的 800，而是「跟着窗户走」：窗户左外缘 = --px-ox + 1174px × --px-scale
+   （与 .px-window 同一套坐标，且只随视口尺寸变、不随滚动变），
+   取 max(664px, min(800px, 窗左缘 - 侧边栏 - 144px))。
+   144 = 卡片左内缩 48 + 到窗户的 96 净空（96 = 吊灯灯罩 62 + 两侧各 17）——
+   · 1920 视口：窗左缘 ≈1470，算出 ≈1150 > 800 ⇒ 取满 800（用户要的位置）；
+   · 1366 视口：算出 745 ⇒ 自动收窄到 745，卡右缘 969，离窗户仍留 96px；
+   · 1280 视口：算出 681 ⇒ 681；
+   · 1025~1279：算式只有 491~664 ⇒ 兜到 664，绝不比 ≥1280 更宽，也不横穿窗户。
+   写死 800 会在窄桌面横穿窗户（bp38.py 实测），所以必须让它跟着算。
+
+   v3.12（用户裁定「项目与作品卡片的宽度缩短一点、间距大一点」）：
+     · 上限 800 -> 736（实测单卡 800x218 -> 736x218，文字可用宽 728 -> 664，
+       正文仍两行；行距 32 -> 40 见 #projects .cards-grid 那条）。
+     · 算式里再减去 --px-main-shift：内容列右移 32px 后卡片右缘同步右移，
+       不扣掉的话 1025-1400 这段的"到窗户 96px 净空"会被吃掉 32px。
+     · 吊灯自动跟随（--px-pendant-left 共用 --px-proj-col），仍落在
+       卡右缘↔窗左缘的中点上。
+
+   v3.16（用户裁定「卡片水平宽度再缩小一点、留点呼吸感」）：上限 736 -> 672。
+     736 是 v3.12 按"正文两行"定的：文字可用宽 664。本轮正文缩到 12px
+     并加了 2 行截断，664 的可用宽已绰绰有余（实测英文最长标题与中文正文
+     都在一行内），所以再收 64px 换成更松的版心。672 = 736 - 64，
+     与 v3.9 的收窄步长同档；行距 40 -> 64 见 #projects .cards-grid 那条。
+     兜底 664 保持不变：它同时是 ≤1024 视口的 --px-pendant-left 的兜底，
+     动它会连带挪吊灯；而 1025~1279 的实际卡宽只有 664~672，差 8px，
+     视觉上看不出接缝。吊灯仍自动跟随（算式一个字没改）。 */
+/* ============================================================
+   v3.21 需求⑤：第三张项目卡（.project-next「探索中」）改「整行横版」
+   用户裁定：这张卡独占一行（与上两张同宽 = 栅格全宽 700px），内容排成
+   一行，高度自动缩到不被桌子/桌上物品遮住。
+
+   高度账（1920x1080，卡顶 = #projects 吸附位 570）：
+     · 改版前 570..822（252 高）：下半截被桌面(1208)、油灯(699)、
+       咖啡杯(789)、苹果(742) 压住 —— 那几件是 fixed 层、z 7~8 > 卡 5，
+       卡片再往上长就会钻到它们后面。
+     · 横版后 = border 32 + padding 36（沿用 #projects .card 的 20/16）
+       + 单行内容 48 = 116 高。
+     · ⚠ 但 .section 是 display:flex + justify-content:center（内容垂直居中，
+       内容盒 904），网格变矮会把整块内容**下移**、不会留在原处：实测吸附态
+       卡片落在 652..768（视口坐标），而不是「570..674」那种顺排推算。
+       想靠「再矮 12px」把卡底抬过油灯顶也是徒劳：那 12px 会被居中吃成
+       整体下移 6px，标题反而多 6px 撞向油灯。
+     · 所以验收判据不是「卡底高于 699」，而是**文字可读**：实测标题
+       688..724 / 正文 694..730，正文整段落在最近的油灯顶（699）之上；
+       但标题左缘 308 起那一段仍与油灯渲染盒（x 297..368）相交，其中
+       x 319..348 是灯体的**不透明实心像素**（alpha=255、y>=700 恒有，
+       逐行取样实测）⇒ 中文首字「下」的中竖下半被截断、英文第 2/3 个字母
+       e/x 整字被盖（首词渲染成「N…t」）。卡内零余量（628 = 324 + 288 + 16）
+       右移装不下，抬高卡片又违反 v2.9「桌子上和桌上的物品都要能遮挡卡片」
+       的裁定 ⇒ 本轮如实保留、不做几何修补，详见 v3.21 章节 §5。
+       改版前竖卡的正文干脆被油灯/碗/苹果糊住 —— 那正是需求⑤的动机。
+       （v3.22 需求② 补记（用户：「第三张横卡和上面的卡片间距缩小一点」）：
+        上面这条"卡内零余量、如实保留"的结论到此为止 —— 用户已接受
+        "挡一部分卡片，只要字不被大幅遮盖"。杠杆落在行距上：64 -> 32
+        让第 3 张卡整体上移 16px，标题从 688..724 抬到 672..708，
+        与油灯实心带（y >= 700）的相交从 22px 收到 6px —— 只剩首字
+        上沿被灯罩边缘蹭到，中文整句可读。详见 #projects .cards-grid
+        那条规则的 v3.22 注。）
+
+   宽度账（卡内可用 = 700 - 32 border - 40 padding = 628）：
+     · 中文：标题 9 字 × 36px = 324 + 间距 16 + 正文 12 字 × 24px = 288
+       = 628，正好一行放下（CJK 一字 = 1em，可精确算，与实测一致）。
+     · 英文（html[data-lang="en"] 标题 24/36 那一档）：
+       "Next step: exploring!" ≈ 265 + 16 + "More fun ideas are hatching." ≈ 324
+       = 605 < 628 ✓。
+     · 所以这一档必须让出右下角那枚 32px 类型小戳：它原占 right 36 /
+       bottom 26，加进来至少要 68px，怎么排都放不下一行。小戳本身是
+       aria-hidden 的装饰件、类型提示由卡外那枚「探索中」挂签承担，
+       因此只在 ≥1025 这一档隐藏它（≤1024 的堆叠布局里照旧保留）。
+
+   ≤1024：卡片本来就是单列堆叠，这里只加 grid-column 让它独占一行，
+   内容仍是"挂签 + 标题 + 正文 + 小戳"的竖排，一个字不动。
+   ============================================================ */
+.project-next {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 1025px) {
+  :root {
+    --px-proj-col: max(
+      664px,
+      min(
+        672px,
+        calc(var(--px-ox) + 1174px * var(--px-scale) - var(--sidebar-w)
+             - var(--px-main-shift) - 144px)
+      )
+    );
+  }
+  /* v3.9：项目卡的上下内边距 24/20 -> 20/16。只动 #projects 里的卡 ——
+     联系区那张门牌（.card--plank）保持 24/20，≤1024 的 20px 16px 16px
+     在窄屏块里、门槛之外，也一个字不动。 */
+  #projects .card {
+    padding: 20px 20px 16px;
+  }
+  /* v3.17（用户裁定「项目与作品改回一行两张卡片」）：1fr -> repeat(2, 1fr)。
+     只改这一段：≤1024 的窄屏块不动（那边仍是 auto-fit / minmax(280px, 1fr)）。
+     实测 1920x1200：每张卡 326x252、整列 672x568（比 v3.16 矮 172px）、
+     卡内文字 254x96（标题折两行、正文仍一行）、row-gap 64px 一个字没动（v3.22 需求② 起这一档改为 32px，见 #projects .cards-grid 那条 v3.22 注）。
+     v3.18（用户裁定「标签挂到卡片左侧外面」）：挂签在卡外左侧占 48px
+     （40 牌宽 + 8 间距），刚好是一档列距 ⇒ 列距 20 -> 48；
+     卡宽要一个像素不变，栅格总宽就得跟着 +28（= 48 - 20）：672 -> 700。
+     700 = 2 x 326 + 48，卡宽仍是 326，与 v3.17 完全一致。
+     --px-proj-col 本身（672 = 那段 max/min 算式）一个字没动 ⇒
+     首屏吊灯算式引用同一变量、照旧自动跟随。
+     实测 1920x1200：栅格 700x568、卡 [272,318,326,252]、
+     挂签 [-32,16,40,76]（视口坐标，在卡外左侧空白里）、
+     文档总高 5660px 不变（挂签出流省下的 48px 与正文 36 行高多加的
+     48px 正好抵消）。 */
+  #projects .cards-grid {
+    width: calc(var(--px-proj-col) + 28px);
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 48px;
+  }
+
+
+  .project-next {
+    /* .project-card 默认 flex-direction: column + gap 16，
+       横版必须显式翻成 row（否则标题与正文会各占一行、高度回到 252） */
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    /* 内边距不在这里写：#projects .card 的 20px 20px 16px 与其它项目卡
+       完全一致（左内边距 20 ⇒ 标题左缘仍与上两张卡对齐），而它带 id、
+       特异性高于 .project-next，写在这里也是死声明 —— 早期版本写过
+       padding: 12px 20px，computed 一直是 20px 20px 16px。 */
+    gap: 16px;
+  }
+
+  .project-next .project-title {
+    flex: 0 0 auto;
+  }
+
+  /* 正文退到一行：极端情况（系统字号放大 / 更长的文案 / 更长的英文）
+     宁可出省略号，也不让卡片长高去碰桌上的东西。 */
+  .project-next .project-desc {
+    flex: 0 1 auto;
+    min-width: 0;
+    -webkit-line-clamp: 1;
+  }
+
+  .project-next .project-icon {
+    display: none;
+  }
+
+  /* 挂签仍挂在卡外左侧竖排（与上两张一致），跟随新的卡高垂直居中。
+     .project-tag 在 ≥1025 那条块里写的是 top: 0，这里选择器更具体
+     （.project-next .project-tag），直接盖掉它。
+     v3.22 需求①（用户截图：「探索中」这枚挂签横躺成了三列字）：
+     真凶就在下面那条 top: 50%。挂签是绝对定位、height 又是 auto，浏览器算
+     它「能用多少行内空间」时要拿包含块高减去 top：.card 有 16px 的九宫格
+     border-image 边框（card 高 116 − 上下各 16 = 84px 的 padding box 才是
+     包含块），50% 解析成 42px，于是 height:auto 只剩 84 − 42 = 42px 可用
+     —— pre 态实测挂签高就正好是 42px。而竖排（vertical-rl）的行内轴正是
+     竖直方向，3 个字要 40px 内容 + 24px 内边距 = 64px，42px 装不下，
+     浏览器不溢出而是折行 ⇒ 3 个字被拆成 3 列、牌面横躺成 88x42
+     （v3.21 定稿的 40x64 才是 3 字单列的正常形态）。
+     修法只加一条 height: max-content：高度不再由「剩余空间」推、直接按内容
+     取（= 64px），3 个字回到单列；top: 50% + translateY(-50%) 的
+     「垂直居中」意图原样保留（实测盒心 685 = padding box 中线 643 + 42）。
+     实测挂签回到 40x64 单列（[-32,26,40,64] / [240,653,40,64]），
+     右缘恒在卡左缘外 8px，与其余两枚挂签同一形态（同宽 40px、同为单列）。 */
+  .project-next .project-tag {
+    top: 50%;
+    transform: translateY(-50%);
+    height: max-content;
+  }
+
 }
