@@ -117,7 +117,7 @@
       /* v3.23：详情气泡 + 遮挡提示 + 聊天窗（标题复用 projects.t*）
          v3.24（需求②③）：聊天窗从「每个项目一套写死台词」改成【单个全局对话】——
          chat.more / chat.note / chat.p1a-c / chat.p2a-c 全部退场，换成下面这套：
-         入口文案 + 首次问候 + 兜底 + 4 个快捷提问 / 2 个自动提问 + 6 组关键词应答。 */
+         入口文案 + 首次问候 + 兜底 + 4 个快捷提问 / 2 个自动提问 + 10 组关键词应答。 */
       "hover.detail": "点击这里查看详情",
       "hint.occluded": "内容被遮挡可以试试将光标移动到卡片上哦",
       "chat.close": "关闭",
@@ -140,7 +140,13 @@
       "chat.a.projects": "目前并没有什么很拿得出手的项目，一个是学习辅助，一个是侦探解谜游戏，还有一个就是现在您进入的我的个人网页。虽然寥若晨星，但是每一个我都细心打磨每一个细节，如个人网页光是产品迭代报告目前就已经纯文本写了七百多 KB，之后还可能继续增长，加上已经删除记录的废案，已经迭代了八十多个版本。如果你想详细了解「学习辅助」项目和「游戏」项目，回复关键词「学习辅助」或「游戏」即可~",
       "chat.a.interests": "乒乓球、武术、散步、游戏、音乐、写剧本，还有捣鼓各种奇怪的东西。",
       "chat.a.proj1": "学习辅助网页是用 vibe coding 做出来的，想法来自平时学习时的需要，现在还在持续优化中，欢迎使用！在这个网页里，一切知识点需要自己添加、撰写，包括含义、边界、应用、证明过程、逆转思考角度等等，全由自己手动搭建，网页提供撰写卡片和分类功能，让知识不再零散。不用担心自己总结会导致错误，网页配备的 AI 辅助检查功能，只需要在设置里接入 AI，就可以让 AI 帮助我们检查正误！网页也配备了复习功能，复习计划将自动遵循艾宾浩斯遗忘曲线制定，让我们高效复习。当然，完成一次复习是需要一定门槛的，为了防止走马观花，每次复习后需要输入此次复习的感悟或想法才能够完成一次复习！目前还在内测使用，尚未公布链接，如有需要欢迎联系我获取！",
-      "chat.a.proj2": "《奇迹》是一个侦探解密题材的游戏 demo，现在正在努力改进美术和修 bug 中。侦探真新是一位来自乡下的新人，偶然卷入了一场噩梦中，他能否一次次诞生奇迹，绝境逢生呢？目前 demo 只开放了第一章，并未开放所有玩法，目前还在修改剧情 bug 和游戏画面，如果有兴趣欢迎与我联系获取软件~"
+      "chat.a.proj2": "《奇迹》是一个侦探解密题材的游戏 demo，现在正在努力改进美术和修 bug 中。侦探真新是一位来自乡下的新人，偶然卷入了一场噩梦中，他能否一次次诞生奇迹，绝境逢生呢？目前 demo 只开放了第一章，并未开放所有玩法，目前还在修改剧情 bug 和游戏画面，如果有兴趣欢迎与我联系获取软件~",
+      /* v3.28 需求④：4 组社交应答。chat.a.hello 的文案 = 「您好！」+ chat.a.who，
+         两处必须同步 —— tools/verify-page.py 里有断言盯着这条不变量。 */
+      "chat.a.hello": "您好！我是郑瑞航，现在是一名学生，平时喜欢捣鼓像素风和各种奇怪的小玩意，这个主页就是我自己一点点搭起来的。想了解别的，点下面的快捷提问就行！",
+      "chat.a.thanks": "不用谢！回答问题是我的义务！",
+      "chat.a.ok": "好的！请问您还有什么问题吗？",
+      "chat.a.bye": "再见！希望下次再会！"
     },
     en: {
       /* v3.5（用户裁定③）：与中文 brand 同步 —— 窄屏顶栏提示去电脑上体验 */
@@ -238,7 +244,7 @@
          v3.24 (asks 2 & 3): the chat window becomes ONE global conversation —
          chat.more / chat.note / chat.p1a-c / chat.p2a-c are gone; the set below
          holds the entry label, first-time greeting, fallback, quick / auto
-         questions and the six keyword answers. */
+         questions and the ten keyword answers. */
       "hover.detail": "Click here for details",
       "hint.occluded": "The content is covered — try moving your cursor onto the card.",
       "chat.close": "Close",
@@ -261,7 +267,13 @@
       "chat.a.projects": "There isn't much I can proudly show off yet: a study-assist tool, a detective puzzle game, and this personal homepage you're on right now. Sparse as they are, I've polished every detail of each one — the homepage alone has already got a product iteration report of over 700 KB of plain text, and it may keep growing; counting deleted drafts, it's been through 80-plus versions. If you'd like to hear more about the study-assist project or the game, just type the keyword \"study\" or \"game\"~",
       "chat.a.interests": "Table tennis, martial arts, walking, games, music, screenwriting, and tinkering with weird stuff.",
       "chat.a.proj1": "The study-assist site was built with vibe coding, out of a need I kept running into while studying, and it's still being improved — welcome to try it! In it, every knowledge point has to be added and written by yourself: meaning, boundaries, applications, proofs, reverse-thinking angles, all built by hand, with cards and categories so knowledge stops being scattered. Don't worry that writing it yourself will get it wrong: there's an AI check built in — just connect an AI in the settings and it will help verify your notes! It also has a review feature, and the schedule follows the Ebbinghaus forgetting curve so reviewing stays efficient. And a review has a threshold: to keep you from skimming, you have to write down a thought or insight after each session before it counts. It's still in closed beta with no public link yet, so get in touch if you'd like access!",
-      "chat.a.proj2": "\"Miracle\" is a detective puzzle game demo; I'm working on the art and fixing bugs. Detective Zhen Xin is a newcomer from the countryside who stumbles into a nightmare — can he keep working miracles and find a way out? Only chapter one is open in the demo and not all mechanics are available yet; I'm still fixing story bugs and the visuals. If you're interested, get in touch and I'll send you the build~"
+      "chat.a.proj2": "\"Miracle\" is a detective puzzle game demo; I'm working on the art and fixing bugs. Detective Zhen Xin is a newcomer from the countryside who stumbles into a nightmare — can he keep working miracles and find a way out? Only chapter one is open in the demo and not all mechanics are available yet; I'm still fixing story bugs and the visuals. If you're interested, get in touch and I'll send you the build~",
+      /* v3.28 requirement 4: four social answers. chat.a.hello must stay in
+         sync with "Hello! " + chat.a.who (asserted in tools/verify-page.py). */
+      "chat.a.hello": "Hello! I'm Zheng Ruihang, a student who likes tinkering with pixel art and all sorts of odd little things. I built this homepage myself, bit by bit. Tap a quick question below to learn more!",
+      "chat.a.thanks": "You're welcome! Answering your questions is my duty!",
+      "chat.a.ok": "Got it! Anything else you'd like to ask?",
+      "chat.a.bye": "Goodbye! Hope we meet again!"
     }
   };
 
@@ -651,12 +663,18 @@
   function openSidebar() {
     sidebar.classList.add("open");
     sidebarMask.classList.add("show");
+    /* v3.29：窄屏抽屉打开时给 body 挂 drawer-open，把"左列三件"（音效钮 /
+       浮动小人含气泡）用 visibility 藏起来 —— 它们 z-index 60 会浮在抽屉(40)
+       和遮罩(35)之上、盖住木牌左下角；小猫本来就 z-index 12 在遮罩之下。
+       CSS 规则只写在窄屏块里，桌面端没有抽屉、不受影响。 */
+    document.body.classList.add("drawer-open");
     syncSignTopbar();   // v3.4：窄屏牌组要让开侧边栏（函数在本文件第 10 节）
   }
 
   function closeSidebar() {
     sidebar.classList.remove("open");
     sidebarMask.classList.remove("show");
+    document.body.classList.remove("drawer-open");
     syncSignTopbar();
   }
 
@@ -1002,6 +1020,38 @@
     return !!(window.matchMedia && window.matchMedia(NARROW_Q).matches);
   }
 
+  /* v3.27（用户反馈②「手机上背景反复放大缩小」）：统一"视口高度"口径。
+     背景（.px-scene）的缩放与竖向锚点由第 16-B 节的 layoutScene() 写进
+     --px-scale / --px-oy，旧写法读 window.innerHeight —— 手机浏览器地址栏
+     收起/弹出会让它变（390 宽实测 700 ↔ 780），于是地址栏一动背景就重算一次
+     缩放，用户看到的就是"反复放大缩小"。
+     而 CSS 那边量视口用的 100vh，在手机浏览器上一直是【大视口】（地址栏全部
+     收起那一档，也正是"100vh 比可视区高"那个老问题的由来），本来就不随地址栏
+     变。所以这里不是引入新尺寸，而是把 JS 的口径对齐 CSS：量一次 100lvh 当
+     常量用。三个细节：
+     · 探针写成 height:100lvh，读 offsetHeight —— 不用 getBoundingClientRect，
+       本页大量元素带 transform，offsetHeight 是布局值、不含变换；
+     · 老浏览器不认 lvh 会量到 0，退回"进入时锁一次 innerHeight"（也只读一次，
+       地址栏伸缩不会触发第二次读取）；
+     · 取大视口而不是取"进入时看见的那一档"：地址栏收起后可见区变高，若按收起前
+       的高度缩放，画面下缘会露空隙（实测 390x700 进入、展开到 780 时图底 754px）。
+     只有宽度或朝向真的变了，才会读到新值（宽仍走 window.innerWidth）。 */
+  var vhProbe = null;
+  function viewportHeight() {
+    if (!vhProbe) {
+      vhProbe = document.createElement("div");
+      vhProbe.id = "pxVhProbe";
+      vhProbe.setAttribute("aria-hidden", "true");
+      vhProbe.style.cssText = "position:fixed;top:0;left:0;width:0;height:100lvh;" +
+        "pointer-events:none;visibility:hidden;";
+      (document.documentElement || document.body).appendChild(vhProbe);
+    }
+    var h = vhProbe.offsetHeight;
+    if (h > 0) return h;
+    if (!viewportHeight.__locked) viewportHeight.__locked = window.innerHeight;
+    return viewportHeight.__locked;
+  }
+
   function signNum(v) { return v ? +v : 0; }
 
   /* 牌子的竖向位置只由两件事决定：
@@ -1145,7 +1195,7 @@
     var padBottom = parseFloat(getComputedStyle(host).paddingBottom) || 0;
     var anchorY = host.getBoundingClientRect().top + window.scrollY;
     var ropeMax = Math.max(ROPE_MIN, Math.min(ROPE_MAX,
-      window.innerHeight - anchorY - padBottom - signPanel.offsetHeight));
+      viewportHeight() - anchorY - padBottom - signPanel.offsetHeight));
     var rope = Math.max(ROPE_MIN, ropeMax - ROPE_SLACK);
     /* v2.14b：基准位移按【整组牌（panel）的自然顶】统一算，两块牌共用同一个值。
        旧写法对每块牌各自量「自己的自然顶」，窄屏两块牌本是上下堆叠，
@@ -1172,17 +1222,36 @@
     var narrow = isNarrow();
     var ropes = signRope.map(function () { return rope; });
     if (narrow && signRope.length) {
-      var avail = window.innerHeight - padBottom - signPanel.offsetHeight;
+      var avail = viewportHeight() - padBottom - signPanel.offsetHeight;
       var ropeA = Math.max(ROPE_CLEAR, Math.min(ROPE_NARROW, avail));
       ropes[0] = ropeA;
       groupBase = Math.round(ropeA - signRope[0].__natTop);   // → 牌 A 的绳上端 = 文档 y 0
       if (signRope.length > 1) {
-        /* 牌 B：绳头系在牌 A 的下沿（压进 ROPE_TUCK 那 4px，读作"绳头在牌背面"），
-           绳只跨过两块牌之间那道缝。缝按实测取（窄屏 .hero-panel 是
-           flex-direction: column + gap: 72），不去猜 CSS 的数字。 */
-        var ropeGapPx = Math.round(signRope[1].__natTop -
-          (signRope[0].__natTop + signRope[0].offsetHeight));
-        ropes[1] = Math.max(ROPE_MIN, ropeGapPx + ROPE_TUCK);
+        /* v3.27（用户反馈①「手机横屏右边那块吊牌的绳子只剩一小截」）：
+           下面 ropeGapPx 那条算式假定两块牌【上下堆叠】。但手机横屏
+           （orientation: landscape + max-height: 560px）CSS 走的是"两块牌并排
+           + gap 12px"的紧凑布局（style.css 横屏那段的 .hero-panel{flex-direction:row}），
+           此时量到的缝是【负数】（两块牌在同一行，牌 B 的自然顶并不比牌 A 高一个身位），
+           Math.max(ROPE_MIN, …) 于是把绳子压成 24px。实测 844x390：
+           牌 A 绳 120px、牌 B 绳 24px，而两块牌的自然顶都在 y=120。
+           并排时正确的挂法是【两根绳一样长、都挂在这一节的天花板上】：两块牌
+           自然顶相同 → ropes[1] 也取 ropeA，两条 __pin 就都落在文档 y=0。
+           判并排/堆叠用【牌自己的实测矩形】而不是按视口尺寸猜 —— 哪种宽度下
+           CSS 改成并排，这里不用再抄一遍断点（量之前 transform 已清成 none，
+           读到的是自然位置）。 */
+        var boxA = signRope[0].getBoundingClientRect();
+        var boxB = signRope[1].getBoundingClientRect();
+        var sideBySide = boxA.right <= boxB.left + 0.5 || boxB.right <= boxA.left + 0.5;
+        if (sideBySide) {
+          ropes[1] = ropeA;
+        } else {
+          /* 牌 B：绳头系在牌 A 的下沿（压进 ROPE_TUCK 那 4px，读作"绳头在牌背面"），
+             绳只跨过两块牌之间那道缝。缝按实测取（窄屏 .hero-panel 是
+             flex-direction: column + gap: 72），不去猜 CSS 的数字。 */
+          var ropeGapPx = Math.round(signRope[1].__natTop -
+            (signRope[0].__natTop + signRope[0].offsetHeight));
+          ropes[1] = Math.max(ROPE_MIN, ropeGapPx + ROPE_TUCK);
+        }
       }
     }
     signRope.forEach(function (sign, i) {
@@ -1287,15 +1356,17 @@
    *       · 新的在下、旧的被顶到上面：DOM 顺序从老到新，
    *         .speech-stack 是 column 布局，最新的自然贴底（离小人最近）；
    *       · 离开触发区不立刻消失，5 秒后才消失；
-   *       · 光标移到气泡上（或触发它的元素上）→ 暂停（豆豆保持 5 颗），
-   *         移开后【重新从 5 秒】计时（所以暂停时把 remaining 复位成 5，
-   *         而不是接着往下数）；
-   *       · 气泡右外侧 5 颗黄豆豆，每秒从下到上消失一颗，全没了气泡消失。
+    *       · 光标移到气泡上（或触发它的元素上）→ 暂停，
+    *         移开后【重新从 5 秒】计时（所以暂停时把 remaining 复位成 5，
+    *         而不是接着往下数）；
+    *       · v3.28 需求③：气泡右外侧那 5 颗倒计时黄豆豆整套删掉 ——
+    *         用户口径是「不要有任何提示，到时间直接消失」；5 秒寿命与
+    *         hover 暂停 / 复位的行为一个字不动。
    *     另外"同一句话不重复堆"：key 已在栈里就只把它的倒计时复位，
    *     不再追加一条 —— 遮挡提示连续触发的那种情况全靠这条兜住。
    * ============================================================ */
   var STACK_MAX = 2;
-  var BUBBLE_LIFE_SEC = 5;                    // 5 颗豆豆 = 5 秒
+  var BUBBLE_LIFE_SEC = 5;                    // 5 秒（豆豆提示已在 v3.28 需求③里删掉）
   var speechStackEl = document.getElementById("speechStack");
   var speechList = [];                        // 从老到新
 
@@ -1304,18 +1375,6 @@
       if (speechList[i].key === key) return speechList[i];
     }
     return null;
-  }
-
-  // 把豆豆数量画成 b.remaining 颗（少则删尾巴，多则补）
-  function renderBeans(b) {
-    while (b.beans.children.length > b.remaining) {
-      b.beans.removeChild(b.beans.lastChild);
-    }
-    while (b.beans.children.length < b.remaining) {
-      var d = document.createElement("span");
-      d.className = "speech-bean";
-      b.beans.appendChild(d);
-    }
   }
 
   function stopCountdown(b) {
@@ -1350,10 +1409,8 @@
   function startCountdown(b) {
     stopCountdown(b);
     b.remaining = BUBBLE_LIFE_SEC;
-    renderBeans(b);
     b.tick = setInterval(function () {
       b.remaining -= 1;
-      renderBeans(b);
       if (b.remaining <= 0) removeSpeech(b, false);
     }, 1000);
   }
@@ -1363,7 +1420,6 @@
     b.paused = true;
     stopCountdown(b);
     b.remaining = BUBBLE_LIFE_SEC;   // 移开后要"重新从 5 秒计时"
-    renderBeans(b);
   }
 
   function resumeSpeech(b) {
@@ -1419,12 +1475,8 @@
       el.setAttribute("tabindex", "0");
     }
 
-    var beans = document.createElement("span");
-    beans.className = "speech-beans";
-    el.appendChild(beans);
-
     var b = {
-      key: key, el: el, beans: beans, owner: opts.owner || null,
+      key: key, el: el, owner: opts.owner || null,
       paused: false, remaining: BUBBLE_LIFE_SEC, tick: null, immediate: false
     };
     // 光标停在气泡上 → 暂停；离开 → 重新从 5 秒计时
@@ -1443,16 +1495,9 @@
       });
     }
 
-    renderBeans(b);              // 先把 5 颗豆豆摆好
     speechStackEl.appendChild(el);
     void el.offsetWidth;         // 强制一次布局，让 .show 的过渡真的跑起来
     el.classList.add("show");
-    // 小人贴右缘时"框外右侧"会顶出屏幕（豆豆在视口外 = 倒计时看不见），
-    // 这种情况整列翻到气泡左侧，窄屏由 CSS 媒体查询同样处理。
-    var elRect = el.getBoundingClientRect();
-    if (elRect.right + 26 > window.innerWidth) {
-      el.classList.add("speech-bubble--beans-left");
-    }
     speechList.push(b);
 
     // 触发元素上已经有光标 → 先暂停；没有才立刻开始 5 秒倒计时
@@ -1518,7 +1563,15 @@
     { key: "chat.a.contact", words: ["联系方式", "联系", "邮箱", "邮件", "电话", "手机", "微信", "contact", "email", "mail", "phone", "reach"] },
     { key: "chat.a.interests", words: ["兴趣", "爱好", "喜欢", "平时", "interest", "hobby", "like"] },
     { key: "chat.a.proj2", words: ["侦探", "解密", "解谜", "奇迹", "游戏", "demo", "detective", "puzzle", "game", "miracle"] },
-    { key: "chat.a.projects", words: ["项目", "作品", "做过", "project", "portfolio", "work"] }
+    { key: "chat.a.projects", words: ["项目", "作品", "做过", "project", "portfolio", "work"] },
+    /* v3.28 需求④：4 组「社交应答」。位置有意排在原有 6 条之后 ——
+       匹配是子串匹配，若排前面，"了解""好"会抢答"我想了解一下你的项目"。
+       组内 hello 在 ok 之前（"你好"里含"好"）；
+       英文只收 "hello"（不收裸 "hi"：会撞 this / which 这类词）。 */
+    { key: "chat.a.hello", words: ["你好", "您好", "hello"] },
+    { key: "chat.a.thanks", words: ["谢谢", "感谢", "感恩", "谢", "感激", "thank"] },
+    { key: "chat.a.ok", words: ["好的", "ok", "明白了", "了解", "收到", "原来如此", "好"] },
+    { key: "chat.a.bye", words: ["再见", "拜拜", "再会", "先走了", "拜", "bye", "goodbye"] }
   ];
 
   // 归一化：小写 + 只留中英文与数字（空格、标点全丢掉），
@@ -2271,8 +2324,13 @@
   /* isNarrow() 定义见第 10 节开头（v3.4 从这儿搬走的，理由见上面那条注释） */
 
   function layoutScene() {
+    /* v3.27（用户反馈②「背景反复放大缩小」）：vh 走 viewportHeight()（= 100lvh
+       那档常量），不再读 window.innerHeight —— 手机地址栏收起/弹出时那个值会变，
+       一变更背景就重算 --px-scale / --px-oy。口径与 CSS 侧的 100vh 一致
+       （手机浏览器上 100vh 本来就是大视口，见 viewportHeight 的注释）；
+       桌面端两者是同一个值，算式一个数都没动。 */
     var vw = window.innerWidth;
-    var vh = window.innerHeight;
+    var vh = viewportHeight();
     var scale = Math.max(vw / SCENE_IMG_W, (vh + SCENE_PAD_Y) / SCENE_IMG_H);
     var ox = (vw - SCENE_IMG_W * scale) / 2;
     /* v2.14e（用户裁定）：窄屏也要看到这张桌子。
@@ -2961,8 +3019,18 @@
     function clampX(x) { return Math.max(4, Math.min(window.innerWidth - W - 4, x)); }
     function clampY(y) { return Math.max(4, Math.min(window.innerHeight - H - 4, y)); }
 
-    function home() {  // 待机位：桌面端右下角；窄屏左下角（v3.3 用户裁定）
-      if (isNarrow()) return { x: clampX(16), y: clampY(window.innerHeight - H - 16) };
+    function home() {  // 待机位：桌面端右下角；窄屏右下角（v3.29 与浮动小人左右对调）
+      /* v3.29 需求④：窄屏的猫从「左下角」换到「右下角」（用户裁定"小猫去右下角"），
+         与浮动小人左右对调。镜像基准取**视觉留白**：浮动小人的可视左缘距窗口 16px
+         （wrap 钉 left:4，精灵在 wrap 内层再内收 12），所以猫的可视右缘也留 16px。
+         贴边的是**元素框**，而 measure() 量到的 W / H 是 getBoundingClientRect() 的
+         缩放后视觉尺寸（窄屏 = 54x60 的 0.75 倍），元素框每侧比可视盒宽出
+         (offsetWidth - W) / 2（窄屏约 6.5px）—— 把这半个差值加回右边距，
+         落点才落在"可视留白 16"上。纵向沿用 v3.3 起的旧式子（H 内收），不动作。 */
+      if (isNarrow()) {
+        var _ew = cat.offsetWidth > 1 ? cat.offsetWidth : W;
+        return { x: clampX(window.innerWidth - W - 16 - (_ew - W) / 2), y: clampY(window.innerHeight - H - 16) };
+      }
       return { x: clampX(window.innerWidth - W - 28), y: clampY(window.innerHeight - H - 24) };
     }
 
@@ -3075,7 +3143,10 @@
       var h = home();
       place(h.x, h.y);
       tx = h.x; ty = h.y;
-      root.style.setProperty("--px-cat-dir", 1);
+      /* v3.29 需求④：窄屏的猫在右下角，方向调转朝左（画面内侧）。
+         素材只画了朝右，镜像靠 --px-cat-dir = -1（窄屏没有 mousemove，
+         开局定死之后不会再被 follow 逻辑改写）；桌面端仍是 1。 */
+      root.style.setProperty("--px-cat-dir", isNarrow() ? -1 : 1);
       lastMove = Date.now() - IDLE_MS - 1;   // 开局就在"已回窝"状态
       /* v3.3：resize / orientationchange 必须注册在 hasPointer 判断之前 ——
          窄屏的猫是固定件，横竖屏切换、地址栏收放都要重算落点，

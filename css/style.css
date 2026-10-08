@@ -924,7 +924,7 @@ body.weather-snow .px-window-view {
   image-rendering: pixelated;
   animation: px-cat-idle 2.6s steps(1, end) infinite;
   /* --px-cat-dir 由 JS 按移动方向写成 1 / -1，实现转身 */
-  transform: translate3d(var(--px-cat-x, 0px), var(--px-cat-y, 0px), 0) scaleX(var(--px-cat-dir, 1));
+  transform: translate3d(var(--px-cat-x, 0px), var(--px-cat-y, 0px), 0) scaleX(var(--px-cat-dir, 1)) scale(var(--px-cat-scale, 1));
   will-change: transform;
 }
 
@@ -3051,7 +3051,7 @@ padding: 6px 14px;
        旧的自然被"顶"到上面去（用户在裁定里要的就是这个观感）；
      · 第 3 条进来时由 JS 直接删掉第一条（见 script.js 第 11 节）。
    容器本身 pointer-events: none，只有气泡可悬浮 / 可点
-   （带"查看详情"的那种要能吃点击；豆豆是纯装饰，也不吃点击）。
+   （带"查看详情"的那种要能吃点击）。
    ============================================================ */
 .speech-stack {
   position: absolute;
@@ -3124,45 +3124,13 @@ padding: 6px 14px;
   pointer-events: none;
 }
 
-/* 倒计时豆豆：挂在气泡【框】右侧外（用户裁定"框外右侧"），5 颗竖排。
-   v3.24（需求①）：整列不再写死 66px（旧版 10px 豆 + 4px 间距比单行气泡还高，
-   视觉占比过大），改成跟着气泡高度自适应 —— 只占「可见框体」竖直高度的一半。
-   注意百分比高度的基准是气泡的 padding box（不含 10px 边框），所以要写
-   calc(50% + 10px)：（paddingBox + 20px 边框）/ 2 = paddingBox/2 + 10px。
-   display: grid + 固定的 5 条 1fr 轨道（不是 flex:1）：每秒掉一颗时
-   剩下豆豆的轨道尺寸与位置都不变，不会"越掉越大"或整体上移。
-   水平居中 + aspect-ratio: 1/1 ⇒ 豆豆是正方形，尺寸全由轨道高度推出来。
-   定位：right 的基准仍是 padding box ⇒ 10px 边框 + 4px 间距写 -14px，
-   再 translateX(100%) 用自身宽度把整列推出去（宽度是算出来的，不能写死）；
-   左边同理用 left: -14px + translateX(-100%)。
-   右边真没地方时（小人贴右缘）JS 会给气泡加 --beans-left，整列翻到左边。 */
-.speech-beans {
-  position: absolute;
-  right: -14px;
-  top: 0;
-  transform: translateX(100%);
-  height: calc(50% + 10px);
-  display: grid;
-  grid-template-rows: repeat(5, 1fr);
-  justify-items: center;
-  gap: 1px;
-  pointer-events: none;
-}
-
-.speech-bubble--beans-left .speech-beans {
-  left: -14px;
-  right: auto;
-  transform: translateX(-100%);
-}
-
-.speech-bean {
-  height: 100%;
-  aspect-ratio: 1 / 1;
-  background-image: url("../assets/px-chat-dot.webp?v=323");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
-}
+/* v3.28 需求③：倒计时豆豆整块删除（墓碑，勿删）。
+   用户口径「不要有任何提示，到时间直接消失」，所以这里原来的三条规则
+   —— .speech-beans（气泡框外右侧 5 颗竖排豆豆列）、
+   .speech-bubble--beans-left .speech-beans（小人贴右缘时整列翻到左侧）、
+   .speech-bean（单颗豆豆，px-chat-dot.webp）——
+   连同 JS 侧（renderBeans / b.beans / --beans-left 翻转）一起删掉了。
+   气泡仍是 5 秒后消失，hover 暂停 / 移开重新从 5 秒计时的行为一个字没动。 */
 
 /* 「点击这里查看详情」那类气泡：多一行提示 + 右下角一枚小字，
    整块可点（光标与亮度给反馈）。 */
@@ -3373,7 +3341,7 @@ padding: 6px 14px;
 /* v3.25（需求①）：「主人正在输入」的省略号 —— 三个像素小方块依次跳动。
    ① 高度取一个正文行高（--lh-body = 24px），这样"省略号 → 正文"两拍之间
       气泡不会先缩成一条再被撑开；
-   ② 用方块不用圆点，和站点其它像素件（豆豆、挂签、木牌）同一套方格语言；
+   ② 用方块不用圆点，和站点其它像素件（挂签、木牌、开关）同一套方格语言；
    ③ steps(1, end) 让它"跳"而不是"滑"，符合像素动画的走法。
    注：@media (prefers-reduced-motion: reduce) 里全局把 animation-duration
    压到 0.001ms，这串点会静止；JS 那边同时直接落全文（见 chatReduceMotion）。 */
@@ -4977,7 +4945,7 @@ html[data-lang="en"] .px-sign--name .hero-role {
 
   /* 气泡栈：整栈贴右缘（v3.23 之前是单个气泡 right: 0；现在气泡在栈里，
      定位改由 .speech-stack 承担，气泡只保留自己的"冒出来"位移动画）。
-     豆豆列在窄屏改挂左侧：挂右侧会顶出屏幕外。 */
+     v3.28 需求③：原先跟着气泡的那列倒计时豆豆已整套删除（见基础样式里的墓碑注释）。 */
   .float-avatar-wrap.is-fixed .speech-stack {
     left: auto;
     right: 0;
@@ -4987,15 +4955,6 @@ html[data-lang="en"] .px-sign--name .hero-role {
 
   .float-avatar-wrap.is-fixed .speech-bubble {
     max-width: min(240px, calc(100vw - 40px));
-  }
-
-  /* 豆豆列一律挂左侧（挂右侧会顶出屏幕外）。v3.24 起基准是
-     left: -14px（10px 边框 + 4px 间距）+ translateX(-100%)，
-     与基础样式里的 .speech-bubble--beans-left 完全一致。 */
-  .float-avatar-wrap.is-fixed .speech-beans {
-    left: -14px;
-    right: auto;
-    transform: translateX(-100%);
   }
 
   .float-avatar-wrap.is-fixed .speech-bubble::after {
@@ -5607,4 +5566,397 @@ html[data-lang="en"] .px-sign--name .hero-role {
     height: max-content;
   }
 
+}
+
+/* ==========================================================================
+   v3.28 需求①②：手机端整体收一档 0.75× + 侧栏抽屉可滑动 + 桌面矮窗紧凑兜底
+   --------------------------------------------------------------------------
+   需求①「侧栏木牌没完全显示时可以滑动」：
+     · 窄屏（≤1024 / 短横屏）木牌本来就是「居中不外探」的
+       （见上方 .nav-link 的窄屏覆盖 margin-left: 0; align-self: center），
+       所以这里直接给 .sidebar 加纵向滚动是安全的 —— 桌面端那条 36px 外探
+       只在 min-width:1025px 成立，两套布局互斥。
+     · 抽屉顶部 56px 一直被固定的 .mobile-topbar 盖着（topbar z-index 50 >
+       sidebar 40），内容从 y=0 起算 ⇒ 头像上沿被压掉一截、底部控件被裁掉。
+       这里把 .sidebar-inner 的上内边距补到 56px（让开顶栏），再配
+       height: 100dvh —— 手机地址栏收起/展开时 100vh 等于「最大视口」，
+       抽屉底部会被裁掉，dvh 跟的是「当前可见视口」。
+     · 桌面矮窗（min-width:1025px）不做滚动条：那需要把「木纹 176px +
+       36px 透明探出区」重构成一个滚动盒才能不裁掉探出的牌尖。改用
+       「紧凑模式」压缩纯留白（内边距 / 间隙 / 行高），字号一个不动。
+   --------------------------------------------------------------------------
+   需求② 0.75×：与上方 4406-4408 那段政策的差异（有意覆盖，用户确认门已裁定）
+     那段写的是「纯 CSS 控件直接放大；像素素材类 1:1 位图不动尺寸，改用透明
+     热区外扩，免得把素材拉糊」。需求② 明确要求手机端可交互元素整体缩小，
+     所以这里换成：
+     · 位图控件按 0.75× = 3/4 整数比等比缩小（源像素落在 3/4 格点上，
+       image-rendering: pixelated 下重采样最干净，比 0.8/0.85 这类
+       非整数比明显少毛边）；
+     · 「看得见的脸」缩小、「手指要戳的靶」不缩 —— 命中区继续 ≥44px，
+       靠透明 ::after 外扩补齐（沿用 4426-4436 那套既有做法）；
+     · 文案字号仍只取 12 的倍数：0.75× 会把 24 变成 18（18 不是 12 的倍数），
+       所以木牌标签取 12px，宁可多缩一档也不破坏像素字栅格。
+   --------------------------------------------------------------------------
+   0.75× 对照表（改前 -> 改后，括号内为所在行）：
+     侧栏内边距    32px 20px            -> 24px 15px + 顶部让位顶栏 56px
+     侧栏头像      120x120 / pad 12      -> 90x90 / pad 9（木框 9px）
+     头像半身像    64x96                 -> 48x72（比例 409:616 不变）
+     姓名行高      48px                  -> 36px
+     角色下间距    24px                  -> 18px
+     木牌 nav-link 160x64 / bg 160px 64px / 字 24 / pad 8-26
+                                        -> 120x48 / bg 120px 48px / 字 12 / pad 6-20
+     拨片轨道      108x36 / 132x36       -> 81x27 / 99x27
+     拨片钮        48x24 / 60x24         -> 36x18 / 45x18
+     顶栏拨片      96x32 / 钮 42x20      -> 72x24 / 钮 32x16
+     音效钮        86x38                 -> 64x28
+     汉堡键        44x44（WCAG 补到 44）  -> 33x33 + 透明热区 45x45
+     左下角小猫    .px-cat（窄屏 54x60）  -> 精灵 scale .75（布局盒与 JS 不动）
+     页脚小猫      32x16                 -> 24x12
+     浮动小人      96x96                 -> 精灵 scale .75（布局盒与 JS 不动）
+     卡片          木框 16 / pad 20-16-16 -> 木框 12 / pad 15-12-12
+     卡片栅格间距  20px                  -> 15px
+     聊天窗        木框 24 / pad 14-16-10 / 关 28 -> 木框 18 / pad 11-12-8 / 关 21
+   ========================================================================== */
+
+@media (max-width: 1024px), (orientation: landscape) and (max-height: 560px) {
+
+  /* ---------- 需求①：抽屉可以滑动 ---------- */
+  .sidebar {
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;              /* 窄屏木牌不外探，这里裁不到东西 */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;    /* 滚到尽头不要把整页带着滚 */
+    scrollbar-width: none;           /* 像素风页面不画系统滚动条 */
+  }
+  .sidebar::-webkit-scrollbar { width: 0; height: 0; }
+
+  /* ---------- 需求②：侧栏 0.75× ---------- */
+  .sidebar-inner {
+    /* 56px = 让开固定顶栏（原来内容从 y=0 起算，头像上沿被顶栏压住） */
+    padding: 56px 15px calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sidebar-avatar {
+    width: 90px;
+    height: 90px;
+    padding: 9px;                    /* 木框 12 -> 9，内容区 72 = 2x36 格 */
+    margin-bottom: 12px;
+    box-shadow: 3px 3px 0 rgba(59, 42, 30, 0.55), 6px 6px 0 rgba(59, 42, 30, 0.22);
+  }
+  .sidebar-avatar::before { border-width: 9px; border-image-width: 9px; }
+  .sidebar-avatar::after { inset: 9px; }
+
+  .px-hero-img--big { width: 48px; height: 72px; }   /* 409:616 比例不变 */
+  .sidebar-name { line-height: 36px; }
+  .sidebar-role { margin-bottom: 18px; }
+  .nav { gap: 8px; }
+
+  /* 木牌：120x48 = 160x64 的 0.75×。文字区 94px（5 字 x 12px = 60 装得下），
+     padding 6/20 让文字中心落在「板面」中心（板面 = 去掉箭尖那段）。
+     字号取 12（12 的倍数）；不折行靠原有的 white-space: nowrap。 */
+  .nav-link {
+    width: 120px;
+    height: 48px;
+    padding: 0 20px 0 6px;
+    background-size: 120px 48px;
+    font-size: 12px;
+    line-height: 24px;
+  }
+
+  /* 语言拨片：81x27 = 108x36 的 0.75×，钮 36x18（素材 48x24 的 0.75×） */
+  .lang-box { margin-top: 12px; }
+  .lang-switch { width: 81px; height: 27px; padding: 4px; }
+  .lang-switch-thumb { top: 4px; left: 4px; width: 36px; height: 18px; }
+  .lang-switch-label { line-height: 19px; margin: 0 1px; }
+  .lang-switch.en .lang-switch-thumb { transform: translateX(36px); }
+
+  /* 配色拨片：99x27 = 132x36 的 0.75×，钮 45x18（素材 60x24 的 0.75×） */
+  .theme-box { margin-top: 6px; }
+  .theme-switch { width: 99px; height: 27px; padding: 4px; }
+  .theme-switch-thumb { top: 4px; left: 4px; width: 45px; height: 18px; }
+  .theme-switch-label { line-height: 19px; margin: 0 1px; }
+  .theme-switch.light .theme-switch-thumb { transform: translateX(45px); }
+
+  /* 顶栏里的那只语言拨片单独一套（96x32 -> 72x24，钮 42x20 -> 32x16）。
+     注意：必须排在 .lang-switch 之后 —— 两者同权重，靠源序取胜。 */
+  .lang-switch-mobile { width: 72px; height: 24px; padding: 4px; }
+  .lang-switch-mobile .lang-switch-thumb { top: 4px; left: 4px; width: 32px; height: 16px; }
+  .lang-switch-mobile .lang-switch-label { line-height: 16px; margin: 0 1px; }
+  .lang-switch-mobile.en .lang-switch-thumb { transform: translateX(32px); }
+
+  /* ---------- 需求②：顶栏控件 0.75× ---------- */
+  /* 可见方块 44x44 -> 33x33，但透明热区外扩 6px 补回 45x45（WCAG 2.5.5 的
+     44px 触控目标不缩）。原来的 44x44 是可见方块自己撑出来的，所以这里
+     必须加 ::after 才不破 WCAG（.menu-btn 没有 overflow 裁剪）。 */
+  .menu-btn {
+    position: relative;
+    width: 33px;
+    height: 33px;
+    padding: 5px;
+    gap: 4px;
+  }
+  .menu-btn span { height: 2px; }
+  .menu-btn::after {
+    content: "";
+    position: absolute;
+    left: -6px;
+    right: -6px;
+    top: -6px;
+    bottom: -6px;
+  }
+
+  /* 音效钮：86x38 -> 64x28（同一张 86x38 素材等比缩，和拨片同一档）。
+     下方 .float-avatar-wrap.is-fixed 的 bottom 同步从 66 收到 56，
+     保持与钮顶「留 12px 净空」的既有关系（56 = 16 + 28 + 12）。 */
+  .sfx-btn { width: 64px; height: 28px; }
+  .sfx-btn-label { letter-spacing: 0; }
+
+  /* ---------- 需求②：左下角小猫 / 页脚小猫 / 浮动小人 等比缩小 ---------- */
+  /* .px-cat：窄屏锁死 54x60 的 1:1 位图（见上方 3609-3613 的说明）。
+     这里不动它的布局盒，只在基块的 transform 尾巴上追加 scale()
+     （--px-cat-scale 由本段给 0.75，桌面端不设 = 1）。
+     transform-origin 取 50% 100%：脚底站在原地、左右居中缩，且
+     scaleX(--px-cat-dir) 的镜像也仍然绕中心对称，不会横向跳。 */
+  .px-cat {
+    --px-cat-scale: 0.75;            /* 基块的 transform 尾巴读它，桌面端不设 = 1 */
+    transform-origin: 50% 100%;
+  }
+
+  .footer-cat .px-svg { width: 24px; height: 12px; }   /* 32x16 -> 24x12 */
+
+  /* 浮动小人：布局盒保持 96x96（JS 的 AVATAR_SIZE=96 参与拖拽/行走碰撞，
+     一个字都不动），只把精灵缩到 0.75 —— 走路的 4 帧、眨眼的两帧、
+     --px-hero-dir 的左右镜像全部照旧。精灵本来就绕 50% 100% 缩放
+     （见 .px-hero-img--float 的 transform-origin），所以脚底不动。
+     right/bottom 是「把缩进去的视觉外缘挪回来」：精灵 96 -> 视觉 72，
+     左右各内收 12px，所以 right 16 -> 4 才能让小人右缘仍与音效钮对齐；
+     bottom 66 -> 56（音效钮缩成 28 高之后，44 + 12 = 56）。
+     气泡栈跟着让 12px（right 0 -> 12），气泡右缘才和小人右缘对齐。 */
+  .float-avatar { --px-hero-scale: 0.75; }
+  .px-hero-img--float {
+    transform: scaleX(var(--px-hero-dir, 1)) scale(var(--px-hero-scale, 1));
+  }
+  .float-avatar-wrap.is-fixed { right: 4px; bottom: 56px; }
+  .float-avatar-wrap.is-fixed .speech-stack { right: 12px; }
+  /* 气泡尾巴原来钉在小人中心（96/2 - 13 = 35）；小人视觉宽 72 之后中心距
+     气泡右缘 36 ⇒ right = 36 - 13 = 23，尾巴才继续指着小人头顶 */
+  .float-avatar-wrap.is-fixed .speech-bubble::after { right: 23px; }
+
+  /* ---------- 需求②：卡片 0.75× ---------- */
+  /* 卡片宽度由 .cards-grid 决定（窄屏铺满，不给 max-width —— 缩窄会白白
+     丢掉本来就紧张的行宽），这里缩的是「木框 + 内边距 + 卡片间间距」：
+     视觉上卡片变薄变紧凑，实测每张卡矮约 19px。 */
+  .cards-grid { gap: 15px; }
+  .card {
+    padding: 15px 12px 12px;
+    border-width: 12px;              /* 木框 16 -> 12（slice 仍是 16，等比缩） */
+    border-image-width: 12px;
+  }
+  .project-card { gap: 15px; }
+
+  /* ---------- 需求②：聊天对话框 0.75× ---------- */
+  /* 遮罩内边距反而要「加大」：窗口宽 = min(680px, 100% - 2x遮罩内边距)，
+     在窄屏上加大遮罩内边距才能让窗口真的变小（桌面端窗口被 680 封顶，
+     不受影响）；横向再收一档让窗口别顶到屏幕边。 */
+  .px-chat { padding: 32px 20px; }
+  .px-chat-window {
+    border-width: 18px;              /* 木框 24 -> 18（slice 仍是 24） */
+    border-image-width: 18px;
+    padding: 11px 12px 8px;
+    max-height: min(70vh, 470px);
+  }
+  .px-chat-body { padding: 11px 2px; gap: 11px; min-height: 135px; }
+  .px-chat-chip { padding: 2px 6px; }
+  .px-chat-input { padding: 2px 6px; }
+  .px-chat-send { padding: 2px 9px; }
+  .px-chat-face { width: calc(24px * 409 / 616); height: 24px; }
+  /* 关闭键 28x28 -> 21x21（素材 1:1 铺满），命中区靠透明热区补回 45x45 */
+  .px-chat-close {
+    position: relative;
+    width: 21px;
+    height: 21px;
+    background-size: 21px 21px;
+  }
+  .px-chat-close::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+    right: -12px;
+    top: -12px;
+    bottom: -12px;
+  }
+  /* ---------- v3.29 需求②：两块吊牌同向同步摆动 ---------- */
+  /* 基础样式里 A 挂 px-sway-name（25% 摆到 -1.2°）、B 挂 px-sway-note（25% 摆到 +1.2°），
+     两条 keyframes 相位相反 ⇒ 两块牌永远一左一右。窄屏把 B 换成 A 那条 keyframes：
+     同一条动画、同为 12.8s linear、同时启动 ⇒ 角度与相位完全一致。
+     桌面端保持原来的反相（基础样式一个字不动）。 */
+  .px-sign--note .px-sign-swing {
+    animation-name: px-sway-name;
+  }
+
+  /* ---------- v3.29 需求③：气泡每行字数 -1/3 + 整块透明度 -10% ---------- */
+  /* 240 -> 160：气泡是 border-box（全局 box-sizing），扣掉左右各 10px 描边 +
+     各 6px 内边距 = 32px，正文行宽 208 -> 128；12px 汉字下 17 字/行 -> 10~11 字/行。
+     窄屏原值是 min(240px, calc(100vw - 40px))，这里等比换成 160。
+     写两条：窄屏高优先级的 .is-fixed 那条要单独压一遍（否则特异性输给 4956），
+     额外那条 .speech-bubble 兜住"手机上把小人拖走（没有 is-fixed）"的气泡。 */
+  .speech-bubble {
+    max-width: min(160px, calc(100vw - 40px));
+  }
+
+  .float-avatar-wrap.is-fixed .speech-bubble {
+    max-width: min(160px, calc(100vw - 40px));
+  }
+
+  /* 用户口径「透明度 +10%」= 更透一档（显示态本来就是 opacity: 1）。
+     0.9 就是 10% 的透明度增量；木框 / 文字 / 底色整块一起透，能透出背景桌布。 */
+  .speech-bubble.show {
+    opacity: 0.9;
+  }
+
+  .float-avatar-wrap.is-fixed .speech-bubble.show {
+    opacity: 0.9;
+  }
+
+  /* ---------- v3.29 需求④：浮动小人 ↔ 左下小猫 左右对调 ----------
+     对调后：小人左下、气泡挂小人右侧；小猫右下（坐标由 JS 的 CatFollow.home() 算）；
+     音乐开关跟到小猫正上方；音效钮跟到小人正上方。
+     所有数字都是「把 v3.28 的既有关系镜像过来」，不引入新口径：
+       · 小人 left 4 / bottom 16：left 4 = 原来的 right 4（精灵 96 -> 72 左右各内收 12
+         的补偿，视觉左缘落回 16）；bottom 16 = 脚下不再压音效钮，直接坐地板上。
+         left 必须 !important：上面 4938 那条用了 !important + JS 游走写 inline，
+         不写 !important 盖不住。
+       · 气泡栈 left: calc(100% - 4px)：栈的包含块就是 96 宽的 .float-avatar-wrap，
+         100% - 4 = 92 ⇒ 气泡左缘落在 x 96，与精灵视觉右缘 88 留 8px 缝。
+         top: auto 是关键：基础样式 top/bottom 同时给值会把栈高算成
+         「包含块高 - top - bottom」，改成只钉 bottom 才能随行数向上长。
+       · 音效钮 bottom 100 = 小人精灵顶边 88 + 12px 净空（88 = 16 + 72 = 钮底边）。
+       · 音乐开关 right 16 / bottom 84：right 16 是原 left 16 的镜像；
+         bottom 84 沿用原来「猫顶边 76 + 8px 缝」的关系。 */
+  .float-avatar-wrap.is-fixed {
+    right: auto;
+    left: 4px !important;
+    bottom: 16px;
+  }
+
+  .float-avatar-wrap.is-fixed .speech-stack {
+    left: calc(100% - 4px);
+    right: auto;
+    top: auto;
+    bottom: 20px;
+    transform: none;
+    align-items: flex-start;
+  }
+
+  /* 尾巴原来朝下（素材实测是"下-左"像素阶梯，根部贴气泡底边）。
+     气泡挪到小人右侧之后要朝左：绕中心转 90°（CSS 正角 = 顺时针）正好把
+     "向下"映射成"向左"，像素阶梯转 90° 不糊。
+     定位：::after 的包含块是气泡的 padding box（气泡 position: relative），
+     left -22 ⇒ 尾巴中心落在 padding box 左内侧 4px，尖端探出气泡可视左缘 4px，
+     根部 11px 落在 10px 描边带里（和原来"根部贴在直边上"同一个手法）。 */
+  .float-avatar-wrap.is-fixed .speech-bubble::after {
+    left: -22px;
+    right: auto;
+    bottom: 20px;
+    transform: rotate(90deg);
+  }
+
+  /* 音效钮挪到"小人上方"（原音乐开关那格）。高度不能用直觉的 bottom:100：
+     实测 #floatAvatar（小人按钮）的命中盒是 [4,731,96,96]（顶边离窗口底 113px，
+     因为它 96 高、贴 bottom 16），而音效钮自带 ::after 上下各 3px 热区
+     （inset -3px 0）⇒ 它的热区底边必须 ≤ 726，否则点音效钮下半截会命中小人、
+     变成打开聊天。取 bottom:120 ⇒ 盒 696..724、热区 693..727，净空 4px。 */
+  .sfx-btn {
+    top: auto;
+    bottom: 120px;
+    right: auto;
+    left: 16px;
+  }
+
+  .bgm-btn {
+    top: auto;
+    bottom: 84px;
+    left: auto;
+    right: 16px;
+  }
+
+  /* v3.29 追加：抽屉打开时"左列三件"（音效钮 / 浮动小人 + 它挂着的气泡）跟着沉下去。
+     它们 z-index 60 会浮在抽屉(40)和遮罩(35)之上、视觉盖住木牌左下角空白区；
+     小猫是 z-index 12（在遮罩之下、会被压暗），这样两者行为才一致。
+     body.drawer-open 由 js/script.js 的 openSidebar()/closeSidebar() 维护，
+     只在这个窄屏块里生效 ⇒ 桌面端（没有抽屉）完全不受影响。
+     用 visibility 而不是 opacity：连命中一起摘掉，避免抽屉开着时点小人开聊天。 */
+  body.drawer-open .sfx-btn {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  body.drawer-open .float-avatar-wrap.is-fixed {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* ==========================================================================
+   v3.28 需求①（桌面）：矮窗紧凑模式
+   --------------------------------------------------------------------------
+   桌面侧栏内容实测约 730px（32+120+16+48+12+24+[5x64+4x10]+[36+8+36]+32），
+   而 1366x768 这类笔记本的内容视口只有 ~620-660px ⇒ 最下面的配色拨片被裁。
+   这里只压缩纯留白（内边距 / 头像 / 行高 / 间隙），一个素材尺寸都不动，
+   省下约 106px ⇒ 620px 高也放得下。
+   为什么不做滚动条：外探 36px 的木牌要靠 overflow 全 visible 才画得出来
+   （见 1311-1319 的账），一旦开 overflow-y 滚动，overflow-x 会被强制算成
+   hidden，牌尖就被裁在 x=176 上。
+   min-height: 561px 是为了避开「短横屏走移动端那套」：窗口 <=560 高时
+   上面的移动块已经接管（那套有滚动），这里不能再叠一层。
+   ========================================================================== */
+@media (min-width: 1025px) and (min-height: 561px) and (max-height: 760px) {
+  .sidebar-inner { padding: 16px 20px; }
+  .sidebar-avatar { width: 96px; height: 96px; margin-bottom: 10px; }
+  .px-hero-img--big { width: 48px; height: 72px; }    /* 96 - 2x12 = 72，正好一格不差 */
+  .sidebar-name { line-height: 36px; }
+  .sidebar-role { margin-bottom: 12px; }
+  .nav { gap: 4px; }
+  .lang-box { margin-top: 8px; }
+  .theme-box { margin-top: 4px; }
+}
+
+/* ==========================================================================
+   v3.29 需求①：手机横屏「侧边栏没切成可滑动模式」加固
+   --------------------------------------------------------------------------
+   真机反馈横屏时侧栏滑不动。CDP 回归（844x390 / 932x430 / 768x360）证明：
+   只要窄屏断点命中，.sidebar 的 overflow-y: auto 就生效、真触摸拖动
+   scrollTop 0 -> 199 / 159 / 208 全能滚 —— 滚不动只可能是断点没命中，
+   走的是桌面布局，而桌面 .sidebar 是 overflow: visible（外探 60px 的木牌
+   要靠它才画得出来，见 1311-1319 的账），视口又不够高 ⇒ 底部导航被裁、
+   既看不见也够不着。
+   这条块不动布局（宽度 / 字号 / 断点 / 结构全不碰），只给「触摸设备 + 横屏」
+   兜底把侧栏本身变成滚动容器：
+     · touch-action: pan-y —— 原来 .sidebar 自己没写，只靠 html 继承；
+     · overflow-y: auto + height: 100dvh + overscroll-behavior: contain；
+     · 隐藏滚动条，保持像素画的干净外观（同窄屏块口径）。
+   为什么用 (pointer: coarse) 而不是 (max-width: 1024px)：手机开「桌面模式」时
+   视口宽度会 > 1024，pointer 仍判 coarse ⇒ 这条兜得住；桌面鼠标 pointer: fine
+   完全不受影响。
+   代价（报告如实写）：命中这条且没命中窄屏块时，overflow-x 不再是 visible，
+   木牌外探的 60px 会被裁在 x=176（桌面矮窗那套的注释里已经记过这个约束）；
+   换来的是"底部导航能滚到"。
+   ========================================================================== */
+@media (orientation: landscape) and (pointer: coarse) {
+  .sidebar {
+    height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    scrollbar-width: none;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 }
