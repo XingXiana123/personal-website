@@ -5960,3 +5960,66 @@ html[data-lang="en"] .px-sign--name .hero-role {
     height: 0;
   }
 }
+
+
+/* ============================================================
+ * v4.0 AI 数字分身：聊天窗新增样式
+ * 追加在文件末尾，覆盖旧版聊天窗的少量规则；不影响页面其他模块。
+ * ============================================================ */
+
+/* 标题旁的 AI 小徽标，让访客一眼知道这是模型在回答，不是写死的台词。 */
+.px-chat-ai {
+  flex: none;
+  margin-left: auto;
+  padding: 2px 5px;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--px-cream);
+  background-color: var(--px-leaf);
+  border: 2px solid var(--px-wood-dark);
+  box-shadow: 2px 2px 0 rgba(18, 10, 5, 0.3);
+  image-rendering: pixelated;
+}
+
+/* 模型的回答可能带换行；保留它，长英文/链接也能在气泡里折行。 */
+.px-chat-bubble {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* 失败提示：同一套像素气泡，浅陶土底 + 深砖红字。 */
+.px-chat-bubble--error {
+  color: #7A2E12;
+  background-color: #FBE3D6;
+}
+
+.px-chat-retry {
+  display: block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  font: inherit;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--chip-ink);
+  background-color: var(--px-yellow);
+  border: 2px solid var(--px-wood-dark);
+  cursor: pointer;
+}
+
+.px-chat-retry:hover { filter: brightness(1.06); }
+.px-chat-retry:active { transform: translateY(1px); }
+
+/* 底部模型说明 / 正在思考状态行：深色半透明底 + 固定奶油色字。 */
+.px-chat-note {
+  display: inline-block;
+  max-width: 100%;
+  margin: 6px 0 0;
+  padding: 2px 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #FFF6E4;
+  background-color: rgba(20, 12, 8, 0.55);
+  border: 1px solid rgba(255, 246, 228, 0.18);
+  opacity: 1;
+}

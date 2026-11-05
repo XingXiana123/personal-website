@@ -12,7 +12,7 @@
    * ============================================================ */
   var I18N = {
     zh: {
-      /* v3.5（用户裁定③）：顶栏标题从「郑先生」改成「电脑端体验更佳」——
+      /* v3.5（用户裁定③）：顶栏标题从「郑瑞航」改成「电脑端体验更佳」——
          brand 这个词条全站只有窄屏顶栏 .mobile-brand 在用
          （侧边栏用的是 name / role，见下面两行），所以直接改值即可。 */
       brand: "电脑端体验更佳",
@@ -52,7 +52,7 @@
       "interests.i3": "散步",
       "interests.i4": "游戏",
       "interests.i5": "音乐",
-      "interests.i6": "写东西",
+      "interests.i6": "写剧本",
       "interests.i7": "捣鼓奇怪的东西",
       "form.name": "姓名",
       "form.namePh": "请输入姓名（可以不填写真实姓名）",
@@ -123,8 +123,18 @@
       "chat.close": "关闭",
       "chat.enter": "进入对话",
       "chat.title": "和郑瑞航聊聊",
-      "chat.hello": "您好！我是郑瑞航，现就读于天津大学香港理工大学深圳未来技术学院，您有什么问题欢迎向我提问！但我只是数字分身，无法做到全知全能哦。您也可以点击下方的快捷提问！让我们开始聊天吧！",
-      "chat.fallback": "不好意思，我暂时无法回答您这个问题...但我肯定能回答下方的快捷提问！",
+      "chat.hello": "您好！我是这个主页的 AI 数字分身，由 DeepSeek 驱动。项目、兴趣、学习方式或这份主页，都可以问我；不知道的我会老实说。也可以点下面的快捷提问。",
+      "chat.fallback": "不好意思，这个问题我暂时答不上来...你可以换个问法，或者直接发邮件联系我。",
+      "chat.note": "由 DeepSeek 驱动 · 可能出错，重要信息请邮件确认",
+      "chat.thinking": "正在思考…",
+      "chat.retry": "重试",
+      "chat.err.rate": "问得有点快，等 {s} 秒再试吧。",
+      "chat.err.day": "今天的提问次数用完了，明天再来吧。",
+      "chat.err.config": "数字分身还没配置好，先给我发邮件吧。",
+      "chat.err.timeout": "这次想得有点久，超时了。要不要再问一次？",
+      "chat.err.network": "网络不太稳定，没能连上数字分身。",
+      "chat.err.generic": "出了点小问题，请再问一次。",
+      "chat.offline": "（模型暂时连不上。先稍等再试，或通过主页底部的「意见反馈」给郑瑞航留言。）",
       "chat.ph": "输入你想问的问题…",
       "chat.inputAria": "输入你想问的问题",
       "chat.logAria": "对话记录",
@@ -134,19 +144,7 @@
       "chat.q3": "你有什么项目与作品？",
       "chat.q4": "你的兴趣有哪些？",
       "chat.ask1": "可以详细说说你的学习辅助项目吗？",
-      "chat.ask2": "可以详细说说你的侦探游戏项目吗？",
-      "chat.a.who": "我是郑瑞航，现在是一名学生，平时喜欢捣鼓像素风和各种奇怪的小玩意，这个主页就是我自己一点点搭起来的。想了解别的，点下面的快捷提问就行！",
-      "chat.a.contact": "邮箱：3490216203@qq.com；电话：13826692189。有事欢迎与我联系，也可以直接在下面的「意见反馈」里给我留言。",
-      "chat.a.projects": "目前并没有什么很拿得出手的项目，一个是学习辅助，一个是侦探解谜游戏，还有一个就是现在您进入的我的个人网页。虽然寥若晨星，但是每一个我都细心打磨每一个细节，如个人网页光是产品迭代报告目前就已经纯文本写了七百多 KB，之后还可能继续增长，加上已经删除记录的废案，已经迭代了八十多个版本。如果你想详细了解「学习辅助」项目和「游戏」项目，回复关键词「学习辅助」或「游戏」即可~",
-      "chat.a.interests": "乒乓球、武术、散步、游戏、音乐、写剧本，还有捣鼓各种奇怪的东西。",
-      "chat.a.proj1": "学习辅助网页是用 vibe coding 做出来的，想法来自平时学习时的需要，现在还在持续优化中，欢迎使用！在这个网页里，一切知识点需要自己添加、撰写，包括含义、边界、应用、证明过程、逆转思考角度等等，全由自己手动搭建，网页提供撰写卡片和分类功能，让知识不再零散。不用担心自己总结会导致错误，网页配备的 AI 辅助检查功能，只需要在设置里接入 AI，就可以让 AI 帮助我们检查正误！网页也配备了复习功能，复习计划将自动遵循艾宾浩斯遗忘曲线制定，让我们高效复习。当然，完成一次复习是需要一定门槛的，为了防止走马观花，每次复习后需要输入此次复习的感悟或想法才能够完成一次复习！目前还在内测使用，尚未公布链接，如有需要欢迎联系我获取！",
-      "chat.a.proj2": "《奇迹》是一个侦探解密题材的游戏 demo，现在正在努力改进美术和修 bug 中。侦探真新是一位来自乡下的新人，偶然卷入了一场噩梦中，他能否一次次诞生奇迹，绝境逢生呢？目前 demo 只开放了第一章，并未开放所有玩法，目前还在修改剧情 bug 和游戏画面，如果有兴趣欢迎与我联系获取软件~",
-      /* v3.28 需求④：4 组社交应答。chat.a.hello 的文案 = 「您好！」+ chat.a.who，
-         两处必须同步 —— tools/verify-page.py 里有断言盯着这条不变量。 */
-      "chat.a.hello": "您好！我是郑瑞航，现在是一名学生，平时喜欢捣鼓像素风和各种奇怪的小玩意，这个主页就是我自己一点点搭起来的。想了解别的，点下面的快捷提问就行！",
-      "chat.a.thanks": "不用谢！回答问题是我的义务！",
-      "chat.a.ok": "好的！请问您还有什么问题吗？",
-      "chat.a.bye": "再见！希望下次再会！"
+      "chat.ask2": "可以详细说说你的侦探游戏项目吗？"
     },
     en: {
       /* v3.5（用户裁定③）：与中文 brand 同步 —— 窄屏顶栏提示去电脑上体验 */
@@ -184,7 +182,7 @@
       "interests.i3": "Walking",
       "interests.i4": "Gaming",
       "interests.i5": "Music",
-      "interests.i6": "writing",
+      "interests.i6": "Screenwriting",
       "interests.i7": "Tinkering with curious things",
       "form.name": "Name",
       "form.email": "Email",
@@ -250,8 +248,18 @@
       "chat.close": "Close",
       "chat.enter": "Open the chat",
       "chat.title": "Chat with Zheng Ruihang",
-      "chat.hello": "Hi! I'm Zheng Ruihang, currently studying at Tianjin University-Hong Kong Polytechnic University Shenzhen Future Technology Institute. Feel free to ask me anything! I'm only a digital stand-in though, so I'm not all-knowing. You can also tap a quick question below — let's chat!",
-      "chat.fallback": "Sorry, I can't answer that one yet... but the quick questions below I definitely can!",
+      "chat.hello": "Hi! I'm the AI digital twin on this homepage, powered by DeepSeek. Ask about my projects, interests, how I learn, or this site; if I don't know, I'll say so.",
+      "chat.fallback": "Sorry, I can't answer that one right now. Try rephrasing it, or email me directly.",
+      "chat.note": "Powered by DeepSeek · can make mistakes; email me for anything important",
+      "chat.thinking": "Thinking…",
+      "chat.retry": "Retry",
+      "chat.err.rate": "That was a bit fast — try again in {s} seconds.",
+      "chat.err.day": "You've used today's questions. Come back tomorrow.",
+      "chat.err.config": "The digital twin isn't configured yet. Please email me instead.",
+      "chat.err.timeout": "That took too long and timed out. Want to ask again?",
+      "chat.err.network": "The network is a little unstable, so I couldn't reach the digital twin.",
+      "chat.err.generic": "Something went wrong. Please ask again.",
+      "chat.offline": "(The model is unreachable right now. Please try again later, or leave a note in the feedback form at the bottom of the homepage.)",
       "chat.ph": "Type your question…",
       "chat.inputAria": "Type your question",
       "chat.logAria": "Conversation",
@@ -261,19 +269,7 @@
       "chat.q3": "What projects do you have?",
       "chat.q4": "What are your interests?",
       "chat.ask1": "Can you tell me more about the study-assist project?",
-      "chat.ask2": "Can you tell me more about the detective game?",
-      "chat.a.who": "I'm Zheng Ruihang, a student who likes tinkering with pixel art and all sorts of odd little things. I built this homepage myself, bit by bit. Tap a quick question below to learn more!",
-      "chat.a.contact": "Email: 3490216203@qq.com; Phone: 13826692189. Feel free to get in touch, or just leave me a note in the feedback form below.",
-      "chat.a.projects": "There isn't much I can proudly show off yet: a study-assist tool, a detective puzzle game, and this personal homepage you're on right now. Sparse as they are, I've polished every detail of each one — the homepage alone has already got a product iteration report of over 700 KB of plain text, and it may keep growing; counting deleted drafts, it's been through 80-plus versions. If you'd like to hear more about the study-assist project or the game, just type the keyword \"study\" or \"game\"~",
-      "chat.a.interests": "Table tennis, martial arts, walking, games, music, screenwriting, and tinkering with weird stuff.",
-      "chat.a.proj1": "The study-assist site was built with vibe coding, out of a need I kept running into while studying, and it's still being improved — welcome to try it! In it, every knowledge point has to be added and written by yourself: meaning, boundaries, applications, proofs, reverse-thinking angles, all built by hand, with cards and categories so knowledge stops being scattered. Don't worry that writing it yourself will get it wrong: there's an AI check built in — just connect an AI in the settings and it will help verify your notes! It also has a review feature, and the schedule follows the Ebbinghaus forgetting curve so reviewing stays efficient. And a review has a threshold: to keep you from skimming, you have to write down a thought or insight after each session before it counts. It's still in closed beta with no public link yet, so get in touch if you'd like access!",
-      "chat.a.proj2": "\"Miracle\" is a detective puzzle game demo; I'm working on the art and fixing bugs. Detective Zhen Xin is a newcomer from the countryside who stumbles into a nightmare — can he keep working miracles and find a way out? Only chapter one is open in the demo and not all mechanics are available yet; I'm still fixing story bugs and the visuals. If you're interested, get in touch and I'll send you the build~",
-      /* v3.28 requirement 4: four social answers. chat.a.hello must stay in
-         sync with "Hello! " + chat.a.who (asserted in tools/verify-page.py). */
-      "chat.a.hello": "Hello! I'm Zheng Ruihang, a student who likes tinkering with pixel art and all sorts of odd little things. I built this homepage myself, bit by bit. Tap a quick question below to learn more!",
-      "chat.a.thanks": "You're welcome! Answering your questions is my duty!",
-      "chat.a.ok": "Got it! Anything else you'd like to ask?",
-      "chat.a.bye": "Goodbye! Hope we meet again!"
+      "chat.ask2": "Can you tell me more about the detective game?"
     }
   };
 
@@ -1511,7 +1507,7 @@
   /* ============================================================
    * 11-B. 像素风聊天窗（v3.23 需求③ / v3.24 需求②③ / v3.25 需求①）
    *       v3.24 起不再是"每个项目一套写死的静态台词"，而是【单个全局对话】：
-   *         · CHAT_LOG 存整段聊天记录 —— 左 = 主页主人（郑先生，带头像、
+   *         · CHAT_LOG 存整段聊天记录 —— 左 = 主页主人（郑瑞航，带头像、
    *           奶油气泡），右 = 访客（豆绿气泡、无头像），沿用 v3.23 的左右惯例；
    *         · 输入框 + 发送按钮；4 个快捷提问木牌；关键词应答 + 兜底回复；
    *         · 首次进入自动问候一句（内存标记，不写 localStorage，刷新即重置）；
@@ -1534,85 +1530,38 @@
   var chatSendEl = document.getElementById("pxChatSend");
   var chatCloseEl = document.getElementById("pxChatClose");
   var chatBackdropEl = document.getElementById("pxChatBackdrop");
+  var chatNoteEl = document.getElementById("pxChatNote");
   var chatLastFocus = null;
   var chatGreeted = false;      // 本次打开页面是否已经问候过（用户裁定：不写盘）
 
-  /* 聊天记录：一条 = { from: "me" | "them", key: i18n 键?, text: 访客原话? }
-     带 key 的（问候 / 应答 / 自动提问）换语言时按 key 重刷成另一种语言；
-     带 text 的是访客自己打的字，原样保留。 */
+  /* 聊天记录：一条 = { id, from: "me" | "them", key?, text?, error?, retryFor? }
+     带 key 的（开场问候）换语言时按 key 重刷成另一种语言；
+     带 text 的是访客原话或模型生成的回答，原样保留。
+     带 error 的是失败提示，retryFor 指向要重试的那条访客消息。 */
   var CHAT_LOG = [];
+  var chatEntrySeq = 0;
 
-  /* 快捷提问木牌：问句 + 直接对应的答案键。
-     点木牌不再走关键词（保证中英都能一问一答），
-     只有"自己打字"才交给下面的 CHAT_RULES 猜意图。 */
+  function nextChatId() {
+    chatEntrySeq += 1;
+    return "c" + chatEntrySeq;
+  }
+
+  /* 快捷提问木牌：只提供「问句」。
+     点击后和手动输入完全走同一条 AI 请求，不再对应固定答案；
+     这样访客改一个字、或者追问，都能得到基于资料的新回答。 */
   var QUICK_ASKS = [
-    { q: "chat.q1", a: "chat.a.who" },
-    { q: "chat.q2", a: "chat.a.contact" },
-    { q: "chat.q3", a: "chat.a.projects" },
-    { q: "chat.q4", a: "chat.a.interests" }
+    { q: "chat.q1" },
+    { q: "chat.q2" },
+    { q: "chat.q3" },
+    { q: "chat.q4" }
   ];
-
-  /* 关键词应答表（v3.24 需求③）：从上往下第一条命中的就用它。
-     顺序有意：两个"具体项目"规则排在"项目 / 作品"这类泛词之前，
-     否则"学习辅助项目"会先撞上泛词；"兴趣"排在"游戏"之前，
-     免得"你喜欢什么游戏"被当成在问侦探游戏；"游戏 / game"
-     留在侦探那条里，"侦探游戏做得怎么样"仍然接得住。 */
-  var CHAT_RULES = [
-    { key: "chat.a.proj1", words: ["学习辅助", "学习", "网页", "vibe", "web", "study"] },
-    { key: "chat.a.who", words: ["你是谁", "你叫", "你的名字", "自我介绍", "who are you", "your name"] },
-    { key: "chat.a.contact", words: ["联系方式", "联系", "邮箱", "邮件", "电话", "手机", "微信", "contact", "email", "mail", "phone", "reach"] },
-    { key: "chat.a.interests", words: ["兴趣", "爱好", "喜欢", "平时", "interest", "hobby", "like"] },
-    { key: "chat.a.proj2", words: ["侦探", "解密", "解谜", "奇迹", "游戏", "demo", "detective", "puzzle", "game", "miracle"] },
-    { key: "chat.a.projects", words: ["项目", "作品", "做过", "project", "portfolio", "work"] },
-    /* v3.28 需求④：4 组「社交应答」。位置有意排在原有 6 条之后 ——
-       匹配是子串匹配，若排前面，"了解""好"会抢答"我想了解一下你的项目"。
-       组内 hello 在 ok 之前（"你好"里含"好"）；
-       英文只收 "hello"（不收裸 "hi"：会撞 this / which 这类词）。 */
-    { key: "chat.a.hello", words: ["你好", "您好", "hello"] },
-    { key: "chat.a.thanks", words: ["谢谢", "感谢", "感恩", "谢", "感激", "thank"] },
-    { key: "chat.a.ok", words: ["好的", "ok", "明白了", "了解", "收到", "原来如此", "好"] },
-    { key: "chat.a.bye", words: ["再见", "拜拜", "再会", "先走了", "拜", "bye", "goodbye"] }
-  ];
-
-  // 归一化：小写 + 只留中英文与数字（空格、标点全丢掉），
-  // 这样"你是谁？"和"Who are you?"能被同一张表接住。
-  function normAsk(s) {
-    return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, "");
-  }
-
-  /* 英文名词的单复数兜底：-y → -ies（hobby → hobbies）、-s / -es
-     （project → projects）。词表里写单数，问题里写复数也算命中 ——
-     真机实测踩到过：打字 "hobbies" 掉进了兜底回答。中文词不受影响。 */
-  function wordForms(w) {
-    var f = [w];
-    if (/^[a-z]+$/.test(w)) {
-      f.push(w + "s");
-      f.push(w + "es");
-      if (/[^aeiou]y$/.test(w)) f.push(w.slice(0, -1) + "ies");
-    }
-    return f;
-  }
-
-  function answerKeyFor(text) {
-    var n = normAsk(text);
-    if (!n) return "chat.fallback";
-    for (var i = 0; i < CHAT_RULES.length; i++) {
-      var words = CHAT_RULES[i].words;
-      for (var j = 0; j < words.length; j++) {
-        var forms = wordForms(normAsk(words[j]));
-        for (var k = 0; k < forms.length; k++) {
-          if (forms[k] && n.indexOf(forms[k]) !== -1) return CHAT_RULES[i].key;
-        }
-      }
-    }
-    return "chat.fallback";
-  }
 
   // 造一行：from = "me"（左侧 + 头像）/ "them"（右侧）
   function makeChatRow(m) {
     var dict = I18N[currentLang];
     var row = document.createElement("div");
     row.className = "px-chat-row px-chat-row--" + m.from;
+    if (m.id) row.setAttribute("data-chat-id", m.id);
     if (m.from === "me") {
       var face = document.createElement("span");
       face.className = "px-chat-face";
@@ -1621,6 +1570,20 @@
     var bub = document.createElement("div");
     bub.className = "px-chat-bubble";
     bub.textContent = m.key ? (dict[m.key] || "") : (m.text || "");
+
+    if (m.error) {
+      bub.classList.add("px-chat-bubble--error");
+      if (m.retryFor) {
+        var retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "px-chat-retry";
+        retry.setAttribute("data-sfx", "click");
+        retry.textContent = dict["chat.retry"] || "Retry";
+        retry.addEventListener("click", function () { retryChat(m); });
+        bub.appendChild(retry);
+      }
+    }
+
     row.appendChild(bub);
     return row;
   }
@@ -1633,12 +1596,13 @@
   }
 
   function pushChat(m) {
+    if (!m.id) m.id = nextChatId();
     CHAT_LOG.push(m);
     if (chatEl && !chatEl.hidden && chatBodyEl) {
       var row = makeChatRow(m);
       chatBodyEl.appendChild(row);
       chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
-      return row;                 // v3.25：出场的这一行要给"吐字"接手
+      return row;                 // 出场的这一行要给"吐字 / 流式输出"接手
     }
     return null;
   }
@@ -1653,12 +1617,19 @@
    *   两条回复挤在同一个气泡里。
    *   尊重系统"减少动态效果"：那种情况下直接出全文（等同 v3.24 的行为）。
    * ------------------------------------------------------------ */
-  var CHAT_WAIT_MIN = 750;    // "正在输入"最短停顿（ms）
-  var CHAT_WAIT_MAX = 1000;   // 最长停顿（ms）
-  var CHAT_TYPE_CPS = 50;     // 吐字速度：每秒 50 个字（≈ 每字 20ms，像 AI）
-  var chatQueue = [];         // 待播序列：主人的回复在这里排队
-  var chatBusy = false;       // 是否有一条主人回复正在"等待 / 吐字"
-  var chatTyping = null;      // 进行中那条：{ row, bub, full, timer, raf, startAt, shown, onDone }
+  /* ------------------------------------------------------------
+   * v4.0：真正的 AI 数字分身。
+   *   访客发一句话 → POST 到 Supabase Edge Function → DeepSeek；
+   *   服务端用 SSE 逐段返回，这里先挂省略号，再把字一个个吐出来；
+   *   网络慢 / 断 / 限流时给出可重试的错误气泡，并附一条离线兜底；
+   *   一条回答没说完，下一条自动排队，不会两条挤在一起。
+   * ------------------------------------------------------------ */
+  var CHAT_TYPE_CPS = 50;      // 吐字速度：每秒 50 个字
+  var CHAT_MAX_INPUT = 300;    // 与输入框 maxlength 保持一致
+  var chatPending = [];        // 待发的问题：{ id: 访客消息 id }
+  var chatBusy = false;        // 当前是否有一条请求 / 回答在进行
+  var chatStreaming = null;    // 当前正在流式输出的那条
+  var chatAbortController = null;
 
   function chatReduceMotion() {
     return !!(window.matchMedia
@@ -1681,107 +1652,337 @@
       - chatBodyEl.clientHeight < 60;
   }
 
-  /* 把正在说的那条一次性补齐（关窗 / 换语言 / 被下一条顶掉时用）。
-     记录里本来就有这条（存的是 key），所以补齐只是把动画收尾，不是丢内容。 */
-  function finishMeReply() {
-    var t = chatTyping;
-    if (!t) return;
-    chatTyping = null;
-    if (t.timer) { clearTimeout(t.timer); t.timer = 0; }
-    if (t.raf) { cancelAnimationFrame(t.raf); t.raf = 0; }
-    if (t.row && document.contains(t.row)) {
-      t.row.classList.remove("px-chat-row--typing");
-      if (t.bub) t.bub.textContent = t.full;
-    }
-    if (t.onDone) t.onDone();
+  function chatDict() {
+    return I18N[currentLang] || I18N.zh || {};
   }
 
-  // 队列泵：访客的话立即出场，主人的回复一条一条慢慢说
-  function chatPump() {
-    while (!chatBusy && chatQueue.length) {
-      var m = chatQueue.shift();
-      if (m.from === "me") {
-        chatBusy = true;
-        startMeReply(m.key, function () { chatBusy = false; chatPump(); });
-        return;
+  function setChatBusyUI(busy) {
+    if (!chatNoteEl) return;
+    var dict = chatDict();
+    chatNoteEl.textContent = busy
+      ? (dict["chat.thinking"] || "")
+      : (dict["chat.note"] || "");
+  }
+
+  function removeChatEntry(id) {
+    for (var i = CHAT_LOG.length - 1; i >= 0; i--) {
+      if (CHAT_LOG[i].id === id) CHAT_LOG.splice(i, 1);
+    }
+    if (chatBodyEl) {
+      var row = chatBodyEl.querySelector('[data-chat-id="' + id + '"]');
+      if (row && row.parentNode) row.parentNode.removeChild(row);
+    }
+  }
+
+  /* 取「到这条访客消息为止」的历史，避免把后面还没回答的问题也塞给模型。
+     错误提示和离线兜底不算真正的对话，不进入上下文。 */
+  function buildHistoryUpTo(userEntryId) {
+    var dict = chatDict();
+    var history = [];
+    for (var i = 0; i < CHAT_LOG.length; i++) {
+      var m = CHAT_LOG[i];
+      var isTarget = m.id === userEntryId;
+      if (m.error || m.offline) {
+        if (isTarget) break;
+        continue;
       }
-      pushChat(m);
+      var text = m.key ? (dict[m.key] || "") : (m.text || "");
+      if (text) {
+        history.push({ role: m.from === "me" ? "assistant" : "user", content: text });
+      }
+      if (isTarget) break;
     }
+    var max = (window.AI_TWIN_CONFIG && window.AI_TWIN_CONFIG.maxHistory) || 10;
+    if (history.length > max) history = history.slice(history.length - max);
+    return history;
   }
 
-  function chatEnqueue(list) {
-    chatQueue = chatQueue.concat(list);
+  function chatErrorText(err) {
+    var dict = chatDict();
+    var code = err && err.code ? String(err.code) : "";
+    var retry = err && err.retryAfter ? Number(err.retryAfter) : 0;
+    if (code === "rate_limited") {
+      if (retry >= 1800) return dict["chat.err.day"] || "";
+      return (dict["chat.err.rate"] || "").replace("{s}", String(retry || 60));
+    }
+    if (code === "not_configured" || code === "disabled") return dict["chat.err.config"] || "";
+    if (code === "timeout" || code === "upstream_timeout") return dict["chat.err.timeout"] || "";
+    if (code === "network" || code === "upstream_unreachable") return dict["chat.err.network"] || "";
+    return dict["chat.err.generic"] || "";
+  }
+
+  function pushChatError(userEntry, err) {
+    pushChat({
+      from: "me",
+      error: chatErrorText(err),
+      retryFor: userEntry.id
+    });
+
+    var code = err && err.code ? String(err.code) : "";
+    if (code !== "rate_limited") {
+      var dict = chatDict();
+      var offline = dict["chat.offline"] || "";
+      if (offline) {
+        pushChat({
+          from: "me",
+          text: offline,
+          offline: true,
+          offlineFor: userEntry.id
+        });
+      }
+    }
+    setChatBusyUI(false);
+  }
+
+  function ensureTypeRaf(state) {
+    if (!state || state.raf || state.waiting) return;
+    state.raf = requestAnimationFrame(function (now) {
+      state.raf = 0;
+      typeStream(state, now);
+    });
+  }
+
+  function startStreamVisual(state) {
+    if (!state || state.waiting === false) return;
+    state.waiting = false;
+    if (state.row) {
+      state.row.classList.remove("px-chat-row--typing");
+      state.row.classList.add("px-chat-row--streaming");
+    }
+    if (state.bub) {
+      state.bub.textContent = "";
+      state.bub.classList.add("px-chat-bubble--streaming");
+    }
+    state.startAt = 0;
+    state.shown = 0;
+    ensureTypeRaf(state);
+  }
+
+  function typeStream(state, now) {
+    if (!state || chatStreaming !== state || state.waiting) return;
+    if (!state.startAt) state.startAt = now;
+    var target = state.target || "";
+    var n = Math.floor((now - state.startAt) / 1000 * CHAT_TYPE_CPS);
+    if (n > target.length) n = target.length;
+    if (n !== state.shown) {
+      state.shown = n;
+      if (state.bub) state.bub.textContent = target.slice(0, n);
+      state.entry.text = target;
+      if (chatStuckToBottom() && chatBodyEl) chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
+    }
+    if (n < target.length) {
+      ensureTypeRaf(state);
+      return;
+    }
+    if (state.done) finalizeStream(state);
+  }
+
+  function finalizeStream(state) {
+    if (!state || state.finalized) return;
+    state.finalized = true;
+    if (state.raf) { cancelAnimationFrame(state.raf); state.raf = 0; }
+    state.entry.text = state.target || state.entry.text || "";
+    state.entry.streaming = false;
+    if (state.row) {
+      state.row.classList.remove("px-chat-row--typing");
+      state.row.classList.remove("px-chat-row--streaming");
+    }
+    if (state.bub) {
+      state.bub.classList.remove("px-chat-bubble--streaming");
+      state.bub.textContent = state.entry.text;
+    }
+    if (chatStreaming === state) chatStreaming = null;
+    chatAbortController = null;
+    chatBusy = false;
+    setChatBusyUI(false);
     chatPump();
   }
 
-  /* 一条主人回复：省略号 → 停 0.75~1s → 逐字吐出。
-     窗口没开（记录照写、下次打开看到全文）或"减少动态效果"时直接落全文。 */
-  function startMeReply(key, onDone) {
-    var row = pushChat({ from: "me", key: key });
-    if (!row || chatReduceMotion()) { if (onDone) onDone(); return; }
-    var bub = row.querySelector(".px-chat-bubble");
-    if (!bub) { if (onDone) onDone(); return; }
-    var t = {
-      row: row, bub: bub, onDone: onDone,
-      full: I18N[currentLang][key] || "",
-      timer: 0, raf: 0, startAt: 0, shown: 0
-    };
-    chatTyping = t;
-    bub.textContent = "";
-    bub.appendChild(makeTypingDots());          // 第一拍：省略号
-    row.classList.add("px-chat-row--typing");
-    chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
-    t.timer = setTimeout(function () {
-      t.timer = 0;
-      if (chatTyping !== t) return;             // 已被 finish 收尾
-      bub.textContent = "";
-      t.raf = requestAnimationFrame(function (now) { typeMeReply(t, now); });
-    }, CHAT_WAIT_MIN + Math.random() * (CHAT_WAIT_MAX - CHAT_WAIT_MIN));
+  function handleAIError(state, userEntry, err) {
+    if (!state || state.finalized) return;
+    state.finalized = true;
+    if (state.raf) { cancelAnimationFrame(state.raf); state.raf = 0; }
+    state.entry.streaming = false;
+    if (state.row) {
+      state.row.classList.remove("px-chat-row--typing");
+      state.row.classList.remove("px-chat-row--streaming");
+    }
+    if (state.bub) state.bub.classList.remove("px-chat-bubble--streaming");
+
+    // 已经吐出一部分：保留这部分，再补一条错误提示；不完全吞掉半截回答。
+    if (state.target) {
+      state.entry.text = state.target;
+      if (state.bub) state.bub.textContent = state.target;
+    } else {
+      removeChatEntry(state.entry.id);
+      state.entry = null;
+    }
+
+    if (chatStreaming === state) chatStreaming = null;
+    chatAbortController = null;
+    chatBusy = false;
+    if (userEntry) pushChatError(userEntry, err);
+    chatPump();
   }
 
-  /* 吐字：按真实时间推进（掉帧也不改速度），每帧只改一次 textContent。
-     不用 setInterval(20ms)：后台标签会被降频成 1s 一跳，吐字会一顿一顿。 */
-  function typeMeReply(t, now) {
-    if (chatTyping !== t) return;
-    if (!t.startAt) t.startAt = now;
-    var stuck = chatStuckToBottom();
-    var n = Math.floor((now - t.startAt) / 1000 * CHAT_TYPE_CPS);
-    if (n > t.full.length) n = t.full.length;
-    if (n !== t.shown) {
-      t.shown = n;
-      t.bub.textContent = t.full.slice(0, n);
-      if (stuck) chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
+  function chatPump() {
+    if (chatBusy || !chatPending.length) return;
+    var next = chatPending.shift();
+    var userEntry = null;
+    for (var i = 0; i < CHAT_LOG.length; i++) {
+      if (CHAT_LOG[i].id === next.id) { userEntry = CHAT_LOG[i]; break; }
     }
-    if (n < t.full.length) {
-      t.raf = requestAnimationFrame(function (next) { typeMeReply(t, next); });
+    if (!userEntry) { chatPump(); return; }
+    chatBusy = true;
+    setChatBusyUI(true);
+    startAIRequest(userEntry);
+  }
+
+  function enqueueAI(userEntry) {
+    chatPending.push({ id: userEntry.id });
+    chatPump();
+  }
+
+  function startAIRequest(userEntry) {
+    var assistantEntry = { from: "me", text: "", streaming: true };
+    var row = pushChat(assistantEntry);
+    var bub = row ? row.querySelector(".px-chat-bubble") : null;
+    if (row) row.classList.add("px-chat-row--typing");
+    if (bub) {
+      bub.textContent = "";
+      bub.appendChild(makeTypingDots());
+    }
+    if (chatBodyEl && chatStuckToBottom()) chatBodyEl.scrollTop = chatBodyEl.scrollHeight;
+
+    var state = {
+      entry: assistantEntry,
+      row: row,
+      bub: bub,
+      target: "",
+      shown: 0,
+      startAt: 0,
+      raf: 0,
+      waiting: true,
+      done: false,
+      finalized: false,
+      detached: !row
+    };
+    chatStreaming = state;
+    chatAbortController = new AbortController();
+
+    var messages = buildHistoryUpTo(userEntry.id);
+    if (!messages.length || messages[messages.length - 1].role !== "user") {
+      handleAIError(state, userEntry, { code: "empty_history" });
       return;
     }
-    t.raf = 0;
-    chatTyping = null;
-    t.row.classList.remove("px-chat-row--typing");
-    if (t.onDone) t.onDone();
-  }
 
-  /* 关窗 / 换语言：正在说的补齐、还没出场的直接写进记录（不再放动画）。 */
-  function stopChatSeq() {
-    chatBusy = false;
-    if (chatQueue.length) {
-      chatQueue.forEach(function (m) { CHAT_LOG.push(m); });
-      chatQueue.length = 0;
+    if (!window.AITwin || typeof window.AITwin.streamChat !== "function") {
+      handleAIError(state, userEntry, { code: "disabled" });
+      return;
     }
-    finishMeReply();
+
+    window.AITwin.streamChat({
+      messages: messages,
+      lang: currentLang === "en" ? "en" : "zh",
+      signal: chatAbortController.signal,
+      onDelta: function (delta) {
+        if (state.finalized) return;
+        if (state.waiting) startStreamVisual(state);
+        state.target += delta;
+        state.entry.text = state.target;
+        ensureTypeRaf(state);
+      },
+      onDone: function (fullText) {
+        if (state.finalized) return;
+        if (fullText && fullText !== state.target) {
+          state.target = fullText;
+          state.entry.text = fullText;
+        }
+        state.done = true;
+        if (chatReduceMotion()) {
+          state.shown = state.target.length;
+          finalizeStream(state);
+          return;
+        }
+        if (state.waiting) startStreamVisual(state);
+        ensureTypeRaf(state);
+        if (state.target.length === state.shown) finalizeStream(state);
+      },
+      onError: function (err) {
+        if (state.finalized) return;
+        handleAIError(state, userEntry, err);
+      }
+    });
   }
 
-  /* 一问一答：访客原话（text）留在记录里并且**立即出场**，主人的应答
-     只存 i18n 键（换语言时跟着变），交给队列慢慢说（v3.25 需求①）。
-     ansKey 给了就用它（快捷提问 / 自动提问），没给才走关键词表（自己打字）。 */
-  function askChat(text, ansKey) {
+  function detachChatStream() {
+    var state = chatStreaming;
+    if (!state) return;
+    if (state.raf) { cancelAnimationFrame(state.raf); state.raf = 0; }
+    state.entry.text = state.target || state.entry.text || "";
+    if (state.done) {
+      finalizeStream(state);
+      return;
+    }
+    state.detached = true;
+    state.row = null;
+    state.bub = null;
+  }
+
+  function reattachChatStream() {
+    var state = chatStreaming;
+    if (!state || !chatBodyEl || !chatEl || chatEl.hidden) return;
+    var row = chatBodyEl.querySelector('[data-chat-id="' + state.entry.id + '"]');
+    if (!row) return;
+    var bub = row.querySelector(".px-chat-bubble");
+    if (!bub) return;
+    state.row = row;
+    state.bub = bub;
+    state.detached = false;
+    if (state.waiting) {
+      row.classList.add("px-chat-row--typing");
+      bub.textContent = "";
+      bub.appendChild(makeTypingDots());
+    } else {
+      row.classList.add("px-chat-row--streaming");
+      bub.classList.add("px-chat-bubble--streaming");
+      bub.textContent = state.target.slice(0, state.shown);
+      if (state.done || state.target.length > state.shown) ensureTypeRaf(state);
+    }
+  }
+
+  function askChat(text) {
     var t = String(text == null ? "" : text).replace(/^\s+|\s+$/g, "");
     if (!t) return;
-    pushChat({ from: "them", text: t });
-    chatEnqueue([{ from: "me", key: ansKey || answerKeyFor(t) }]);
+    if (t.length > CHAT_MAX_INPUT) t = t.slice(0, CHAT_MAX_INPUT);
+    var userEntry = { from: "them", text: t };
+    pushChat(userEntry);
+    enqueueAI(userEntry);
     // 音效交给调用方：快捷提问木牌带 data-sfx（全局委托会响），
     // 输入框回车 / 点发送由 submit 处理器响 —— 这里再响一次就重了。
+  }
+
+  function retryChat(errorEntry) {
+    if (!errorEntry || !errorEntry.retryFor) return;
+    var userId = errorEntry.retryFor;
+    var userEntry = null;
+    for (var i = 0; i < CHAT_LOG.length; i++) {
+      if (CHAT_LOG[i].id === userId && CHAT_LOG[i].from === "them") {
+        userEntry = CHAT_LOG[i];
+        break;
+      }
+    }
+    if (!userEntry) return;
+
+    // 删掉这条错误提示和它关联的离线兜底，避免重试后出现两份答案。
+    for (var j = CHAT_LOG.length - 1; j >= 0; j--) {
+      var m = CHAT_LOG[j];
+      if (m.retryFor === userId || m.offlineFor === userId) {
+        removeChatEntry(m.id);
+      }
+    }
+    setChatBusyUI(chatBusy);
+    enqueueAI(userEntry);
   }
 
   function buildQuickAsks() {
@@ -1794,7 +1995,7 @@
       btn.className = "px-chat-chip";
       btn.setAttribute("data-sfx", "click");
       btn.textContent = dict[qa.q] || "";
-      btn.addEventListener("click", function () { askChat(dict[qa.q] || "", qa.a); });
+      btn.addEventListener("click", function () { askChat(dict[qa.q] || ""); });
       chatQuickEl.appendChild(btn);
     });
   }
@@ -1802,9 +2003,8 @@
   // 标题 / 关闭按钮 / 输入框 / 快捷提问 / 记录一起重刷（换语言时调用）
   function refreshChatTexts() {
     var dict = I18N[currentLang];
-    // v3.25：先把动画落定再重建 DOM —— 正在吐的那条补齐、没出场的写进记录，
-    // 否则重建后 rAF 还握着一个已经脱离文档的气泡，那一条就永远不显示了。
-    stopChatSeq();
+    // 正在流式输出的那条：先解除 DOM 引用、保留网络请求，重建后再挂回去。
+    detachChatStream();
     if (chatTitleEl) chatTitleEl.textContent = dict["chat.title"] || "";
     if (chatCloseEl) chatCloseEl.setAttribute("aria-label", dict["chat.close"] || "close");
     if (chatBodyEl) chatBodyEl.setAttribute("aria-label", dict["chat.logAria"] || "");
@@ -1813,47 +2013,53 @@
       chatInputEl.setAttribute("placeholder", dict["chat.ph"] || "");
     }
     if (chatSendEl) chatSendEl.textContent = dict["chat.send"] || "";
+    setChatBusyUI(chatBusy);
     buildQuickAsks();
     renderChatLog();
+    reattachChatStream();
   }
 
   /* 开窗。enter = "1" / "2" ⇒ 进来就替访客自动问一句项目问题
      （项目卡的「点击这里查看详情」走这条路）；其余（问候 / 发呆气泡的
-     「进入对话」）只开窗。首次进入先让主人自我介绍一句。
-     v3.25：开场这几句也一律走"省略号 → 停一拍 → 逐字说"（排队播），
-     免得同一扇窗里有的字会蹦、有的字是整段砸下来。 */
+     「进入对话」）只开窗。首次进入先让数字分身自我介绍一句。
+     自动提问也走真实模型，不再对应固定答案。 */
   function openChat(enter) {
     if (!chatEl) return;
     chatLastFocus = document.activeElement;
     chatEl.hidden = false;
     document.body.classList.add("px-chat-open");   // 锁住背后的页面滚动
     refreshChatTexts();
-    var seq = [];
+    var dict = chatDict();
+
     if (!chatGreeted) {
       chatGreeted = true;
-      seq.push({ from: "me", key: "chat.hello" });
+      pushChat({ from: "me", key: "chat.hello" });
     }
+
     if (enter === "1" || enter === "2") {
-      var askKey = "chat.ask" + enter;
+      var askText = dict["chat.ask" + enter] || "";
       // 上一条"访客说的话"就是这个同一个问题 ⇒ 不重复问（连点两次卡片）
       var lastThem = null;
       for (var i = CHAT_LOG.length - 1; i >= 0; i--) {
-        if (CHAT_LOG[i].from === "them") { lastThem = CHAT_LOG[i]; break; }
+        if (CHAT_LOG[i].from === "them" && !CHAT_LOG[i].error) {
+          lastThem = CHAT_LOG[i];
+          break;
+        }
       }
-      if (!(lastThem && lastThem.key === askKey)) {
-        seq.push({ from: "them", key: askKey });
-        seq.push({ from: "me", key: "chat.a.proj" + enter });
+      if (askText && !(lastThem && lastThem.text === askText)) {
+        askChat(askText);
       }
     }
-    chatEnqueue(seq);
+
     if (chatWindowEl && chatWindowEl.focus) chatWindowEl.focus();
     PixelSFX.play("pop");
   }
 
   function closeChat() {
     if (!chatEl || chatEl.hidden) return;
-    // v3.25：正在说的补齐、排队还没出场的直接写进记录（下次打开是完整对话）
-    stopChatSeq();
+    // 正在输出的这条：已经说完就立即落全文；还没说完就解除 DOM 引用，
+    // 让请求在后台继续，下次打开还能接上（不会白花一次模型调用）。
+    detachChatStream();
     chatEl.hidden = true;
     document.body.classList.remove("px-chat-open");
     if (chatLastFocus && chatLastFocus.focus) chatLastFocus.focus();

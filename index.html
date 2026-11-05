@@ -7,7 +7,7 @@
        interactive-widget=resizes-content：键盘弹出时缩内容视口，固定层跟着缩，不留白边。 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
   <title>郑瑞航 · 个人主页</title>
-  <meta name="description" content="郑先生的个人主页 —— 一间亮着暖灯的像素小店：关于我、联系方式、项目与作品、我的兴趣，以及一个可以随手拖走的像素小人。" />
+  <meta name="description" content="郑瑞航的个人主页 —— 一间亮着暖灯的像素小店：关于我、联系方式、项目与作品、我的兴趣，以及一个可以随手拖走的像素小人。" />
   <!-- v3.4：#F7E9D2（浅米）→ #2E2419（墙面木色），对齐位图场景底色。
        手机端原本会在地址栏/状态栏露一条浅色，与深色房间接在一起很扎眼。 -->
   <meta name="theme-color" content="#2E2419" />
@@ -705,12 +705,11 @@
   </div>
 
   <!-- ============================================================
-       v3.23：像素风「微信式」聊天窗；v3.24 改成「单个全局对话」——
-       不再是每个项目一套写死的静态台词，而是一段可输入、可点快捷提问、
-       按关键词应答的聊天记录（CHAT_LOG，见 script.js 第 11-B 节）。
-       入口：项目气泡的「点击这里查看详情」（顺带自动问一句）、
-       问候 / 发呆气泡右下角的「进入对话」、项目卡回车 / 空格。
-       关闭三件套：右上角像素 ×、点窗外遮罩、Esc。
+       v3.23：像素风「微信式」聊天窗；v3.24 改成「单个全局对话」；
+       v4.0：接入 Supabase Edge Function + DeepSeek，回答由模型现场生成，
+       不再使用关键词固定答案。入口：项目气泡的「点击这里查看详情」
+       （顺带自动问一句）、问候 / 发呆气泡右下角的「进入对话」、
+       项目卡回车 / 空格。关闭三件套：右上角像素 ×、点窗外遮罩、Esc。
        ============================================================ -->
   <div class="px-chat" id="pxChat" hidden>
     <div class="px-chat-backdrop" id="pxChatBackdrop" aria-hidden="true"></div>
@@ -718,17 +717,19 @@
          aria-labelledby="pxChatTitle" tabindex="-1">
       <div class="px-chat-head">
         <span class="px-chat-title" id="pxChatTitle"></span>
+        <span class="px-chat-ai" id="pxChatAI" title="由 DeepSeek 模型驱动">AI</span>
         <button class="px-chat-close" id="pxChatClose" type="button" data-sfx="pop"></button>
       </div>
       <div class="px-chat-body" id="pxChatBody"></div>
       <div class="px-chat-foot">
-        <!-- 快捷提问木牌由 JS 按 i18n（chat.q1..q4）生成 -->
+        <!-- 快捷提问木牌由 JS 按 i18n（chat.q1..q4）生成；点击后走真实模型 -->
         <div class="px-chat-quick" id="pxChatQuick"></div>
         <form class="px-chat-form" id="pxChatForm" autocomplete="off">
-          <input class="px-chat-input" id="pxChatInput" type="text" maxlength="60"
+          <input class="px-chat-input" id="pxChatInput" type="text" maxlength="300"
                  aria-label="输入你想问的问题" placeholder="输入你想问的问题…">
           <button class="px-chat-send" id="pxChatSend" type="submit">发送</button>
         </form>
+        <p class="px-chat-note" id="pxChatNote"></p>
       </div>
     </div>
   </div>
@@ -754,6 +755,10 @@
   <!-- v2.15：反馈入库配置（Supabase 地址 + anon key）。
        必须排在 script.js 前面 —— script.js 读的是 window.FEEDBACK_CONFIG。 -->
   <script src="js/feedback-config.js"></script>
+  <!-- v4.0：AI 数字分身。config 只放公开的 Edge Function 地址 + publishable key；
+       DeepSeek API Key 保存在 Supabase Secrets，不进入前端。 -->
+  <script src="js/ai-config.js"></script>
+  <script src="js/ai-client.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>
